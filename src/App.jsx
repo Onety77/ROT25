@@ -1284,7 +1284,7 @@ const App = () => {
                     setInArena(true);
                 }}
               >
-                <span className="relative z-10">Enter The Arena</span>
+                <span className="relative z-10">Hyper Object</span>
                 {/* Optional: darker green swipe on hover */}
                 <div className="absolute inset-0 bg-white opacity-0 group-hover:opacity-20 transition-opacity duration-200" />
               </button>
