@@ -638,6 +638,7 @@ const DidYouKnowBox = () => {
 
 // ARENA MODE: THE HIVEMIND (3D Neural Network)
 
+
 const ArenaOverlay = ({ onExit }) => {
     const canvasRef = useRef(null);
     const requestRef = useRef();
@@ -647,28 +648,30 @@ const ArenaOverlay = ({ onExit }) => {
     const [bounces, setBounces] = useState(0);
     const [highScore, setHighScore] = useState(0);
 
-    // Mutable Physics State (Restored to the "Good" Physics)
+    // MUTABLE PHYSICS STATE
     const state = useRef({
         pos: { x: 0, y: 0 },
-        vel: { x: 0, y: 0 },
+        vel: { x: 0, y: 0 },         // Linear Velocity
         rot: { x: 0, y: 0, z: 0 },
-        rotVel: { x: 0.01, y: 0.02 },
+        rotVel: { x: 0.01, y: 0.02 }, // Angular Velocity
+        
         mouse: { x: 0, y: 0 },
         prevMouse: { x: 0, y: 0 },
         isDragging: false,
+        
         currentCombo: 0,
-        gridOffset: { x: 0, y: 0 }, // Parallax tracking
+        gridOffset: { x: 0, y: 0 },
         frame: 0
     });
 
     const audioRef = useRef(null);
 
-    // --- 3D MATH ENGINE ---
+    // --- 3D MATH HELPER ---
     const project = (x, y, z, width, height, offsetX, offsetY) => {
-        const scale = 500 / (500 + z); 
+        const scale = 600 / (600 + z); 
         const x2d = (x * scale) + (width / 2) + offsetX;
         const y2d = (y * scale) + (height / 2) + offsetY;
-        return { x: x2d, y: y2d, scale }; 
+        return { x: x2d, y: y2d, scale };
     };
 
     const rotateX = (x, y, z, angle) => {
@@ -683,7 +686,7 @@ const ArenaOverlay = ({ onExit }) => {
         return { x: x * cos - z * sin, y, z: x * sin + z * cos };
     };
 
-    // --- AUDIO SYSTEM ---
+    // --- AUDIO ---
     const initAudio = () => {
         if (!audioRef.current) {
             const AudioContext = window.AudioContext || window.webkitAudioContext;
@@ -725,7 +728,7 @@ const ArenaOverlay = ({ onExit }) => {
         impactGain.gain.setValueAtTime(vol, t);
         impactGain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
         
-        osc.type = intensity > 10 ? 'sawtooth' : 'sine'; 
+        osc.type = intensity > 10 ? 'sawtooth' : 'sine';
         osc.start(t);
         osc.stop(t + 0.15);
     };
@@ -746,7 +749,7 @@ const ArenaOverlay = ({ onExit }) => {
         const storedScore = localStorage.getItem('w_ricochet_highscore');
         if (storedScore) setHighScore(parseInt(storedScore));
 
-        // DEFINE "W" GEOMETRY
+        // GEOMETRY (The W)
         const baseW = 120;
         const h = 120;
         const d = 40; 
@@ -765,33 +768,21 @@ const ArenaOverlay = ({ onExit }) => {
             [0,10], [1,11], [2,12], [3,13], [4,14], [5,15], [6,16], [7,17], [8,18], [9,19]
         ];
 
-        // --- BACKGROUND: THE HOLO-GRID ---
+        // --- BACKGROUND GRID ---
         const drawGrid = (width, height, offsetX, offsetY) => {
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.08)'; 
             ctx.lineWidth = 1;
-            
             const gridSize = 100;
-            // Wrap the grid offset so it loops infinitely
             const scrollX = offsetX % gridSize;
             const scrollY = offsetY % gridSize;
 
-            // Vertical lines
             for (let x = scrollX - gridSize; x < width; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, height);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
             }
-
-            // Horizontal lines
             for (let y = scrollY - gridSize; y < height; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(width, y);
-                ctx.stroke();
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
             }
 
-            // Radial Vignette
             const gradient = ctx.createRadialGradient(width/2, height/2, 100, width/2, height/2, width);
             gradient.addColorStop(0, 'rgba(0,0,0,0)');
             gradient.addColorStop(1, 'rgba(0,0,0,0.8)');
@@ -799,18 +790,18 @@ const ArenaOverlay = ({ onExit }) => {
             ctx.fillRect(0,0,width,height);
         };
 
-        // --- INPUTS (The "Unchained" Physics) ---
+        // --- INPUT LOGIC ---
         const handleStart = (x, y) => {
             if(!audioRef.current) initAudio();
             const cx = (canvas.width / 2) + state.current.pos.x;
             const cy = (canvas.height / 2) + state.current.pos.y;
             const dist = Math.sqrt((x-cx)**2 + (y-cy)**2);
             
-            // Hitbox
-            if (dist < 180) {
+            // Large hitbox for easy grabbing
+            if (dist < 200) {
                 state.current.isDragging = true;
                 state.current.prevMouse = { x, y };
-                // Reset velocity while holding so it doesn't drift
+                // Zero out velocity when grabbed (stops dead)
                 state.current.vel = { x: 0, y: 0 };
                 state.current.rotVel = { x: 0, y: 0 };
                 
@@ -826,21 +817,22 @@ const ArenaOverlay = ({ onExit }) => {
                 const dx = x - state.current.prevMouse.x;
                 const dy = y - state.current.prevMouse.y;
                 
-                // Direct movement (Tight control)
+                // 1. Move Position directly (1:1 control)
                 state.current.pos.x += dx;
                 state.current.pos.y += dy;
                 
-                // Background Parallax
+                // 2. Parallax
                 state.current.gridOffset.x -= dx * 0.2;
                 state.current.gridOffset.y -= dy * 0.2;
                 
-                // Tumble Object
+                // 3. Tumble Object (Spin it with your hand)
                 state.current.rot.y += dx * 0.01;
                 state.current.rot.x -= dy * 0.01;
                 
-                // CRITICAL: Calculate velocity continuously for the throw
-                state.current.vel = { x: dx, y: dy };
-                state.current.rotVel = { x: dy * 0.005, y: -dx * 0.005 };
+                // 4. THROW PHYSICS (The fix)
+                // We multiply dx/dy to give it a "power boost" on release
+                state.current.vel = { x: dx * 1.5, y: dy * 1.5 };
+                state.current.rotVel = { x: dy * 0.01, y: -dx * 0.01 };
 
                 state.current.prevMouse = { x, y };
             }
@@ -853,7 +845,7 @@ const ArenaOverlay = ({ onExit }) => {
             }
         };
 
-        // Listeners
+        // Input Listeners
         window.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY));
         window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
         window.addEventListener('mouseup', handleEnd);
@@ -866,41 +858,42 @@ const ArenaOverlay = ({ onExit }) => {
             const { width, height } = canvas;
             state.current.frame++;
             
-            // 1. BACKGROUND
             ctx.fillStyle = '#050505'; 
             ctx.fillRect(0, 0, width, height);
             drawGrid(width, height, state.current.gridOffset.x, state.current.gridOffset.y);
 
-            // 2. PHYSICS UPDATE
+            // PHYSICS
             if (!state.current.isDragging) {
-                // Apply Momentum
+                // Apply Velocity
                 state.current.pos.x += state.current.vel.x;
                 state.current.pos.y += state.current.vel.y;
                 
-                // Apply Friction (Make it drift)
-                state.current.vel.x *= 0.98;
-                state.current.vel.y *= 0.98;
-                
-                // Apply Rotation
+                // FRICTION (The tweak you wanted)
+                // 0.995 = Nearly no friction (Space feel)
+                state.current.vel.x *= 0.995;
+                state.current.vel.y *= 0.995;
+                state.current.rotVel.x *= 0.995;
+                state.current.rotVel.y *= 0.995;
+
+                // Idle Spin
+                state.current.rot.y += 0.005; 
                 state.current.rot.x += state.current.rotVel.x;
                 state.current.rot.y += state.current.rotVel.y;
-                // Idle Rotation (Slow spin)
-                state.current.rot.y += 0.01; 
 
-                // WALL BOUNCING (The Hook)
+                // BOUNCES
                 const boundsX = width / 2 - 120;
                 const boundsY = height / 2 - 120;
                 let didBounce = false;
                 const speed = Math.sqrt(state.current.vel.x**2 + state.current.vel.y**2);
 
                 if (state.current.pos.x > boundsX || state.current.pos.x < -boundsX) {
-                    state.current.vel.x *= -0.8; // Bouncy
+                    state.current.vel.x *= -0.9; // High Elasticity (Bouncy)
                     state.current.pos.x = state.current.pos.x > 0 ? boundsX : -boundsX;
-                    state.current.rotVel.y += (Math.random()-0.5) * 0.1; // Add chaotic spin
+                    state.current.rotVel.y += (Math.random()-0.5) * 0.1; 
                     didBounce = true;
                 }
                 if (state.current.pos.y > boundsY || state.current.pos.y < -boundsY) {
-                    state.current.vel.y *= -0.8;
+                    state.current.vel.y *= -0.9;
                     state.current.pos.y = state.current.pos.y > 0 ? boundsY : -boundsY;
                     state.current.rotVel.x += (Math.random()-0.5) * 0.1;
                     didBounce = true;
@@ -910,17 +903,12 @@ const ArenaOverlay = ({ onExit }) => {
                     state.current.currentCombo += 1;
                     setBounces(state.current.currentCombo);
                     playBounce(speed);
-                    
-                    // High Score Logic
-                    if (state.current.currentCombo > state.current.sessionHigh) {
-                        // handled via state sync below
-                    }
                 }
             } else {
-                setBounces(0); // Reset score on grab
+                setBounces(0);
             }
             
-            // Sync High Score
+            // Highscore
             if (state.current.currentCombo > highScore) {
                 setHighScore(state.current.currentCombo);
                 localStorage.setItem('w_ricochet_highscore', state.current.currentCombo);
@@ -930,7 +918,7 @@ const ArenaOverlay = ({ onExit }) => {
             const speed = Math.sqrt(state.current.vel.x**2 + state.current.vel.y**2);
             updateAudio(speed);
 
-            // 3. DRAW OBJECT
+            // DRAW OBJECT
             const drawObject = (offsetX, offsetY, color) => {
                 const projectedPoints = vertices.map(v => {
                     let r = rotateX(v.x, v.y, v.z, state.current.rot.x);
@@ -960,14 +948,13 @@ const ArenaOverlay = ({ onExit }) => {
                 }
             };
 
-            // CHROMATIC ABERRATION (RGB Split on high speed)
+            // RGB GLITCH
             const glitchOffset = Math.min(20, speed * 0.5); 
-            
             if (glitchOffset > 1) {
                 ctx.globalCompositeOperation = 'screen'; 
                 ctx.globalAlpha = 0.8;
-                drawObject(-glitchOffset, 0, '#ff0000'); // Red
-                drawObject(glitchOffset, 0, '#0000ff');  // Blue
+                drawObject(-glitchOffset, 0, '#ff0000'); 
+                drawObject(glitchOffset, 0, '#0000ff');  
                 ctx.globalAlpha = 1.0;
                 ctx.globalCompositeOperation = 'source-over';
             }
@@ -1004,7 +991,7 @@ const ArenaOverlay = ({ onExit }) => {
         <div className="fixed inset-0 z-[10000] bg-black cursor-grab active:cursor-grabbing overflow-hidden font-mono select-none touch-none">
             <canvas ref={canvasRef} className="absolute inset-0 block w-full h-full" />
             
-            {/* TOP UI */}
+            {/* HUD */}
             <div className="absolute top-0 left-0 w-full p-6 flex justify-between pointer-events-none mix-blend-exclusion text-white z-20">
                 <div className="flex flex-col gap-1">
                     <h1 className="text-[10px] font-bold tracking-[0.5em] uppercase opacity-50">Ricochet_System</h1>
@@ -1020,7 +1007,7 @@ const ArenaOverlay = ({ onExit }) => {
                 </div>
             </div>
 
-            {/* COMBO COUNTER */}
+            {/* COMBO */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                  <div className={`text-center transition-all duration-100 ${bounces > 0 ? 'opacity-100 scale-100' : 'opacity-0 scale-50'}`}>
                     <div className="text-[10vw] font-black text-[#ccff00] leading-none drop-shadow-[0_0_30px_rgba(204,255,0,0.5)]">
@@ -1030,7 +1017,7 @@ const ArenaOverlay = ({ onExit }) => {
                  </div>
             </div>
 
-            {/* INSTRUCTIONS */}
+            {/* HINT */}
             <div className="absolute bottom-8 w-full text-center text-white/30 text-[10px] animate-pulse pointer-events-none tracking-widest">
                 GRAB // SPIN // THROW
             </div>
