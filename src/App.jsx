@@ -296,7 +296,7 @@ const HUD = ({ scrolled }) => {
                 {/* ACQUIRE BUTTON */}
                 <button 
                     className="group relative px-6 py-2 bg-transparent overflow-hidden cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); window.open('https://app.uniswap.org/', '_blank'); }}
+                    onClick={(e) => { e.stopPropagation(); window.open('https://pump.fun/', '_blank'); }}
                 >
                     <div className="absolute inset-0 border border-neutral-700 group-hover:border-[var(--accent)] transition-colors skew-x-[-12deg] bg-black"/>
                     <div className="relative flex items-center gap-2 font-mono text-xs font-bold text-neutral-300 group-hover:text-[var(--accent)] uppercase tracking-wider">
@@ -573,7 +573,7 @@ const Footer = () => {
 
                 <div className="flex flex-col gap-8 text-right">
                     <div className="flex flex-col gap-2 font-mono text-sm font-bold text-neutral-400">
-                        <a href="#" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">X</a>
+                        <a href="https://x.com/w_index_?t=itN_U92jVBpeSFukQE7epg&s=09" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">X</a>
                         <a href="#" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">COMMUNITY</a>
                         <a href="#" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">CHART</a>
                     </div>
