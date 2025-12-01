@@ -384,7 +384,7 @@ const Hero = ({ onEnter }) => {
                     
                     <button className="relative px-12 py-4 bg-transparent border-y border-neutral-800 group-hover:border-[var(--accent)] transition-all overflow-hidden cursor-pointer">
                         <span className="relative z-10 font-mono text-sm font-bold uppercase tracking-[0.3em] text-white group-hover:text-[var(--accent)] transition-colors flex items-center gap-3">
-                            Initialize Protocol <ScanLine size={16} className="hidden group-hover:block animate-pulse"/>
+                            Hyper Object <ScanLine size={16} className="hidden group-hover:block animate-pulse"/>
                         </span>
                         <div className="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-200"/>
                         <div className="scanline absolute left-0 top-0 w-full h-[1px] bg-[var(--accent)] opacity-0 group-hover:opacity-100 z-20 pointer-events-none"/>
