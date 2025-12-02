@@ -4,7 +4,7 @@ import { Twitter, ArrowUpRight, Zap, Heart, Repeat, Ban, ScanLine, Power, Copy, 
 /* --- 1. CONFIGURATION --- */
 const TOKEN_CA = "Coming Soon..."; 
 
-/* --- 2. MASTER STYLES (GOD MODE) --- */
+/* --- 2. MASTER STYLES (GOD MODE) ---- */
 const GlobalStyles = () => (
   <style>{`
     @import url('https://fonts.googleapis.com/css2?family=Anton&family=Jacquard+12&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
