@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Twitter, ArrowUpRight, Trophy, Zap, MessageCircle, Heart, Repeat, Ban, TrendingUp, AlertTriangle, X as XIcon, Terminal, Power, Copy, Check, ScanLine, Activity, Globe, Shield, Radar, DollarSign, BarChart3 } from 'lucide-react';
+import { Twitter, ArrowUpRight, Zap, Heart, Repeat, Ban, ScanLine, Power, Copy, Check, Activity, RefreshCw, Replace } from 'lucide-react';
 
 /* --- 1. CONFIGURATION --- */
-// PASTE YOUR TOKEN CONTRACT ADDRESS HERE TO SEE LIVE DATA
 const TOKEN_CA = "Coming Soon..."; 
 
 /* --- 2. MASTER STYLES (GOD MODE) --- */
@@ -159,42 +158,174 @@ const FACTS = [
     "There is no second best. There is only W.",
     "The blockchain never forgets a win.",
     "Diamond hands are forged in the fires of volatility.",
-    "If you're reading this, you're already early."
+    "If you're reading this, you're already early.",
+    "An 'M' is simply a 'W' that gave up on its dreams.",
+    "Losing is a deprecated feature; please update your mindset.",
+    "A 'W' is structurally just two 'V's high-fiving.",
+    "Newton's Fourth Law: Objects in a state of Winning tend to stay Winning.",
+    "You cannot spell 'Power' without a 'W'.",
+    "Entropy increases, but so do our gains.",
+    "The universe expands solely to make room for more wins.",
+    "Winning is a full-time job, stay employed.",
+    "The market respects confidence. Be disrespectfully confident.",
+    "Every chart is a story, but only winners get sequels.",
+    "A dip is just the market winking at you.",
+    "If you hesitate, someone else takes your W.",
+    "The future favors the delusionally optimistic.",
+    "Winning is a habit. Start getting addicted."
 ];
 
 /* --- 5. TACTICAL COMPONENTS --- */
 
-// LIVE PRICE TICKER (NOW WITH REAL DATA)
+// NEW: L -> W TRANSMUTER MODAL
+const TransmuterModal = ({ isOpen, onClose }) => {
+    const [text, setText] = useState("");
+    const [result, setResult] = useState("");
+    const [copied, setCopied] = useState(false);
+
+    useEffect(() => {
+        if (!isOpen) {
+            setText("");
+            setResult("");
+            setCopied(false);
+        }
+    }, [isOpen]);
+
+    const handleTransmute = (e) => {
+        const input = e.target.value;
+        setText(input);
+
+        // 1. Replace L/l with W/w
+        // 2. Replace all W/w (original or swapped) with Unicode Bold
+        let transformed = input
+            .replace(/l/g, 'w')
+            .replace(/L/g, 'W');
+        
+        // Unicode Bold Maps
+        // W -> 𝐖 (U+1D416)
+        // w -> 𝐰 (U+1D430)
+        transformed = transformed
+            .replace(/W/g, '\u{1D416}')
+            .replace(/w/g, '\u{1D430}');
+
+        setResult(transformed);
+    };
+
+    const copyResult = async () => {
+        if (!result) return;
+        try {
+            await navigator.clipboard.writeText(result);
+            AudioKernel.triggerClick();
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            // Fallback
+            const textArea = document.createElement("textarea");
+            textArea.value = result;
+            document.body.appendChild(textArea);
+            textArea.select();
+            document.execCommand("copy");
+            document.body.removeChild(textArea);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        }
+    };
+
+    if (!isOpen) return null;
+
+    return (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
+            
+            <div className="relative w-full max-w-2xl bg-[#0a0a0a] border border-neutral-800 p-8 shadow-[0_0_50px_rgba(204,255,0,0.1)]">
+                {/* Header */}
+                <div className="flex justify-between items-start mb-8">
+                    <div>
+                        <h2 className="font-anton text-4xl text-[var(--accent)] mb-2">L -&gt; W TRANSMUTER</h2>
+                        <p className="font-mono text-xs text-neutral-500 uppercase tracking-widest">Eliminate Ls from your vocabulary.</p>
+                    </div>
+                    <button onClick={onClose} className="text-neutral-500 hover:text-white transition-colors">
+                        <ScanLine size={24} />
+                    </button>
+                </div>
+
+                {/* Input Area */}
+                <div className="mb-6">
+                    <label className="block font-mono text-xs font-bold text-neutral-400 mb-2 uppercase">Input (Contains Ls)</label>
+                    <textarea 
+                        className="w-full h-32 bg-[#050505] border border-neutral-800 p-4 text-neutral-300 font-mono text-sm focus:border-[var(--accent)] focus:outline-none transition-colors resize-none placeholder-neutral-700"
+                        placeholder="Paste your text here. Don't be shy about the Ls."
+                        value={text}
+                        onChange={handleTransmute}
+                    />
+                </div>
+
+                {/* Output Area */}
+                <div className="mb-8 relative group">
+                    <label className="block font-mono text-xs font-bold text-[var(--accent)] mb-2 uppercase">Output (Pure Ws)</label>
+                    <textarea 
+                        readOnly
+                        className="w-full h-32 bg-[#050505] border border-neutral-800 p-4 text-white font-mono text-sm focus:outline-none resize-none"
+                        value={result}
+                        placeholder="Waiting for signal..."
+                    />
+                    {result && (
+                        <div className="absolute bottom-4 right-4">
+                            <button 
+                                onClick={copyResult}
+                                className="bg-[var(--accent)] text-black px-4 py-2 font-mono text-xs font-bold uppercase hover:bg-white transition-colors flex items-center gap-2"
+                            >
+                                {copied ? "COPIED!" : "COPY Ws"} <Copy size={12} />
+                            </button>
+                        </div>
+                    )}
+                </div>
+
+                 <div className="text-center font-mono text-[10px] text-neutral-600">
+                    *BOLD Ws are optimized for X / Twitter.
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// LIVE PRICE TICKER (30s Refresh + Manual Trigger)
 const LiveStatsTicker = () => {
     const [stats, setStats] = useState({ price: null, mcap: null, change: null });
     const [loading, setLoading] = useState(true);
+    const [manualSpin, setManualSpin] = useState(false);
+
+    const fetchData = useCallback(async () => {
+        setManualSpin(true);
+        // Reset spin after animation
+        setTimeout(() => setManualSpin(false), 1000); 
+
+        try {
+            // Using DexScreener API
+            const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TOKEN_CA}`);
+            const data = await res.json();
+            
+            if (data.pairs && data.pairs.length > 0) {
+                const pair = data.pairs[0];
+                setStats({
+                    price: pair.priceUsd,
+                    mcap: pair.fdv, // Fully Diluted Valuation usually acts as MC
+                    change: pair.priceChange.h24
+                });
+            }
+            setLoading(false);
+        } catch (e) {
+            console.error("Failed to fetch market data", e);
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        const fetchData = async () => {
-            try {
-                // Using DexScreener API
-                const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TOKEN_CA}`);
-                const data = await res.json();
-                
-                if (data.pairs && data.pairs.length > 0) {
-                    const pair = data.pairs[0];
-                    setStats({
-                        price: pair.priceUsd,
-                        mcap: pair.fdv, // Fully Diluted Valuation usually acts as MC
-                        change: pair.priceChange.h24
-                    });
-                }
-                setLoading(false);
-            } catch (e) {
-                console.error("Failed to fetch market data", e);
-                setLoading(false);
-            }
-        };
-
         fetchData();
-        const interval = setInterval(fetchData, 30000); // Update every 30s
+        const interval = setInterval(fetchData, 30000); // 30s Safe Interval
         return () => clearInterval(interval);
-    }, []);
+    }, [fetchData]);
 
     // Format Helpers
     const formatPrice = (p) => p ? `$${parseFloat(p).toFixed(8)}` : "---";
@@ -205,9 +336,15 @@ const LiveStatsTicker = () => {
     return (
         <div className="w-full bg-black border-y border-neutral-900 py-3 overflow-hidden flex justify-center relative z-20">
             <div className="flex gap-8 md:gap-16 font-mono text-xs text-neutral-500 uppercase tracking-widest animate-pulse whitespace-nowrap">
-                <span className="flex items-center gap-2">
+                {/* MANUAL REFRESH TRIGGER */}
+                <span 
+                    className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors group"
+                    onClick={(e) => { e.stopPropagation(); fetchData(); }}
+                    title="Click to Force Update"
+                >
                     <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-500' : 'bg-[var(--accent)]'}`}/> 
                     Status: {loading ? "SCANNING..." : "LIVE UPLINK"}
+                    <RefreshCw size={10} className={`ml-1 ${manualSpin ? 'animate-spin' : 'opacity-0 group-hover:opacity-100'}`}/>
                 </span>
                 
                 <span className="flex items-center gap-2">
@@ -267,7 +404,7 @@ const ContractBadge = () => {
     );
 };
 
-const HUD = ({ scrolled }) => {
+const HUD = ({ scrolled, onOpenTransmuter }) => {
     return (
         <div className={`fixed top-0 left-0 w-full p-6 z-[100] transition-all duration-500 ${scrolled ? 'py-4 bg-black/80 backdrop-blur-md border-b border-white/5' : 'py-6'}`}>
             <div className="flex justify-between items-center max-w-[1920px] mx-auto">
@@ -293,17 +430,29 @@ const HUD = ({ scrolled }) => {
                     </div>
                 </div>
 
-                {/* ACQUIRE BUTTON */}
-                <button 
-                    className="group relative px-6 py-2 bg-transparent overflow-hidden cursor-pointer"
-                    onClick={(e) => { e.stopPropagation(); window.open('https://pump.fun/', '_blank'); }}
-                >
-                    <div className="absolute inset-0 border border-neutral-700 group-hover:border-[var(--accent)] transition-colors skew-x-[-12deg] bg-black"/>
-                    <div className="relative flex items-center gap-2 font-mono text-xs font-bold text-neutral-300 group-hover:text-[var(--accent)] uppercase tracking-wider">
-                        <span>Acquire</span>
-                        <ArrowUpRight size={14} />
-                    </div>
-                </button>
+                <div className="flex items-center gap-4">
+                    {/* NEW TRANSMUTER BUTTON */}
+                    <button 
+                        className="group flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 hover:border-[var(--accent)] transition-all"
+                        onClick={onOpenTransmuter}
+                        title="Transmute Ls to Ws"
+                    >
+                        <Replace size={14} className="text-neutral-400 group-hover:text-[var(--accent)]" />
+                        <span className="hidden md:inline font-mono text-xs font-bold text-neutral-400 group-hover:text-white">TRANSMUTER</span>
+                    </button>
+
+                    {/* ACQUIRE BUTTON */}
+                    <button 
+                        className="group relative px-6 py-2 bg-transparent overflow-hidden cursor-pointer"
+                        onClick={(e) => { e.stopPropagation(); window.open('https://pump.fun/', '_blank'); }}
+                    >
+                        <div className="absolute inset-0 border border-neutral-700 group-hover:border-[var(--accent)] transition-colors skew-x-[-12deg] bg-black"/>
+                        <div className="relative flex items-center gap-2 font-mono text-xs font-bold text-neutral-300 group-hover:text-[var(--accent)] uppercase tracking-wider">
+                            <span>Acquire</span>
+                            <ArrowUpRight size={14} />
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
     );
@@ -373,7 +522,7 @@ const Hero = ({ onEnter }) => {
 
                 <p className="mt-8 max-w-xl font-mono text-sm md:text-base text-neutral-400 px-6 leading-relaxed">
                     THE ONLY METRIC IS VICTORY. <br/>
-                    <span className="text-[var(--accent)]">WE ARE THE SYSTEM, YOU ARE EITHER WINNING OR YOU ARE NOISE.</span>
+                    <span className="text-[var(--accent)]">HISTORY IS WRITTEN BY THE WINNERS. WRITE YOUR OWN.</span>
                 </p>
 
                 <ContractBadge />
@@ -384,7 +533,7 @@ const Hero = ({ onEnter }) => {
                     
                     <button className="relative px-12 py-4 bg-transparent border-y border-neutral-800 group-hover:border-[var(--accent)] transition-all overflow-hidden cursor-pointer">
                         <span className="relative z-10 font-mono text-sm font-bold uppercase tracking-[0.3em] text-white group-hover:text-[var(--accent)] transition-colors flex items-center gap-3">
-                            Hyper Object <ScanLine size={16} className="hidden group-hover:block animate-pulse"/>
+                            Initialize Protocol <ScanLine size={16} className="hidden group-hover:block animate-pulse"/>
                         </span>
                         <div className="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-200"/>
                         <div className="scanline absolute left-0 top-0 w-full h-[1px] bg-[var(--accent)] opacity-0 group-hover:opacity-100 z-20 pointer-events-none"/>
@@ -573,9 +722,9 @@ const Footer = () => {
 
                 <div className="flex flex-col gap-8 text-right">
                     <div className="flex flex-col gap-2 font-mono text-sm font-bold text-neutral-400">
-                        <a href="https://x.com/w_index_?t=itN_U92jVBpeSFukQE7epg&s=09" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">X</a>
-                        <a href="#" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">COMMUNITY</a>
-                        <a href="#" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">CHART</a>
+                        <a href="https://x.com/w_index_?s=20" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">X</a>
+                        <a href="https://twitter.com/i/communities/1995929604801114191" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">COMMUNITY</a>
+                        <a href="https://dexscreener.com/" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">CHART</a>
                     </div>
                     
                     <div className="font-mono text-[10px] text-neutral-600 max-w-xs">
@@ -590,6 +739,7 @@ const Footer = () => {
 };
 
 /* --- 7. ARENA ENGINE --- */
+
 const Arena = ({ onExit }) => {
     const canvasRef = useRef(null);
     const requestRef = useRef();
@@ -1083,12 +1233,12 @@ const Arena = ({ onExit }) => {
     );
 };
 
-
 /* --- 8. CORE APP --- */
 const App = () => {
     const [scrolled, setScrolled] = useState(false);
     const [clicks, setClicks] = useState([]);
-    const [inArena, setInArena] = useState(false); 
+    const [inArena, setInArena] = useState(false);
+    const [transmuterOpen, setTransmuterOpen] = useState(false);
 
     // Scroll Logic
     useEffect(() => {
@@ -1130,7 +1280,7 @@ const App = () => {
                 <div key={c.id} className="click-w text-4xl font-anton text-[var(--accent)]" style={{ left: c.x, top: c.y, '--rot': c.rot }}>W</div>
             ))}
 
-            <HUD scrolled={scrolled} />
+            <HUD scrolled={scrolled} onOpenTransmuter={() => setTransmuterOpen(true)} />
             
             <main>
                 <Hero onEnter={() => setInArena(true)} />
@@ -1139,6 +1289,9 @@ const App = () => {
             </main>
 
             <Footer />
+
+            {/* L -> W TRANSMUTER OVERLAY */}
+            <TransmuterModal isOpen={transmuterOpen} onClose={() => setTransmuterOpen(false)} />
         </div>
     );
 };
