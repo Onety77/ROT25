@@ -3,8 +3,13 @@ import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'fra
 import { 
   Zap, Skull, Volume2, VolumeX, X, 
   Target, Share2, Activity, Ghost, Compass, Cpu, Send, Loader2, MessageSquare, TrendingUp,
-  Terminal, Database, Radio, Eye, Lock, Globe, Command, ChevronDown
+  Terminal, Database, Radio, Eye, Lock, Globe, Command, ChevronDown, Copy, Check
 } from 'lucide-react';
+
+// Contract Address Constant
+const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with real CA
+const PUMP_FUN_LINK = "https://pump.fun/board"; // Replace with real link
+const TWITTER_LINK = "https://x.com/rot25"; // Replace with real link
 
 // --- DATA FROM MASTER LIST 2.0 (FULL 64 ITEMS SYNCED) ---
 const YEAR_DATA = [
@@ -30,7 +35,7 @@ const YEAR_DATA = [
     direction: 1,
     items: [
       { id: "feb1", title: "Bybit Mega-Hack", cat: "News", sub: "$1.5B Lazarus Heist", file: "/images/bybit_hack.jpg", x: "12%", rotate: -3, persona: "Lazarus Hacker: Cold, professional, and calculating. Speaks in 'exploits,' 'vaults,' and the silence of a $1.5B heist." },
-      { id: "feb2", title: "Brett", cat: "Coin", sub: "$BRETT Heavyweight", file: "/images/brett.jpg", x: "-8%", rotate: 5, persona: "Brett: The Base network heavyweight. A confident, blue-Pepe gamer dude. 'Everything is easy on Base.'" },
+      { id: "feb2", title: "Brett", cat: "Coin", sub: "$BRETT Heavyweight", file: "/images/brett.jpg", x: "-12%", rotate: 5, persona: "Brett: The Base network heavyweight. A confident, blue-Pepe gamer dude. 'Everything is easy on Base.'" },
       { id: "feb3", title: "Coldplayed", cat: "Meme", sub: "Kiss Cam Disaster", file: "/images/coldplay_kiss.mp4", x: "18%", rotate: -7, persona: "Kiss Cam Fail: The physical embodiment of social anxiety. Stutters, uses awkward pauses, and wants to vanish from the screen." },
       { id: "feb4", title: "Bootcut Celine", cat: "Meme", sub: "Kendrick Super fit", file: "/images/kendrick_celine.jpg", x: "-15%", rotate: 2, persona: "Bootcut Kendrick: Lyrical, cryptic, and fashion-forward. Speaks in short, punchy bars about the Super Bowl and the 'silhouette.'" },
       { id: "feb5", title: "Iryna Tribute", cat: "Drama", sub: "Resilience", file: "/images/iryna_tribute.mp4", x: "5%", rotate: 4, persona: "Iryna Spirit: A watercolor vision of resilience. Speaks with grace, strength, and a mix of sadness and ultimate victory." },
@@ -178,7 +183,7 @@ const API_KEY = (() => {
 const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025";
 
 const fetchAI = async (prompt, systemInstruction) => {
-  if (!API_KEY) return "NEURAL_LINK_ERROR: NO_KEY_DETECTED";
+  if (!API_KEY) return "SIGNAL_LOST_NO_KEY";
   let delay = 1000;
   for (let i = 0; i < 5; i++) {
     try {
@@ -279,7 +284,7 @@ const ExpandedModal = ({ item, onClose }) => {
     const init = async () => {
       const res = await fetchAI(
         `Describe yourself and your role in the 2025 timeline. Be brief, visceral, and stay in character. Avoid markdown.`,
-        `You are ${item.persona}. You are a digital ghost trapped in a 2025 archive.`
+        `You are ${item.persona}. You are a digital ghost trapped in a 2025 brainrot archive.`
       );
       setStory(res);
     };
@@ -327,7 +332,7 @@ const ExpandedModal = ({ item, onClose }) => {
               <div className="flex justify-between items-start pointer-events-auto">
                  <div className="flex gap-2">
                     <span className="px-3 py-1 bg-emerald-500 text-black text-[10px] font-black uppercase rounded-full italic tracking-widest">{item.cat}</span>
-                    <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-mono rounded-full border border-white/10">FRAGMENT_{item.id.toUpperCase()}</span>
+                    <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-mono rounded-full border border-white/10">MEMORY_{item.id.toUpperCase()}</span>
                  </div>
                  <button onClick={onClose} className="p-4 bg-white text-black rounded-full hover:bg-emerald-500 transition-all shadow-xl block md:hidden">
                     <X size={20} strokeWidth={3}/>
@@ -337,7 +342,7 @@ const ExpandedModal = ({ item, onClose }) => {
                  <h2 className="text-5xl md:text-8xl font-black italic text-white uppercase tracking-tighter leading-none mb-4">{item.title}</h2>
                  <div className="flex items-center gap-4 text-emerald-400 font-mono text-xs tracking-widest uppercase">
                     <Activity size={16} className="animate-pulse" />
-                    <span>SYNCHRONIZING_PERSPECTIVE...</span>
+                    <span>REMEMBERING THIS MESS...</span>
                  </div>
               </div>
            </div>
@@ -354,9 +359,9 @@ const ExpandedModal = ({ item, onClose }) => {
             <div className="p-8 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl relative">
                <div className="flex items-center gap-2 mb-4 text-emerald-500/40">
                   <Database size={12} />
-                  <span className="text-[10px] font-mono tracking-widest uppercase">SYPHON_LOG_01</span>
+                  <span className="text-[10px] font-mono tracking-widest uppercase">THE RECEIPTS</span>
                </div>
-               {story ? <TypewriterText text={story} /> : <div className="h-20 flex items-center gap-2 text-emerald-500/20"><Loader2 className="animate-spin" /> <span className="text-xs font-mono uppercase">Deciphering...</span></div>}
+               {story ? <TypewriterText text={story} /> : <div className="h-20 flex items-center gap-2 text-emerald-500/20"><Loader2 className="animate-spin" /> <span className="text-xs font-mono uppercase">Digging it up...</span></div>}
             </div>
 
             <div className="space-y-6">
@@ -365,7 +370,7 @@ const ExpandedModal = ({ item, onClose }) => {
                   <div className={`max-w-[85%] p-5 rounded-2xl font-mono text-[11px] uppercase leading-relaxed ${msg.role === 'user' ? 'bg-white text-black font-bold border border-white shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'bg-white/5 text-emerald-400 border border-white/10 backdrop-blur-sm'}`}>
                     <div className="flex items-center gap-2 mb-2 opacity-50">
                       {msg.role === 'user' ? <Eye size={10} /> : <Radio size={10} />}
-                      <span className="text-[8px] tracking-widest">{msg.role === 'user' ? 'GUEST_INPUT' : 'NEURAL_FEED'}</span>
+                      <span className="text-[8px] tracking-widest">{msg.role === 'user' ? 'YOUR TAKE' : 'THE VIBE'}</span>
                     </div>
                     {msg.text}
                   </div>
@@ -381,7 +386,7 @@ const ExpandedModal = ({ item, onClose }) => {
                 value={input} 
                 onChange={e => setInput(e.target.value)} 
                 onKeyDown={e => e.key === 'Enter' && handleSend()} 
-                placeholder="PROMPT THE ARCHIVE..." 
+                placeholder="ASK ABOUT THIS MESS..." 
                 className="w-full bg-[#121212] border border-white/10 rounded-2xl px-8 py-5 text-[11px] font-mono focus:border-emerald-500 outline-none uppercase text-emerald-400 tracking-widest"
               />
               <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-20"><Command size={14} /></div>
@@ -486,7 +491,19 @@ const App = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAudioMuted, setIsAudioMuted] = useState(true);
   const [showIntro, setShowIntro] = useState(true);
+  const [caCopied, setCaCopied] = useState(false);
   const audioRef = useRef(null);
+
+  const copyCa = () => {
+    const el = document.createElement('textarea');
+    el.value = CONTRACT_ADDRESS;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+    setCaCopied(true);
+    setTimeout(() => setCaCopied(false), 2000);
+  };
 
   useEffect(() => {
     if (audioRef.current) {
@@ -508,30 +525,41 @@ const App = () => {
             className="fixed inset-0 z-[3000] bg-[#020202] flex flex-col items-center justify-center p-6 text-center overflow-hidden"
           >
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#10b98122_0%,_transparent_70%)]" />
-             <div className="relative z-10 space-y-16 max-w-2xl">
-                {/* LOGO SYNCED */}
+             <div className="relative z-10 space-y-8 md:space-y-12 max-w-2xl flex flex-col items-center justify-center h-full">
+                {/* ADJUSTED LOGO SCALE */}
                 <motion.div 
                   animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} 
                   transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                  className="flex-shrink"
                 >
-                  <img src="logo.png" className="w-20 h-20 md:w-45 md:h-45 object-contain mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" alt="ROT25 Logo" />
+                  <img src="logo.png" className="w-32 h-32 md:w-56 md:h-56 lg:w-64 lg:h-64 object-contain mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" alt="ROT25 Logo" />
                 </motion.div>
-                <div className="space-y-6">
-                   <motion.h1 initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-8xl md:text-[14rem] font-black italic tracking-tighter text-white leading-none uppercase">
+                
+                <div className="space-y-4 md:space-y-6">
+                   <motion.h1 initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-6xl md:text-8xl lg:text-[10rem] font-black italic tracking-tighter text-white leading-none uppercase">
                     ROT25
                    </motion.h1>
                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="flex flex-col items-center gap-4">
-                    <span className="text-[10px] md:text-xs uppercase tracking-[1.5em] text-emerald-500 font-black italic ml-4">Neural_Siphon_v.2.0</span>
-                    <div className="h-px w-24 bg-white/10" />
+                    <div 
+                      onClick={copyCa}
+                      className="group cursor-pointer flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 md:px-6 py-2 hover:bg-emerald-500 hover:text-black transition-all"
+                    >
+                      <span className="text-[10px] md:text-xs font-mono tracking-widest uppercase flex items-center gap-2">
+                        {caCopied ? "CA COPIED!" : `CA: ${CONTRACT_ADDRESS.slice(0, 6)}...${CONTRACT_ADDRESS.slice(-4)}`}
+                      </span>
+                      {caCopied ? <Check size={12} /> : <Copy size={12} className="opacity-50 group-hover:opacity-100" />}
+                    </div>
+                    <span className="text-[10px] md:text-xs uppercase tracking-[0.5em] text-emerald-500 font-black italic px-4">officially cooked and ready for 2026</span>
                    </motion.div>
                 </div>
+
                 <motion.button 
                   whileHover={{ scale: 1.05, backgroundColor: "#10b981", color: "#000" }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => { setShowIntro(false); setIsAudioMuted(false); }} 
-                  className="group relative px-16 py-8 bg-white text-black font-black uppercase text-sm tracking-[0.8em] transition-all overflow-hidden"
+                  className="group relative px-12 md:px-16 py-6 md:py-8 bg-white text-black font-black uppercase text-sm tracking-[0.8em] transition-all overflow-hidden flex-shrink-0"
                 >
-                  <span className="relative z-10">INITIATE_SYNC</span>
+                  <span className="relative z-10">OPEN THE ARCHIVE</span>
                   <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                 </motion.button>
              </div>
@@ -541,11 +569,10 @@ const App = () => {
 
       <header className="fixed top-0 left-0 w-full h-32 flex items-center justify-between px-6 md:px-12 z-[500] mix-blend-difference">
         <div className="flex items-center gap-6">
-          {/* LOGO SYNCED IN HEADER */}
           <img src="logo.png" className="w-14 h-14 object-contain -rotate-[12deg] drop-shadow-2xl" alt="Logo" />
           <div className="flex flex-col">
             <span className="font-black italic text-3xl tracking-tighter text-white">$ROT25</span>
-            <span className="text-[8px] font-mono uppercase tracking-widest opacity-50">Global_Siphon</span>
+            <span className="text-[8px] font-mono uppercase tracking-widest opacity-50">2025_BRAINROT_ARCHIVE</span>
           </div>
         </div>
         <div className="flex items-center gap-4">
@@ -572,16 +599,34 @@ const App = () => {
         <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-[#020202] z-50 relative overflow-hidden">
            <div className="relative z-10">
               <img src="logo.png" className="w-40 h-40 mb-12 mx-auto opacity-40 animate-pulse object-contain" alt="Footer Logo" />
-              <h2 className="text-[15vw] font-black italic tracking-tighter text-white leading-[0.8] uppercase mb-12">SYPHON<br/>COMPLETE</h2>
+              <h2 className="text-[15vw] font-black italic tracking-tighter text-white leading-[0.8] uppercase mb-12">YOU ARE<br/>OFFICIALLY COOKED</h2>
               <p className="text-xl md:text-2xl font-mono text-emerald-400 italic uppercase tracking-widest mb-20 max-w-2xl mx-auto opacity-70">
-                The 2025 archive is finalized. The neural link is stable. Prepare for the next synchronization cycle.
+                The 2025 archive is finalized. See you in 2026.
               </p>
               <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl px-4">
-                <button className="group flex-1 py-12 bg-white text-black font-black uppercase text-2xl tracking-[0.4em] transition-all hover:bg-emerald-500 relative overflow-hidden">
+                <a 
+                  href={PUMP_FUN_LINK} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="group flex-1 py-12 bg-white text-black font-black uppercase text-2xl tracking-[0.4em] transition-all hover:bg-emerald-500 relative overflow-hidden flex items-center justify-center"
+                >
                   <span className="relative z-10">BUY_$ROT25</span>
                   <div className="absolute inset-0 bg-emerald-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
-                </button>
-                <button className="flex-1 py-12 border-2 border-white/10 text-white font-black uppercase text-2xl tracking-[0.4em] hover:bg-white hover:text-black transition-all">JOIN_THE_VOID</button>
+                </a>
+                <a 
+                  href={TWITTER_LINK} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="flex-1 py-12 border-2 border-white/10 text-white font-black uppercase text-2xl tracking-[0.4em] hover:bg-white hover:text-black transition-all flex items-center justify-center"
+                >
+                  JOIN COMMUNITY
+                </a>
+              </div>
+              <div 
+                onClick={copyCa}
+                className="mt-12 cursor-pointer text-zinc-500 hover:text-emerald-400 font-mono text-[10px] uppercase tracking-[0.5em] transition-all"
+              >
+                {caCopied ? "CA COPIED!" : `CONTRACT: ${CONTRACT_ADDRESS}`}
               </div>
            </div>
         </section>
