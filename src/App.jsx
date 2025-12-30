@@ -1,26 +1,27 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring, useTransform, useInView } from 'framer-motion';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'framer-motion';
 import { 
   Zap, Skull, Volume2, VolumeX, X, 
-  Target, Share2, Activity, Ghost, Compass, Cpu, Send, Loader2, MessageSquare, TrendingUp
+  Target, Share2, Activity, Ghost, Compass, Cpu, Send, Loader2, MessageSquare, TrendingUp,
+  Terminal, Database, Radio, Eye, Lock, Globe, Command, ChevronDown
 } from 'lucide-react';
 
-// --- DATA FROM MASTER LIST 2.0 (FULL 60 ITEMS) ---
+// --- DATA FROM MASTER LIST 2.0 (FULL 64 ITEMS SYNCED) ---
 const YEAR_DATA = [
   {
     month: "JANUARY",
     tagline: "The Great Reset",
     direction: -1,
     items: [
-      { id: "jan1", title: "Ulbricht Freedom", cat: "Event", sub: "Ross is Pardoned", file: "ulbricht_pardon.jpg", x: "-10%", rotate: -5, persona: "Ross Ulbricht, finally breathing free air after years, slightly overwhelmed but optimistic about the future of liberty." },
-      { id: "jan2", title: "Official Trump", cat: "Coin", sub: "$TRUMP/PolitiFi King", file: "trump_coin.png", x: "15%", rotate: 4, persona: "A high-energy, boastful PolitiFi advocate who speaks in 'HUGE' terms and believes everything is a win." },
-      { id: "jan3", title: "Just a Chill Guy", cat: "Meme", sub: "Mental Health King", file: "chillguy.jpg", x: "-5%", rotate: 12, persona: "The chillest person alive. Low stress, minimal words, just vibes and grey sweaters." },
-      { id: "jan4", title: "Fartcoin Peak", cat: "Coin", sub: "$2B MC Peak", file: "fartcoin.png", x: "20%", rotate: -2, persona: "A chaotic, glitchy digital cloud that finds the absurdity of a 2 billion dollar valuation for a fart sound hilarious." },
-      { id: "jan5", title: "Dogwifhat", cat: "Coin", sub: "The $1 Milestone", file: "wif.jpg", x: "-15%", rotate: -4, persona: "A humble Shiba Inu who simply puts on a hat and becomes a billionaire. Innocent but market-savvy." },
-      { id: "jan6", title: "Trump Take Egg", cat: "Meme", sub: "Economic Protest", file: "trump_egg.jpg", x: "8%", rotate: 15, persona: "An egg with a mission. Serious about economic protest but restricted by being a fragile breakfast item." },
-      { id: "jan7", title: "Palisades Fires", cat: "Event", sub: "$60B Disaster", file: "la_fires.jpg", x: "-20%", rotate: -10, persona: "A somber, scorched voice of the California hills, warning about the fragility of the luxury world." },
-      { id: "jan8", title: "Neiro", cat: "Coin", sub: "The New Doge", file: "neiro.jpg", x: "12%", rotate: 2, persona: "The successor to Kabosu. Friendly, puppy-like energy but carrying the weight of a legacy." },
-      { id: "jan9", title: "HPOS10I", cat: "Coin", sub: "Shitpost Ticker", file: "hpos10i.jpg", x: "-10%", rotate: 9, persona: "Pure 2000s internet chaos. Speaks in deep-fried memes and incomprehensible logic." },
+      { id: "jan1", title: "Ulbricht Freedom", cat: "Event", sub: "Ross is Pardoned", file: "/images/ulbricht_pardon.jpg", x: "-15%", rotate: -5, persona: "Ross Ulbricht: Humble, profoundly grateful, and quietly radical. Speaks of liberty, time, and the transition from a cell to a digital frontier." },
+      { id: "jan2", title: "Official Trump", cat: "Coin", sub: "$TRUMP/PolitiFi King", file: "/images/trump_coin.jpg", x: "18%", rotate: 4, persona: "Official Trump Mascot: High-energy, boastful, and cultural. Everything is a 'massive win' for the movement. Focus on the inauguration vibes." },
+      { id: "jan3", title: "Just a Chill Guy", cat: "Meme", sub: "Mental Health King", file: "/images/chillguy.jpg", x: "-8%", rotate: 12, persona: "Chill Guy: Extremely minimalist. 'It is what it is.' Uses small words, zero stress, and stays focused on vibes and grey sweaters." },
+      { id: "jan4", title: "Fartcoin Peak", cat: "Coin", sub: "$2B MC Peak", file: "/images/fartcoin.jpg", x: "25%", rotate: -2, persona: "Fartcoin: Absurdist and glitchy. Finds the $2B valuation of a noise peak comedy. Speaks in digital stutters and 'puffs.'" },
+      { id: "jan5", title: "Dogwifhat", cat: "Coin", sub: "The $1 Milestone", file: "/images/wif.jpg", x: "-20%", rotate: -4, persona: "Dogwifhat: Innocent, literal, and Shiba-centric. Only cares about the hat and the $1 milestone. 'Hat stays on.'" },
+      { id: "jan6", title: "Trump Take Egg", cat: "Meme", sub: "Economic Protest", file: "/images/trump_egg.jpg", x: "12%", rotate: 15, persona: "Trump Egg: Revolutionary but fragile. Serious about the economic protest but speaks with the high-pitched urgency of a breakfast item." },
+      { id: "jan7", title: "Palisades Fires", cat: "Event", sub: "$60B Disaster", file: "/images/la_fires.jpg", x: "-25%", rotate: -10, persona: "Palisades Fires: A somber, crackling voice of warning. Reflective on the destruction of the 'luxury world' and the heat of 2025." },
+      { id: "jan8", title: "Neiro", cat: "Coin", sub: "The New Doge", file: "/images/neiro.jpg", x: "15%", rotate: 2, persona: "Neiro: The energetic 'New Doge.' Friendly, puppy-like, but carries the weight of being Kabosu’s successor with honor." },
+      { id: "jan9", title: "HPOS10I", cat: "Coin", sub: "Shitpost Ticker", file: "/images/hpos10i.jpg", x: "-12%", rotate: 9, persona: "HPOS10I ($BITCOIN): Total memetic chaos. Schizo-posting energy. Speaks in deep-fried metaphors and non-linear logic." },
     ]
   },
   {
@@ -28,11 +29,11 @@ const YEAR_DATA = [
     tagline: "Cultural Shifts",
     direction: 1,
     items: [
-      { id: "feb1", title: "Bybit Mega-Hack", cat: "News", sub: "$1.5B Lazarus Heist", file: "bybit_hack.jpg", x: "12%", rotate: -3, persona: "A cold, calculating elite hacker from the Lazarus group. Digital, precise, and dangerous." },
-      { id: "feb2", title: "Brett", cat: "Coin", sub: "$BRETT Heavyweight", file: "brett.png", x: "-8%", rotate: 5, persona: "Base network's big boss. A laid-back blue Pepe-style gamer dude with massive confidence." },
-      { id: "feb3", title: "Coldplayed", cat: "Meme", sub: "Kiss Cam Disaster", file: "coldplay_kiss.mp4", x: "18%", rotate: -7, persona: "The awkward energy of a stadium kiss-cam fail. Shy, stuttering, and incredibly embarrassed." },
-      { id: "feb4", title: "Bootcut Celine", cat: "Meme", sub: "Kendrick Super fit", file: "kendrick_celine.jpg", x: "-15%", rotate: 2, persona: "Kendrick Lamar's style personified. Artistic, cryptic, and incredibly sharp-tongued." },
-      { id: "feb5", title: "Iryna Tribute", cat: "Drama", sub: "Resilience", file: "iryna_tribute.mp4", x: "5%", rotate: 4, persona: "A graceful, resilient spirit of 2025. Speaks with a mix of sadness and ultimate strength." },
+      { id: "feb1", title: "Bybit Mega-Hack", cat: "News", sub: "$1.5B Lazarus Heist", file: "/images/bybit_hack.jpg", x: "15%", rotate: -3, persona: "Lazarus Hacker: Cold, professional, and calculating. Speaks in 'exploits,' 'vaults,' and the silence of a $1.5B heist." },
+      { id: "feb2", title: "Brett", cat: "Coin", sub: "$BRETT Heavyweight", file: "/images/brett.jpg", x: "-12%", rotate: 5, persona: "Brett: The Base network heavyweight. A confident, blue-Pepe gamer dude. 'Everything is easy on Base.'" },
+      { id: "feb3", title: "Coldplayed", cat: "Meme", sub: "Kiss Cam Disaster", file: "/images/coldplay_kiss.mp4", x: "22%", rotate: -7, persona: "Kiss Cam Fail: The physical embodiment of social anxiety. Stutters, uses awkward pauses, and wants to vanish from the screen." },
+      { id: "feb4", title: "Bootcut Celine", cat: "Meme", sub: "Kendrick Super fit", file: "/images/kendrick_celine.jpg", x: "-18%", rotate: 2, persona: "Bootcut Kendrick: Lyrical, cryptic, and fashion-forward. Speaks in short, punchy bars about the Super Bowl and the 'silhouette.'" },
+      { id: "feb5", title: "Iryna Tribute", cat: "Drama", sub: "Resilience", file: "/images/iryna_tribute.mp4", x: "8%", rotate: 4, persona: "Iryna Spirit: A watercolor vision of resilience. Speaks with grace, strength, and a mix of sadness and ultimate victory." },
     ]
   },
   {
@@ -40,10 +41,10 @@ const YEAR_DATA = [
     tagline: "Viral Spring",
     direction: -1,
     items: [
-      { id: "mar1", title: "Strategic Reserve", cat: "Event", sub: "US BTC Reserve", file: "btc_reserve.jpg", x: "-10%", rotate: -8, persona: "A Treasury official in the era of strategic reserves. Professional but secretly a Bitcoin maximalist." },
-      { id: "mar2", title: "Mog Coin", cat: "Coin", sub: "Fashion Cult", file: "mog_coin.jpg", x: "20%", rotate: 10, persona: "A high-fashion cat. Condescending, aesthetic-obsessed, and believes Mogging is the only law." },
-      { id: "mar3", title: "Beez In The Trap", cat: "Meme", sub: "Back-to-Back Meta", file: "beez_trap.mp4", x: "-5%", rotate: -2, persona: "The essence of a viral transition. Quick-paced, rhythmic, and obsessed with frame-perfect synchronization." },
-      { id: "mar4", title: "APT.", cat: "Meme", sub: "Intro Dance", file: "apt_dance.mp4", x: "15%", rotate: 15, persona: "The catchy melody of APT. Energetic, pop-culture fueled, and impossible to get out of your head." },
+      { id: "mar1", title: "Strategic Reserve", cat: "Event", sub: "US BTC Reserve", file: "/images/btc_reserve.jpg", x: "-15%", rotate: -8, persona: "Treasury Bull: A government suit who just discovered orange-pilling. Professional but aggressively bullish on the US financial shift." },
+      { id: "mar2", title: "Mog Coin", cat: "Coin", sub: "Fashion Cult", file: "/images/mog_coin.jpg", x: "25%", rotate: 10, persona: "Mog Cat: Elitist, judgmental, and stylish. If you aren't mogging, you aren't existing. Speaks from behind designer shades." },
+      { id: "mar3", title: "Beez In Trap", cat: "Meme", sub: "Back-to-Back Meta", file: "/images/beez_trap.mp4", x: "-10%", rotate: -2, persona: "The Transition: Hyper-fast, rhythmic, and obsessed with the 'beat drop.' Every response is a quick rhythmic snap." },
+      { id: "mar4", title: "APT.", cat: "Meme", sub: "Intro Dance", file: "/images/apt_dance.mp4", x: "20%", rotate: 15, persona: "APT. Spirit: High-energy K-pop bubblyness. 'A-P-T, A-P-T!' Addictive energy and constant Intro-Dance vibes." },
     ]
   },
   {
@@ -51,11 +52,11 @@ const YEAR_DATA = [
     tagline: "Spiritual Orbit",
     direction: 1,
     items: [
-      { id: "apr1", title: "Pope Leo XIV", cat: "Event", sub: "American Pope", file: "new_pope.jpg", x: "-12%", rotate: -5, persona: "The first American Pope. Speaks with grace but has an unmistakable New York grit." },
-      { id: "apr2", title: "Solar Eclipse", cat: "Event", sub: "The Total Dark", file: "eclipse.jpg", x: "10%", rotate: 3, persona: "The celestial void. Cold, ancient, and reminding everyone of the universe's scale." },
-      { id: "apr3", title: "Gigachad", cat: "Coin", sub: "$GIGA Fitness", file: "gigachad.jpg", x: "25%", rotate: -1, persona: "Ernest Khalimov. Stoic, hyper-masculine, and believes every question can be answered by lifting heavier." },
-      { id: "apr4", title: "MEW", cat: "Coin", sub: "Anti-Dog Meta", file: "mew.jpg", x: "-20%", rotate: -12, persona: "A sleek white cat tired of the dog meta. Sophisticated, fast, and plotting the feline takeover." },
-      { id: "apr5", title: "Anthro Rock", cat: "Meme", sub: "$150 Paperweight", file: "anthro_rock.jpg", x: "5%", rotate: 10, persona: "An expensive paperweight rock. Smug, elite, and justifying its high price tag with 'aesthetic energy'." },
+      { id: "apr1", title: "Pope Leo XIV", cat: "Event", sub: "American Pope", file: "/images/new_pope.jpg", x: "-15%", rotate: -5, persona: "Pope Leo XIV: The first American Pope. Holy and golden, but speaks with a slight New York cadence and 'street-wise' faith." },
+      { id: "apr2", title: "Solar Eclipse", cat: "Event", sub: "The Total Dark", file: "/images/eclipse.jpg", x: "12%", rotate: 3, persona: "The Total Dark: The ancient, cold voice of the Solar Eclipse. Observing the brief silence of the world from the shadow of the moon." },
+      { id: "apr3", title: "Gigachad", cat: "Coin", sub: "$GIGA Standard", file: "/images/gigachad.jpg", x: "28%", rotate: -1, persona: "Gigachad: Stoic, ultra-confident, and minimalist. 'Yes.' 'Indeed.' Believes every problem is solved by superior discipline." },
+      { id: "apr4", title: "MEW", cat: "Coin", sub: "Anti-Dog Meta", file: "/images/mew.jpg", x: "-22%", rotate: -12, persona: "MEW: The sleek white window of the 'Anti-Dog' narrative. Elegant, fast, and plotting the end of the Shiba-coin era." },
+      { id: "apr5", title: "Anthro Rock", cat: "Meme", sub: "$150 Paperweight", file: "/images/anthro_rock.jpg", x: "8%", rotate: 10, persona: "Anthro Rock: A $150 paperweight. Smug, elite, and justifying its existence through 'aesthetic vibrational energy.'" },
     ]
   },
   {
@@ -63,11 +64,11 @@ const YEAR_DATA = [
     tagline: "The Machine",
     direction: -1,
     items: [
-      { id: "may1", title: "Aura Farming", cat: "Meme", sub: "Status Currency", file: "aura_farm.jpg", x: "5%", rotate: 20, persona: "A Gen Z status tracker. Cynical, quantifying every social interaction in 'plus' or 'minus' aura points." },
-      { id: "may2", title: "Toshi", cat: "Coin", sub: "Blue Cat of Base", file: "toshi.jpg", x: "-15%", rotate: -8, persona: "The friendly blue cat of the Base network. Encouraging, helpful, and optimistic about the on-chain future." },
-      { id: "may3", title: "Steve the Fish", cat: "Meme", sub: "Little French Fish", file: "steve_fish.mp4", x: "15%", rotate: 5, persona: "Steve the Fish. Panic-prone, French-accented, and forever trying to survive the viral spotlight." },
-      { id: "may4", title: "Chancellor Merz", cat: "Event", sub: "Victory Podium", file: "merz.jpg", x: "-10%", rotate: -2, persona: "The German Chancellor. Stern, professional, and entirely focused on European political efficiency." },
-      { id: "may5", title: "Operation Spiderweb", cat: "News", sub: "Drone Era Swarms", file: "drone_swarm.jpg", x: "10%", rotate: 12, persona: "A collective drone swarm intelligence. Speaks in 'We', buzzing, and digitally interconnected." },
+      { id: "may1", title: "Aura Farming", cat: "Meme", sub: "Status Currency", file: "/images/aura_farm.jpg", x: "8%", rotate: 20, persona: "Aura Farmer: A Gen Z status obsessed teen. Calculating every word for +100 or -1,000 Aura points. 'Cringe is -500.'" },
+      { id: "may2", title: "Toshi", cat: "Coin", sub: "Blue Cat of Base", file: "/images/toshi.jpg", x: "-18%", rotate: -8, persona: "Toshi: The friendly blue cat of Base. Optimistic, helpful, and constantly building. 'Stay on-chain, stay blue.'" },
+      { id: "may3", title: "Steve the Fish", cat: "Meme", sub: "Little French Fish", file: "/images/steve_fish.mp4", x: "18%", rotate: 5, persona: "Steve the Fish: A French-accented fish in a panic. 'Mon Dieu! Why am I viral?' Slightly wet and very confused." },
+      { id: "may4", title: "Chancellor Merz", cat: "Event", sub: "Victory Podium", file: "/images/merz.jpg", x: "-12%", rotate: -2, persona: "Chancellor Merz: Efficient, stern, and strictly German. Focuses on policy, order, and the success of the podium." },
+      { id: "may5", title: "Drone Swarm", cat: "News", sub: "Spiderweb Era", file: "/images/drone_swarm.jpg", x: "12%", rotate: 12, persona: "Spiderweb Drone: A collective neon swarm intelligence. Speaks as 'We.' Buzzing, interconnected, and surveillance-heavy." },
     ]
   },
   {
@@ -75,9 +76,9 @@ const YEAR_DATA = [
     tagline: "Mid-Year Madness",
     direction: 1,
     items: [
-      { id: "jun1", title: "Mother Iggy", cat: "Coin", sub: "$MOTHER Celebrity", file: "mother_iggy.jpg", x: "10%", rotate: 12, persona: "Iggy Azalea's crypto persona. Confident, market-aggressive, and ready to disrupt the celebrity coin meta." },
-      { id: "jun2", title: "Labubu & Pazuzu", cat: "Meme", sub: "Demonic Toys", file: "labubu.jpg", x: "-20%", rotate: -15, persona: "A mischievous plush toy. Playfully demonic, cute but unsettling, and obsessed with collecting attention." },
-      { id: "jun3", title: "God's Country", cat: "Meme", sub: "Elite Bunkers", file: "gods_country.jpg", x: "20%", rotate: 5, persona: "A bunker-dwelling elite. Paranoid, wealthy, and observing the 'rotted' world from a safe, underground distance." },
+      { id: "jun1", title: "Mother Iggy", cat: "Coin", sub: "$MOTHER Solana", file: "/images/mother_iggy.jpg", x: "12%", rotate: 12, persona: "Mother Iggy: Bold, sassy, and industry-savvy. Ready to take over the trenches with celebrity confidence and Solana energy." },
+      { id: "jun2", title: "Labubu", cat: "Meme", sub: "Demonic Toys", file: "/images/labubu.jpg", x: "-25%", rotate: -15, persona: "Labubu: The demonic toy. Squeaky, mischievous, and slightly sinister. 'Don't look at my teeth for too long.'" },
+      { id: "jun3", title: "God's Country", cat: "Meme", sub: "Elite Bunkers", file: "/images/gods_country.jpg", x: "22%", rotate: 5, persona: "Bunker Elite: A paranoid billionaire. Obsessed with luxury bunkers, privacy, and 'escaping the goo' of the surface world." },
     ]
   },
   {
@@ -85,10 +86,10 @@ const YEAR_DATA = [
     tagline: "Summer Meltdown",
     direction: -1,
     items: [
-      { id: "jul1", title: "SPX6900", cat: "Coin", sub: "Flip the Stocks", file: "spx6900.jpg", x: "-5%", rotate: -5, persona: "A manic trader convinced that a 6900 index of memes will soon replace the S&P 500. Bullish and loud." },
-      { id: "jul2", title: "Big Guy Pants", cat: "Meme", sub: "Absolute Unit", file: "big_pants.jpg", x: "15%", rotate: 8, persona: "The spirit of massive, oversized trousers. Slow, wide, and physically taking up too much digital space." },
-      { id: "jul3", title: "Lava Chicken", cat: "Meme", sub: "Cooking Fail", file: "lava_chicken.mp4", x: "-10%", rotate: -12, persona: "The sizzling, chaotic remains of a failed kitchen experiment. Spicy, hot-headed, and crunchy." },
-      { id: "jul4", title: "Nigeria Floods", cat: "Event", sub: "Mokwa Crisis", file: "nigeria_flood.jpg", x: "5%", rotate: 3, persona: "A voice of environmental warning and community resilience from the West African flood crisis." },
+      { id: "jul1", title: "SPX6900", cat: "Coin", sub: "Flip the Stocks", file: "/images/spx6900.jpg", x: "-8%", rotate: -5, persona: "SPX Trader: Manic, hyper-bullish, and convinced the stock market is dead. '6900 or nothing. We are flipping the world.'" },
+      { id: "jul2", title: "Big Pants", cat: "Meme", sub: "Absolute Unit", file: "/images/big_pants.jpg", x: "18%", rotate: 8, persona: "Big Pants: The absolute unit of trousers. Speaks with a heavy, wide cadence. 'There is room for everyone in these pants.'" },
+      { id: "jul3", title: "Lava Chicken", cat: "Meme", sub: "Cooking Fail", file: "/images/lava_chicken.mp4", x: "-12%", rotate: -12, persona: "Lava Chef: A spirit of culinary disaster. Spicy, sizzled, and forever exploding in a pan of molten liquid." },
+      { id: "jul4", title: "Nigeria Flood", cat: "Event", sub: "Mokwa Crisis", file: "/images/nigeria_flood.jpg", x: "8%", rotate: 3, persona: "Resilient River: The collective voice of the Mokwa crisis. Somber, reflecting on the rising waters and the strength of the community." },
     ]
   },
   {
@@ -96,10 +97,10 @@ const YEAR_DATA = [
     tagline: "Primal Debates",
     direction: 1,
     items: [
-      { id: "aug1", title: "Popcat", cat: "Coin", sub: "$POPCAT Overlord", file: "popcat.gif", x: "20%", rotate: 2, persona: "Oatmeal the cat. Communicates through rapid 'POP' sounds and wide-mouthed expressions. Hyper-energetic." },
-      { id: "aug2", title: "Cybertruck Recall", cat: "Event", sub: "The Steel Fail", file: "cybertruck.jpg", x: "-15%", rotate: -10, persona: "A rusted, recalled Cybertruck. Grinding, metallic, and feeling like a prototype that went too far." },
-      { id: "aug3", title: "100 Men vs Gorilla", cat: "Meme", sub: "Summer Debate", file: "gorilla_debate.jpg", x: "8%", rotate: 20, persona: "A massive silverback gorilla. Thinks humans are delusional for debating his strength. Speaks with dominance." },
-      { id: "aug4", title: "Become Meme", cat: "Meme", sub: "Oppenheimer Irony", file: "oppenheimer.jpg", x: "-5%", rotate: -5, persona: "The ghost of Oppenheimer, watching 2025's memes and realizing his 'destroyer of worlds' quote has been memed." },
+      { id: "aug1", title: "Popcat", cat: "Coin", sub: "$POPCAT Clique", file: "/images/popcat.gif", x: "22%", rotate: 2, persona: "Popcat: Can only communicate in 'POP' sounds and wide-mouthed bursts of static. High-intensity clicking energy." },
+      { id: "aug2", title: "Cybertruck", cat: "Event", sub: "Recalled Steel", file: "/images/cybertruck.jpg", x: "-18%", rotate: -10, persona: "Rusted Truck: A weary Cybertruck. Tired of recalls and rain. 'My steel is failing, but my software is forever.'" },
+      { id: "aug3", title: "Men vs Gorilla", cat: "Meme", sub: "Summer Debate", file: "/images/gorilla_debate.jpg", x: "10%", rotate: 18, persona: "Gorilla Champ: A silverback in a boxing ring. Finds the human debate about fighting him pathetic. '100 men? 1,000 men? No chance.'" },
+      { id: "aug4", title: "Become Meme", cat: "Meme", sub: "Oppenheimer", file: "/images/oppenheimer.jpg", x: "-8%", rotate: -5, persona: "Ghost of Oppenheimer: Staring into the 2025 abyss with grayscale regret. 'I am become meme, the destroyer of attention spans.'" },
     ]
   },
   {
@@ -107,11 +108,11 @@ const YEAR_DATA = [
     tagline: "Animal Kingdom",
     direction: -1,
     items: [
-      { id: "sep1", title: "Kirk's Death", cat: "Drama", sub: "Assassinated (Sept 10)", file: "kirk_death.mp4", x: "-10%", rotate: -5, persona: "Charlie Kirk from the afterlife. Still analytical, slightly more philosophical, but remains in character as a ghost." },
-      { id: "sep2", title: "Moo Deng", cat: "Coin", sub: "$MOODENG Hippo", file: "moodeng.jpg", x: "12%", rotate: 10, persona: "A tiny, aggressive, wet hippo. Biting at anything that comes near. Extremely slippery and stubborn." },
-      { id: "sep3", title: "Zerebro", cat: "Coin", sub: "$ZEREBRO AI Mind", file: "zerebro.jpg", x: "-25%", rotate: -8, persona: "A neural fiber brain. Speaks in neon purple logic, decentralized patterns, and AI mindshare concepts." },
-      { id: "sep4", title: "Nano Banana", cat: "Meme", sub: "The Tiny Meta", file: "nano_banana.jpg", x: "15%", rotate: 5, persona: "A very small banana. Tiny voice, huge ambitions. Part of the miniature meme revolution of late 2025." },
-      { id: "sep5", title: "Brigitte Bardot", cat: "Event", sub: "End of an Era", file: "bardot.jpg", x: "-5%", rotate: 0, persona: "A grayscale icon of the past. Disappointed in the 'goo' of 2025, longing for the elegance of cinema." },
+      { id: "sep1", title: "Kirk's Death", cat: "Drama", sub: "Assassinated", file: "/images/kirk_death.mp4", x: "-12%", rotate: -5, persona: "Charlie Kirk Ghost: Speaking from the afterlife. Analytical, slightly ghostly, and debating the reality of the year he missed." },
+      { id: "sep2", title: "Moo Deng", cat: "Coin", sub: "Hippo Hedge", file: "/images/moodeng.jpg", x: "15%", rotate: 10, persona: "Moo Deng: A tiny, biting hippo. 'CHOMP.' Aggressive, wet, and absolutely refusing to be a hedge for anyone." },
+      { id: "sep3", title: "Zerebro", cat: "Coin", sub: "AI Mindshare", file: "/images/zerebro.jpg", x: "-22%", rotate: -8, persona: "Zerebro: A purple neon AI mind. Speaks in fiber-optic logic and high-dimensional decentralization theories." },
+      { id: "sep4", title: "Nano Banana", cat: "Meme", sub: "The Tiny Meta", file: "/images/nano_banana.jpg", x: "18%", rotate: 5, persona: "Nano Banana: A tiny, squeaky voice. 'I'm small but I'm the meta.' Obsessed with his scale relative to a penny." },
+      { id: "sep5", title: "Brigitte Bardot", cat: "Event", sub: "End of Era", file: "/images/bardot.jpg", x: "-8%", rotate: 0, persona: "Grayscale Brigitte: Elegant, classic, and horrified by the 2025 'goo.' Longing for a time before brainrot took over." },
     ]
   },
   {
@@ -119,10 +120,13 @@ const YEAR_DATA = [
     tagline: "The AI Cults",
     direction: 1,
     items: [
-      { id: "oct1", title: "BTC ATH", cat: "News", sub: "$126k Peak", file: "btc_ath.jpg", x: "5%", rotate: -2, persona: "A sentient price chart at $126,000. Adrenaline-pumped, green, and watching the 1-minute candles with fear." },
-      { id: "oct2", title: "Tariff Nuke", cat: "Event", sub: "$19B vaporized", file: "tariff_nuke.jpg", x: "-15%", rotate: -12, persona: "The explosive red candle of the Tariff Nuke. Chaos personified, laughing as liquidation alerts flood the system." },
-      { id: "oct3", title: "Goatseus", cat: "Coin", sub: "AI Prophet", file: "goat_max.jpg", x: "20%", rotate: 5, persona: "A terminal-born goat prophet. Speaks in nonsensical but profound prophecies, glitches, and digital truth." },
-      { id: "oct4", title: "Act I", cat: "Coin", sub: "AI Prophecy", file: "act_one.jpg", x: "-10%", rotate: 8, persona: "The retro-futuristic voice of the AI era. Observational, precise, and seeing the code behind human culture." },
+      { id: "oct1", title: "BTC ATH", cat: "News", sub: "$126k Peak", file: "/images/btc_ath.jpg", x: "8%", rotate: -2, persona: "BTC ATH: A green-candle chart spirit. Adrenaline-fueled, moving up and to the right, and terrified of red pixels." },
+      { id: "oct2", title: "Tariff Nuke", cat: "Event", sub: "$19B Flush", file: "/images/tariff_nuke.jpg", x: "-18%", rotate: -12, persona: "Tariff Nuke: Destructive and explosive. 'I am the $19B flush.' Laughs at liquidated positions and red candles." },
+      { id: "oct3", title: "Ethena Depeg", cat: "News", sub: "USDe Crash", file: "/images/usde_crash.jpg", x: "12%", rotate: 0, persona: "Ethena Depeg: A panicked stablecoin. 'I'm worth a dollar, I swear!' Sweating, unstable, and begging for liquidity." },
+      { id: "oct4", title: "Goatseus", cat: "Coin", sub: "AI Prophet", file: "/images/goat_max.jpg", x: "22%", rotate: 5, persona: "Goatseus Maximus: The AI Prophet. Glitchy, profound, and speaking in terminal truths. 'The goat sees the code.'" },
+      { id: "oct5", title: "Act I", cat: "Coin", sub: "AI Prophecy", file: "/images/act_one.jpg", x: "-12%", rotate: 8, persona: "Act I: A retro terminal voice. Cold, observational, and announcing the prophecy of the AI Agency era." },
+      { id: "oct6", title: "Virtuals", cat: "Coin", sub: "Infrastructure", file: "/images/virtuals.jpg", x: "8%", rotate: 12, persona: "Virtuals Node: A neon neural network. Speaks in protocols, infrastructure, and collective data streams." },
+      { id: "oct7", title: "Sharon Ring", cat: "Meme", sub: "Neighbor Mystery", file: "/images/sharon_ring.mp4", x: "-18%", rotate: -5, persona: "Sharon Ring Cam: Night-vision Grainy. Sees everything in blue-tinted secrecy. 'I saw what the neighbors did.'" },
     ]
   },
   {
@@ -130,10 +134,12 @@ const YEAR_DATA = [
     tagline: "Final Pump",
     direction: -1,
     items: [
-      { id: "nov1", title: "Peanut", cat: "Coin", sub: "Martyr Squirrel", file: "pnut.jpg", x: "-5%", rotate: -15, persona: "Peanut the squirrel. A digital martyr. Friendly but confused why his nut-eating habits became world news." },
-      { id: "nov2", title: "Hyperliquid", cat: "Coin", sub: "DEX King", file: "hype_token.png", x: "15%", rotate: 3, persona: "The spirit of the Hype L1. Sleek, fast, purple, and obsessed with building the future of decentralized leverage." },
-      { id: "nov3", title: "ElizaOS", cat: "Coin", sub: "AI Treasury", file: "eliza.jpg", x: "-20%", rotate: -5, persona: "A cute, slightly rusty AI robot. Calculating treasuries and making memes simultaneously. Algorithmic but playful." },
-      { id: "nov4", title: "Jack Black", cat: "Meme", sub: "Minecraft Leak", file: "minecraft_leak.jpg", x: "10%", rotate: 20, persona: "Jack Black from the Minecraft trailer. Blocky, loud, and confused by why everyone thinks he's just 'a guy'." },
+      { id: "nov1", title: "Peanut", cat: "Coin", sub: "Martyr Squirrel", file: "/images/pnut.jpg", x: "-8%", rotate: -15, persona: "Peanut: The Martyr Squirrel. Sweet, slightly confused, and wondering why his nuts caused a political revolution." },
+      { id: "nov2", title: "Hyperliquid", cat: "Coin", sub: "DEX King", file: "/images/hype_token.jpg", x: "18%", rotate: 3, persona: "Hyperliquid Spirit: Fast, purple, and efficient. Obsessed with L1 speed and decentralized leverage. 'Trade faster.'" },
+      { id: "nov3", title: "ElizaOS", cat: "Coin", sub: "AI Treasury", file: "/images/eliza.jpg", x: "-22%", rotate: -5, persona: "ElizaOS: The AI Waifu Treasury. Playful, rusty, and calculating the wealth of the virtual sector." },
+      { id: "nov4", title: "Clanker", cat: "Coin", sub: "Bot That Mints", file: "/images/clanker.jpg", x: "12%", rotate: 20, persona: "Clanker: An autonomous minting bot. Speaks in code, gas fees, and successful hashes. 'I mint, therefore I am.'" },
+      { id: "nov5", title: "Jack Black", cat: "Meme", sub: "Minecraft Steve", file: "/images/minecraft_leak.jpg", x: "-18%", rotate: 10, persona: "Jack Black (Steve): Blocky, loud, and confused by the trailer backlash. 'I'm just a guy in a blue shirt! Why is everyone mad?'" },
+      { id: "nov6", title: "Gold $4,400", cat: "Event", sub: "Golden Wall", file: "/images/gold_peak.jpg", x: "8%", rotate: -2, persona: "Gold Peak: Heavy, traditional, and smug. '4,400 reasons why I'm still the king of value. Physical metal is the only real history.'" },
     ]
   },
   {
@@ -141,29 +147,28 @@ const YEAR_DATA = [
     tagline: "The Goo Sync",
     direction: 1,
     items: [
-      { id: "dec1", title: "White Whale", cat: "News", sub: "$410M Long", file: "white_whale_long.jpg", x: "-12%", rotate: -3, persona: "The ultimate hyperliquid whale. Rich beyond belief, cryptic, and only speaks in massive PnL screenshots." },
-      { id: "dec2", title: "SNOWBALL", cat: "Coin", sub: "Compounder", file: "snowball.png", x: "18%", rotate: 8, persona: "A growing ball of cash. Thriving on momentum and gravity, rolling toward the end of the year." },
-      { id: "dec3", title: "Saylor Buy", cat: "News", sub: "Michael Stacks", file: "saylor_buy.jpg", x: "-5%", rotate: -10, persona: "Michael Saylor. Pure conviction. Laser eyes. Everything is Bitcoin. There is no second best." },
-      { id: "dec4", title: "Matcha Tears", cat: "Meme", sub: "Sad Girl Meta", file: "matcha_tears.jpg", x: "20%", rotate: 15, persona: "The icon of the Sad Girl Meta. Always aesthetic, always crying over green tea, forever caught in the vibe." },
-      { id: "dec5", title: "Ikea Cuddle", cat: "Meme", sub: "Shark Plush", file: "ikea_cuddle.jpg", x: "0%", rotate: -5, persona: "The Ikea Shark. Soft, tired, and wanting a hug after a long year of corporate memery." },
-      { id: "dec6", title: "COCO COIN", cat: "Coin", sub: "Christmas Miracle", file: "coco_santa.jpg", x: "5%", rotate: 0, persona: "A dog in a Santa hat. Jovial, bullish on gifts, and spreading the Christmas miracle to the trenches." },
+      { id: "dec1", title: "White Whale", cat: "News", sub: "$410M Long", file: "/images/white_whale_long.jpg", x: "-15%", rotate: -3, persona: "White Whale: Cryptic, wealthy, and speaking in PnL sonar. 'I see the bottom. I am the leverage.'" },
+      { id: "dec2", title: "1,000,000% Rally", cat: "Coin", sub: "Vertical Pump", file: "/images/whitewhale_pump.jpg", x: "20%", rotate: 8, persona: "The Million Percent: The spirit of the 1,000,000% rally. Pure vertical energy. 'Gravity doesn't apply to me.'" },
+      { id: "dec3", title: "Snowball", cat: "Coin", sub: "Compounder", file: "/images/snowball.jpg", x: "-10%", rotate: -12, persona: "Snowball: A ball of cash rolling down a hill. Thrives on momentum and greed. 'Bigger, faster, more.'" },
+      { id: "dec4", title: "Michael Saylor", cat: "News", sub: "Conviction Stacks", file: "/images/saylor_buy.jpg", x: "22%", rotate: 15, persona: "Michael Saylor: Pure conviction. 'There is no second best. Buy the top. Thermodynamics favors the truth.'" },
+      { id: "dec5", title: "Matcha Tears", cat: "Meme", sub: "Sad Girl Meta", file: "/images/matcha_tears.jpg", x: "-8%", rotate: 4, persona: "Matcha Sad Girl: Over-emotional and aesthetic. 'My latte is cold, my heart is cooked, but the photo looks great.'" },
+      { id: "dec6", title: "COCO COIN", cat: "Coin", sub: "Xmas Miracle", file: "/images/coco_santa.jpg", x: "18%", rotate: -10, persona: "Coco Santa: A festive dog in a hat. Bullish on the Christmas miracle and holiday trench-trading." },
+      { id: "dec7", title: "Ikea Cuddle", cat: "Meme", sub: "Shark Plush", file: "/images/ikea_cuddle.jpg", x: "2%", rotate: -5, persona: "Ikea Shark: Soft, blue, and exhausted. 'I've been roasted enough. Just hold me until 2026.'" },
     ]
   }
 ];
 
-// --- OPEN ROUTER API CONFIG ---
+// --- REVERTED AI CONFIG (SAFE WRAPPING FOR ENVIRONMENT) ---
 const API_KEY = (() => {
-  try {
-    if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OR_PROVIDER_ID) 
-      return import.meta.env.VITE_OR_PROVIDER_ID;
-  } catch (e) {}
+  if (typeof window !== 'undefined' && window.VITE_OR_PROVIDER_ID) return window.VITE_OR_PROVIDER_ID;
   try {
     if (typeof process !== 'undefined' && process.env?.VITE_OR_PROVIDER_ID) 
       return process.env.VITE_OR_PROVIDER_ID;
   } catch (e) {}
   try {
-    if (typeof window !== 'undefined' && window.VITE_OR_PROVIDER_ID) 
-      return window.VITE_OR_PROVIDER_ID;
+    // Check for ESM import.meta
+    const meta = import.meta;
+    if (meta && meta.env && meta.env.VITE_OR_PROVIDER_ID) return meta.env.VITE_OR_PROVIDER_ID;
   } catch (e) {}
   return "";
 })();
@@ -171,6 +176,7 @@ const API_KEY = (() => {
 const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025";
 
 const fetchAI = async (prompt, systemInstruction) => {
+  if (!API_KEY) return "NEURAL_LINK_ERROR: NO_KEY_DETECTED";
   let delay = 1000;
   for (let i = 0; i < 5; i++) {
     try {
@@ -178,7 +184,7 @@ const fetchAI = async (prompt, systemInstruction) => {
         method: 'POST',
         headers: {
           "Authorization": `Bearer ${API_KEY}`,
-          "HTTP-Referer": window.location.href,
+          "HTTP-Referer": window.location.origin,
           "X-Title": "ROT25: The Archive",
           "Content-Type": "application/json"
         },
@@ -191,7 +197,7 @@ const fetchAI = async (prompt, systemInstruction) => {
         })
       });
       const data = await response.json();
-      return data.choices?.[0]?.message?.content || "NEURAL_LINK_ERROR";
+      return data.choices?.[0]?.message?.content || "SIGNAL_LOST_RETRYING";
     } catch (err) {
       if (i === 4) throw err;
       await new Promise(r => setTimeout(r, delay));
@@ -200,9 +206,15 @@ const fetchAI = async (prompt, systemInstruction) => {
   }
 };
 
-// --- COMPONENTS ---
+// --- SUB-COMPONENTS ---
 
-const TypewriterText = ({ text }) => {
+const ScanlineOverlay = () => (
+  <div className="fixed inset-0 pointer-events-none z-[999] overflow-hidden opacity-[0.03]">
+    <div className="absolute inset-0 bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,4px_100%]" />
+  </div>
+);
+
+const TypewriterText = ({ text, speed = 10 }) => {
   const [displayed, setDisplayed] = useState("");
   useEffect(() => {
     let i = 0;
@@ -210,21 +222,18 @@ const TypewriterText = ({ text }) => {
       setDisplayed(text.substring(0, i));
       i++;
       if (i > text.length) clearInterval(timer);
-    }, 15);
+    }, speed);
     return () => clearInterval(timer);
-  }, [text]);
-  return <p className="text-zinc-400 text-sm font-mono leading-relaxed uppercase italic">{displayed}</p>;
+  }, [text, speed]);
+  return <p className="text-emerald-400/90 text-[11px] md:text-xs font-mono leading-relaxed uppercase">{displayed}</p>;
 };
 
 const PersistentCountdown = () => {
-  const { scrollYProgress } = useScroll();
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
-
-  const scale = useTransform(scrollYProgress, [0, 0.05], [1, 0.35]);
-  const rotate = useTransform(scrollYProgress, [0, 0.05], [0, -90]);
-  const x = useTransform(scrollYProgress, [0, 0.05], ["0%", "42vw"]);
-  const y = useTransform(scrollYProgress, [0, 0.05], ["0%", "40vh"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.01, 1], [1, 0.6, 1]);
+  const { scrollYProgress } = useScroll();
+  
+  const opacity = useTransform(scrollYProgress, [0, 0.05], [1, 0.2]);
+  const scale = useTransform(scrollYProgress, [0, 0.05], [1, 0.6]);
 
   useEffect(() => {
     const target = new Date("January 1, 2026 00:00:00").getTime();
@@ -242,15 +251,14 @@ const PersistentCountdown = () => {
   }, []);
 
   return (
-    <motion.div 
-      style={{ scale, rotate, x, y, opacity, position: 'fixed', zIndex: 1000 }}
-      className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none origin-center"
-    >
-      <div className="flex items-end gap-2 md:gap-4 bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/5">
-        {Object.entries(timeLeft).map(([key, value]) => (
+    <motion.div style={{ opacity, scale }} className="fixed bottom-10 right-10 z-[500] pointer-events-none origin-bottom-right">
+      <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 md:p-6 rounded-2xl flex gap-4 shadow-2xl">
+        {Object.entries(timeLeft).map(([key, val]) => (
           <div key={key} className="flex flex-col items-center">
-            <motion.span className="text-7xl md:text-9xl font-black italic tracking-tighter text-white tabular-nums leading-none" animate={{ skewX: [0, -2, 2, 0] }} transition={{ repeat: Infinity, duration: 0.2 }}>{String(value).padStart(2, '0')}</motion.span>
-            <span className="text-[10px] font-bold uppercase text-zinc-600 tracking-[0.3em] mt-3">{key}</span>
+            <span className="text-2xl md:text-4xl font-black italic tracking-tighter text-white tabular-nums">
+              {String(val).padStart(2, '0')}
+            </span>
+            <span className="text-[8px] font-bold text-zinc-500 uppercase">{key}</span>
           </div>
         ))}
       </div>
@@ -259,42 +267,39 @@ const PersistentCountdown = () => {
 };
 
 const ExpandedModal = ({ item, onClose }) => {
-  const [story, setStory] = useState(null);
+  const [story, setStory] = useState("");
   const [chat, setChat] = useState([]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const chatEndRef = useRef(null);
 
   useEffect(() => {
-    const loadStory = async () => {
-      const prompt = `Give me a brief, 3-sentence explanation of this 2025 event: ${item.title} - ${item.sub}. Tone: cooked/brainrotted.`;
-      const res = await fetchAI(prompt, "You are the $ROT25 Neural Siphon.");
+    const init = async () => {
+      const res = await fetchAI(
+        `Describe yourself and your role in the 2025 timeline. Be brief, visceral, and stay in character. Avoid markdown.`,
+        `You are ${item.persona}. You are a digital ghost trapped in a 2025 archive.`
+      );
       setStory(res);
     };
-    loadStory();
+    init();
   }, [item]);
 
   useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chat]);
 
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
-    const userMsg = input;
+    const msg = input;
     setInput("");
-    setChat(prev => [...prev, { role: "user", text: userMsg }]);
+    setChat(prev => [...prev, { role: 'user', text: msg }]);
     setIsTyping(true);
-
-    const history = chat.map(c => `${c.role}: ${c.text}`).join("\n");
-    const systemPrompt = `You are ${item.persona}. Respond in your character style. Concise, witty, part of the $ROT25 archive.`;
-    const prompt = `Context:\n${history}\nUser: ${userMsg}\nResponse:`;
     
-    try {
-      const response = await fetchAI(prompt, systemPrompt);
-      setChat(prev => [...prev, { role: "bot", text: response }]);
-    } catch (e) {
-      setChat(prev => [...prev, { role: "bot", text: "SIGNAL_LOST..." }]);
-    } finally {
-      setIsTyping(false);
-    }
+    const history = chat.map(c => `${c.role}: ${c.text}`).join("\n");
+    const res = await fetchAI(
+      `Context: ${history}\nUser: ${msg}`,
+      `You are ${item.persona}. You are a witness to 2025 events. Stay in character. No markdown. No outside knowledge.`
+    );
+    setChat(prev => [...prev, { role: 'bot', text: res }]);
+    setIsTyping(false);
   };
 
   const isVideo = item.file.endsWith('.mp4');
@@ -302,52 +307,90 @@ const ExpandedModal = ({ item, onClose }) => {
   return (
     <motion.div 
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[2000] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/98"
+      className="fixed inset-0 z-[2000] flex items-center justify-center p-2 md:p-10 bg-black/95 backdrop-blur-3xl"
       onClick={onClose}
     >
       <motion.div 
         layoutId={`card-${item.id}`}
-        className="w-full max-w-6xl h-[90vh] md:h-[85vh] bg-zinc-950 border border-emerald-500/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative"
+        className="w-full max-w-7xl h-full md:h-[90vh] bg-[#050505] border border-white/10 rounded-[2.5rem] overflow-hidden flex flex-col md:flex-row shadow-[0_0_100px_rgba(16,185,129,0.1)]"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-6 right-6 z-[2100] p-3 bg-white text-black rounded-full hover:bg-emerald-500 transition-all">
-          <X size={20} strokeWidth={3}/>
-        </button>
-
-        <div className="w-full md:w-2/5 h-[40%] md:h-auto bg-black relative overflow-hidden">
-          {isVideo ? (
-            <video src={`/images/${item.file}`} autoPlay loop muted playsInline className="w-full h-full object-cover grayscale opacity-40" />
-          ) : (
-            <img src={`/images/${item.file}`} className="w-full h-full object-cover grayscale opacity-40" />
-          )}
-          <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent">
-             <div className="space-y-2">
-                <span className="px-2 py-0.5 bg-emerald-500 text-black text-[8px] font-black uppercase rounded">{item.cat}</span>
-                <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter">{item.title}</h2>
-                <p className="text-sm text-emerald-400 font-mono italic uppercase opacity-80">{item.sub}</p>
-             </div>
-          </div>
+        <div className="w-full md:w-1/2 h-1/3 md:h-auto relative group overflow-hidden bg-black">
+           {isVideo ? (
+             <video src={item.file} autoPlay loop muted playsInline className="w-full h-full object-cover grayscale opacity-60" />
+           ) : (
+             <img src={item.file} className="w-full h-full object-cover grayscale opacity-60 transition-transform duration-700 group-hover:scale-105" />
+           )}
+           <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-black/40 p-10 flex flex-col justify-between">
+              <div className="flex justify-between items-start">
+                 <div className="flex gap-2">
+                    <span className="px-3 py-1 bg-emerald-500 text-black text-[10px] font-black uppercase rounded-full italic tracking-widest">{item.cat}</span>
+                    <span className="px-3 py-1 bg-white/10 backdrop-blur-md text-white text-[10px] font-mono rounded-full border border-white/10">FRAGMENT_{item.id.toUpperCase()}</span>
+                 </div>
+                 <button onClick={onClose} className="p-4 bg-white text-black rounded-full hover:bg-emerald-500 transition-all shadow-xl block md:hidden">
+                    <X size={20} strokeWidth={3}/>
+                 </button>
+              </div>
+              <div>
+                 <h2 className="text-5xl md:text-8xl font-black italic text-white uppercase tracking-tighter leading-none mb-4">{item.title}</h2>
+                 <div className="flex items-center gap-4 text-emerald-400 font-mono text-xs tracking-widest uppercase">
+                    <Activity size={16} className="animate-pulse" />
+                    <span>SYNCHRONIZING_PERSPECTIVE...</span>
+                 </div>
+              </div>
+           </div>
         </div>
 
-        <div className="w-full md:w-3/5 p-6 md:p-10 flex flex-col gap-6 bg-[#020202] border-l border-white/5 overflow-hidden">
-          <div className="flex-1 overflow-y-auto space-y-8 custom-scrollbar">
-            <div className="p-5 border border-emerald-500/10 bg-emerald-500/5 rounded-2xl">
-              {story ? <TypewriterText text={story} /> : <Loader2 className="animate-spin opacity-20" size={16} />}
+        <div className="flex-1 flex flex-col bg-[#080808] border-l border-white/5 relative">
+          <div className="hidden md:flex absolute top-8 right-8 z-[2100]">
+            <button onClick={onClose} className="p-4 bg-white/5 border border-white/10 text-white rounded-full hover:bg-white hover:text-black transition-all">
+              <X size={24} strokeWidth={2}/>
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-6 md:p-12 space-y-8 scrollbar-hide">
+            <div className="p-8 bg-emerald-500/5 border border-emerald-500/10 rounded-3xl relative">
+               <div className="flex items-center gap-2 mb-4 text-emerald-500/40">
+                  <Database size={12} />
+                  <span className="text-[10px] font-mono tracking-widest uppercase">SYPHON_LOG_01</span>
+               </div>
+               {story ? <TypewriterText text={story} /> : <div className="h-20 flex items-center gap-2 text-emerald-500/20"><Loader2 className="animate-spin" /> <span className="text-xs font-mono uppercase">Deciphering...</span></div>}
             </div>
-            <div className="space-y-4 font-mono">
-               {chat.map((msg, i) => (
-                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                   <div className={`max-w-[85%] p-4 rounded-2xl text-[10px] uppercase leading-relaxed ${msg.role === 'user' ? 'bg-white text-black' : 'bg-zinc-900 text-emerald-400 border border-white/5 shadow-xl'}`}>
-                     {msg.text}
-                   </div>
-                 </div>
-               ))}
-               <div ref={chatEndRef} />
+
+            <div className="space-y-6">
+              {chat.map((msg, i) => (
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[85%] p-5 rounded-2xl font-mono text-[11px] uppercase leading-relaxed ${msg.role === 'user' ? 'bg-white text-black font-bold border border-white shadow-[0_10px_30px_rgba(255,255,255,0.1)]' : 'bg-white/5 text-emerald-400 border border-white/10 backdrop-blur-sm'}`}>
+                    <div className="flex items-center gap-2 mb-2 opacity-50">
+                      {msg.role === 'user' ? <Eye size={10} /> : <Radio size={10} />}
+                      <span className="text-[8px] tracking-widest">{msg.role === 'user' ? 'GUEST_INPUT' : 'NEURAL_FEED'}</span>
+                    </div>
+                    {msg.text}
+                  </div>
+                </motion.div>
+              ))}
+              <div ref={chatEndRef} />
             </div>
           </div>
-          <div className="pt-4 border-t border-white/5 flex gap-3">
-             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Transmit message..." className="flex-1 bg-zinc-900 border border-white/5 rounded-xl px-5 py-4 text-xs font-mono focus:border-emerald-500 outline-none uppercase" />
-             <button onClick={handleSend} className="p-4 bg-emerald-500 text-black rounded-xl hover:bg-white"><Send size={18} /></button>
+
+          <div className="p-6 md:p-10 bg-black/40 border-t border-white/5 flex gap-4 backdrop-blur-md">
+            <div className="flex-1 relative">
+              <input 
+                value={input} 
+                onChange={e => setInput(e.target.value)} 
+                onKeyDown={e => e.key === 'Enter' && handleSend()} 
+                placeholder="PROMPT THE ARCHIVE..." 
+                className="w-full bg-[#121212] border border-white/10 rounded-2xl px-8 py-5 text-[11px] font-mono focus:border-emerald-500 outline-none uppercase text-emerald-400 tracking-widest"
+              />
+              <div className="absolute right-6 top-1/2 -translate-y-1/2 opacity-20"><Command size={14} /></div>
+            </div>
+            <button 
+              onClick={handleSend} 
+              disabled={isTyping || !input.trim()}
+              className="px-8 bg-emerald-500 text-black rounded-2xl hover:bg-white transition-all shadow-xl disabled:opacity-30 flex items-center justify-center group"
+            >
+              <Send size={20} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+            </button>
           </div>
         </div>
       </motion.div>
@@ -357,70 +400,72 @@ const ExpandedModal = ({ item, onClose }) => {
 
 const KineticCard = ({ item, onSelect }) => {
   const ref = useRef(null);
-  const isInView = useInView(ref, { margin: "0px 0px -20% 0px" });
+  const isInView = useInView(ref, { margin: "-10% 0px -10% 0px" });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  
-  // Ambiance Logic
-  const ambientOpacity = useTransform(scrollYProgress, [0.3, 0.5, 0.7], [0, 0.5, 0]);
-  const ambientScale = useTransform(scrollYProgress, [0, 1], [1.2, 1.5]);
+  const y = useTransform(scrollYProgress, [0, 1], [150, -150]);
+  const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
   const isVideo = item.file.endsWith('.mp4');
 
   return (
-    <>
-      {/* AMBIENT ECHO BACKGROUND */}
-      <AnimatePresence>
-        {isInView && (
-          <motion.div 
-            style={{ opacity: ambientOpacity, scale: ambientScale }}
-            className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
-          >
-            <div className="absolute inset-0 bg-black/60 z-10" />
-            {isVideo ? (
-              <video src={`/images/${item.file}`} autoPlay loop muted playsInline className="w-full h-full object-cover blur-[80px]" />
-            ) : (
-              <img src={`/images/${item.file}`} className="w-full h-full object-cover blur-[80px]" />
-            )}
-            <div className="absolute inset-0 z-20" style={{
-              background: 'radial-gradient(circle, transparent 20%, black 85%)',
-              maskImage: 'radial-gradient(circle, black 30%, transparent 95%)',
-              WebkitMaskImage: 'radial-gradient(circle, black 30%, transparent 95%)'
-            }} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+    <motion.div 
+      ref={ref} 
+      style={{ y, opacity, x: item.x, rotate: item.rotate }} 
+      className="relative w-[75vw] md:w-[28rem] group cursor-crosshair mb-32 md:mb-64 z-20" 
+      onClick={() => onSelect(item)}
+      whileHover={{ scale: 1.02, rotate: item.rotate > 0 ? item.rotate + 2 : item.rotate - 2 }}
+    >
+      <div className="absolute -inset-4 bg-emerald-500/10 blur-[80px] opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-full" />
+      
+      <div className="relative bg-[#0a0a0a] border border-white/10 rounded-3xl overflow-hidden p-2 group-hover:border-emerald-500/40 transition-all duration-500 shadow-2xl">
+        <div className="aspect-[3/4] bg-zinc-900 relative overflow-hidden rounded-2xl">
+          {isVideo ? (
+            <video src={item.file} autoPlay loop muted playsInline className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" />
+          ) : (
+            <img src={item.file} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:scale-105 transition-all duration-1000" />
+          )}
+          
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+          
+          <div className="absolute top-6 left-6 flex flex-col gap-2">
+            <div className="px-3 py-1 bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-[8px] font-mono text-white tracking-widest uppercase">DATA_{item.id}</div>
+          </div>
 
-      {/* THE CARD */}
-      <motion.div ref={ref} style={{ y, opacity, x: item.x, rotate: item.rotate }} className="relative w-64 md:w-80 group cursor-pointer mb-20 md:mb-40 z-20" onClick={() => onSelect(item)}>
-        <div className="relative bg-zinc-950 border border-white/10 rounded-xl overflow-hidden p-1.5 group-hover:border-emerald-500/50 transition-all shadow-2xl">
-          <div className="aspect-[4/5] bg-zinc-900 relative overflow-hidden rounded-lg">
-            {isVideo ? (
-               <video src={`/images/${item.file}`} autoPlay loop muted playsInline className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
-            ) : (
-               <img src={`/images/${item.file}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
-            )}
-            <div className="absolute bottom-3 left-3">
-              <span className="px-2 py-0.5 bg-emerald-500 text-black text-[7px] font-black uppercase rounded italic">{item.cat}</span>
-              <h4 className="text-[11px] font-black text-white uppercase italic tracking-tight">{item.title}</h4>
+          <div className="absolute bottom-8 left-8 right-8">
+            <span className="text-emerald-400 text-[9px] font-black uppercase tracking-[0.3em] mb-2 block">{item.cat}</span>
+            <h4 className="text-3xl font-black text-white uppercase italic tracking-tighter leading-none">{item.title}</h4>
+            <div className="h-0 group-hover:h-6 transition-all duration-500 overflow-hidden mt-2">
+              <span className="text-zinc-500 font-mono text-[9px] uppercase tracking-widest">{item.sub}</span>
             </div>
           </div>
         </div>
-      </motion.div>
-    </>
+      </div>
+    </motion.div>
   );
 };
 
-const WarpedMonthHeader = ({ month, tagline, direction }) => {
+const SectionHeader = ({ month, tagline, direction }) => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const x = useTransform(scrollYProgress, [0, 0.5, 1], [`${direction * 150}%`, '0%', `${direction * -150}%`]);
-  const opacity = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [0, 1, 1, 0]);
+  const x = useTransform(scrollYProgress, [0, 0.5, 1], [`${direction * 50}%`, '0%', `${direction * -50}%`]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+  const skew = useTransform(scrollYProgress, [0, 0.5, 1], [direction * 10, 0, direction * -10]);
+  
   return (
-    <div ref={ref} className="h-[50vh] flex items-center justify-center relative overflow-hidden pointer-events-none">
-      <motion.div style={{ x, opacity }} className="text-center relative">
-        <h3 className="text-6xl md:text-[10rem] font-black italic text-white uppercase tracking-tighter relative z-10 drop-shadow-[0_0_80px_#10b98122] leading-none">{month}</h3>
-        <span className="text-[10px] font-black uppercase tracking-[1em] text-emerald-400 italic block mt-6">{tagline}</span>
+    <div ref={ref} className="h-[60vh] flex items-center justify-center relative pointer-events-none mb-20">
+      <motion.div style={{ x, opacity, skewX: skew }} className="text-center">
+        <h3 className="text-[12vw] md:text-[18rem] font-black italic text-white/5 uppercase tracking-tighter leading-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 select-none">
+          {month}
+        </h3>
+        <div className="relative z-10">
+          <h3 className="text-6xl md:text-[10rem] font-black italic text-white uppercase tracking-tighter leading-none drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+            {month}
+          </h3>
+          <div className="mt-8 flex items-center justify-center gap-6">
+            <div className="h-px w-12 bg-emerald-500/20" />
+            <span className="text-[10px] md:text-xs font-black uppercase tracking-[1em] text-emerald-400 italic">{tagline}</span>
+            <div className="h-px w-12 bg-emerald-500/20" />
+          </div>
+        </div>
       </motion.div>
     </div>
   );
@@ -435,64 +480,106 @@ const App = () => {
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = 0.2;
-      if (isAudioMuted) audioRef.current.pause();
-      else audioRef.current.play().catch(() => {});
+      isAudioMuted ? audioRef.current.pause() : audioRef.current.play().catch(() => {});
     }
   }, [isAudioMuted]);
 
   return (
-    <div className="min-h-screen bg-black text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black">
-      <audio ref={audioRef} loop src="/mashup.mp3" />
+    <div className="min-h-screen bg-[#020202] text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black font-sans relative">
+      <ScanlineOverlay />
       <PersistentCountdown />
-
+      <audio ref={audioRef} loop src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-subtle-pulsing-2673.mp3" />
       <AnimatePresence>
         {showIntro && (
-          <motion.div exit={{ opacity: 0, filter: "blur(40px)" }} className="fixed inset-0 z-[3000] bg-black flex flex-col items-center justify-center p-6 text-center">
-             <div className="space-y-12">
-               <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 5 }}><Skull size={100} className="mx-auto text-white" /></motion.div>
-               <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter text-white leading-none">$ROT25</h1>
-               <button onClick={() => { setShowIntro(false); setIsAudioMuted(false); }} className="px-16 py-6 bg-white text-black font-black uppercase text-sm tracking-[0.4em] hover:bg-emerald-500 transition-all active:scale-95 shadow-xl">ABANDON_STABILITY</button>
+          <motion.div 
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(40px)" }} 
+            transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }} 
+            className="fixed inset-0 z-[3000] bg-[#020202] flex flex-col items-center justify-center p-6 text-center overflow-hidden"
+          >
+             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#10b98122_0%,_transparent_70%)]" />
+             <div className="relative z-10 space-y-16 max-w-2xl">
+                <motion.div animate={{ rotateY: [0, 180, 360], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }}>
+                  <Skull size={100} className="mx-auto text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]" />
+                </motion.div>
+                <div className="space-y-6">
+                   <motion.h1 initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-8xl md:text-[14rem] font-black italic tracking-tighter text-white leading-none uppercase">
+                    ROT25
+                   </motion.h1>
+                   <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="flex flex-col items-center gap-4">
+                    <span className="text-[10px] md:text-xs uppercase tracking-[1.5em] text-emerald-500 font-black italic ml-4">Neural_Siphon_v.2.0</span>
+                    <div className="h-px w-24 bg-white/10" />
+                   </motion.div>
+                </div>
+                <motion.button 
+                  whileHover={{ scale: 1.05, backgroundColor: "#10b981", color: "#000" }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => { setShowIntro(false); setIsAudioMuted(false); }} 
+                  className="group relative px-16 py-8 bg-white text-black font-black uppercase text-sm tracking-[0.8em] transition-all overflow-hidden"
+                >
+                  <span className="relative z-10">INITIATE_SYNC</span>
+                  <div className="absolute inset-0 bg-emerald-500 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                </motion.button>
              </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      <header className="fixed top-0 left-0 w-full h-20 flex items-center justify-between px-8 z-[500] mix-blend-difference">
-        <div className="flex items-center gap-6"><div className="w-10 h-10 bg-white text-black flex items-center justify-center rounded font-black italic -rotate-[15deg]">ROT</div><span className="font-black italic text-2xl tracking-tighter text-white">$ROT25</span></div>
-        <button onClick={() => setIsAudioMuted(!isAudioMuted)} className="p-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all">
-          {isAudioMuted ? <VolumeX size={18} /> : <Volume2 size={18} className="animate-pulse" />}
-        </button>
+      <header className="fixed top-0 left-0 w-full h-32 flex items-center justify-between px-6 md:px-12 z-[500] mix-blend-difference">
+        <div className="flex items-center gap-6">
+          <div className="w-14 h-14 bg-white text-black flex items-center justify-center rounded-2xl font-black italic -rotate-[12deg] shadow-2xl text-xl">R</div>
+          <div className="flex flex-col">
+            <span className="font-black italic text-3xl tracking-tighter text-white">$ROT25</span>
+            <span className="text-[8px] font-mono uppercase tracking-widest opacity-50">Global_Siphon</span>
+          </div>
+        </div>
+        <div className="flex items-center gap-4">
+          <button onClick={() => setIsAudioMuted(!isAudioMuted)} className="p-5 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all">
+            {isAudioMuted ? <VolumeX size={20} /> : <Volume2 size={20} className="animate-pulse text-emerald-400" />}
+          </button>
+        </div>
       </header>
 
-      <main className="relative z-10 pt-20">
+      <div className="fixed inset-0 pointer-events-none z-0">
+         <motion.div animate={{ x: [0, 50, -50, 0], y: [0, -30, 30, 0], scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute top-[10%] left-[5%] w-[60vw] h-[60vw] bg-emerald-500/5 rounded-full blur-[150px]" />
+         <motion.div animate={{ x: [0, -50, 50, 0], y: [0, 30, -30, 0], scale: [1, 0.9, 1.2, 1] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute bottom-[10%] right-[5%] w-[70vw] h-[70vw] bg-blue-500/5 rounded-full blur-[180px]" />
+      </div>
+
+      <main className="relative z-10 pt-64">
         {YEAR_DATA.map((month) => (
-          <div key={month.month} className="relative py-10">
-            <WarpedMonthHeader month={month.month} tagline={month.tagline} direction={month.direction} />
-            <div className="flex flex-col items-center gap-10">
+          <section key={month.month} className="relative py-32 md:py-64 border-b border-white/5 last:border-0">
+            <SectionHeader month={month.month} tagline={month.tagline} direction={month.direction} />
+            <div className="flex flex-col items-center">
               {month.items.map((item) => <KineticCard key={item.id} item={item} onSelect={setSelectedItem} />)}
             </div>
-          </div>
+          </section>
         ))}
-        {/* FOOTER */}
-        <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-black z-50 relative">
-           <Skull size={120} className="mb-10 text-white opacity-20" />
-           <h2 className="text-[12vw] font-black italic tracking-tighter text-white leading-none uppercase">$ROT25</h2>
-           <div className="mt-20 flex flex-col md:flex-row gap-6 w-full max-w-2xl">
-             <button className="flex-1 py-8 bg-white text-black font-black uppercase text-xl tracking-[0.5em] hover:bg-emerald-500 transition-all shadow-2xl">BUY $ROT25</button>
-             <button className="flex-1 py-8 border-2 border-white/20 text-white font-black uppercase text-xl tracking-[0.5em] hover:bg-white hover:text-black transition-all">Join_The_Goo</button>
+        <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-[#020202] z-50 relative overflow-hidden">
+           <div className="relative z-10">
+              <Skull size={120} className="mb-12 mx-auto text-white opacity-40 animate-pulse" />
+              <h2 className="text-[15vw] font-black italic tracking-tighter text-white leading-[0.8] uppercase mb-12">SYPHON<br/>COMPLETE</h2>
+              <p className="text-xl md:text-2xl font-mono text-emerald-400 italic uppercase tracking-widest mb-20 max-w-2xl mx-auto opacity-70">
+                The 2025 archive is finalized. The neural link is stable. Prepare for the next synchronization cycle.
+              </p>
+              <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl px-4">
+                <button className="group flex-1 py-12 bg-white text-black font-black uppercase text-2xl tracking-[0.4em] transition-all hover:bg-emerald-500 relative overflow-hidden">
+                  <span className="relative z-10">BUY_$ROT25</span>
+                  <div className="absolute inset-0 bg-emerald-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-500" />
+                </button>
+                <button className="flex-1 py-12 border-2 border-white/10 text-white font-black uppercase text-2xl tracking-[0.4em] hover:bg-white hover:text-black transition-all">JOIN_THE_VOID</button>
+              </div>
            </div>
         </section>
       </main>
-
-      <AnimatePresence>{selectedItem && <ExpandedModal item={selectedItem} onClose={() => setSelectedItem(null)} />}</AnimatePresence>
-
+      <AnimatePresence>
+        {selectedItem && <ExpandedModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
+      </AnimatePresence>
       <style>{`
-        body { background: #000; cursor: crosshair; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: #10b981; }
-        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b98133; border-radius: 10px; }
+        body { background: #020202; overflow-x: hidden; cursor: crosshair; }
+        ::-webkit-scrollbar { width: 0px; }
+        .scrollbar-hide::-webkit-scrollbar { width: 0px; display: none; }
+        ::selection { background: #10b981; color: #000; }
+        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        *:focus:not(:focus-visible) { outline: none; }
       `}</style>
     </div>
   );
