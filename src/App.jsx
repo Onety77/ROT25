@@ -3,15 +3,15 @@ import { motion, AnimatePresence, useScroll, useTransform, useInView } from 'fra
 import { 
   Zap, Skull, Volume2, VolumeX, X, 
   Target, Share2, Activity, Ghost, Compass, Cpu, Send, Loader2, MessageSquare, TrendingUp,
-  Terminal, Database, Radio, Eye, Lock, Globe, Command, ChevronDown, Copy, Check
+  Terminal, Database, Radio, Eye, Lock, Globe, Command, ChevronDown, Copy, Check, MousePointer2
 } from 'lucide-react';
 
-// Contract Address Constant
-const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with real CA
-const PUMP_FUN_LINK = "https://pump.fun/board"; // Replace with real link
-const TWITTER_LINK = "https://x.com/rot25"; // Replace with real link
+// --- CONFIG CONSTANTS ---
+const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
+const PUMP_FUN_LINK = "https://pump.fun/board"; 
+const TWITTER_LINK = "https://x.com/rot25"; 
 
-// --- DATA FROM MASTER LIST 2.0 (FULL 64 ITEMS SYNCED) ---
+// --- DATA FROM MASTER LIST 2.0 ---
 const YEAR_DATA = [
   {
     month: "JANUARY",
@@ -163,7 +163,7 @@ const YEAR_DATA = [
   }
 ];
 
-// --- ORIGINAL AI CONFIG (REVERTED AS REQUESTED) ---
+// --- ORIGINAL AI CONFIG ---
 const API_KEY = (() => {
   try {
     if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OR_PROVIDER_ID) 
@@ -235,9 +235,10 @@ const TypewriterText = ({ text, speed = 10 }) => {
   return <p className="text-emerald-400/90 text-[11px] md:text-xs font-mono leading-relaxed uppercase">{displayed}</p>;
 };
 
-const PersistentCountdown = () => {
+const PersistentCountdown = ({ isHero = false, opacityOverride = null, muted = false }) => {
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
   const { scrollYProgress } = useScroll();
+  const tickAudio = useRef(null);
   
   const opacity = useTransform(scrollYProgress, [0, 0.05], [1, 0.2]);
   const scale = useTransform(scrollYProgress, [0, 0.05], [1, 0.6]);
@@ -247,18 +248,44 @@ const PersistentCountdown = () => {
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const dist = target - now;
-      setTimeLeft({
+      const newTime = {
         d: Math.max(0, Math.floor(dist / (1000 * 60 * 60 * 24))),
         h: Math.max(0, Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
         m: Math.max(0, Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60))),
         s: Math.max(0, Math.floor((dist % (1000 * 60)) / 1000))
-      });
+      };
+      
+      // TICK SOUND LOGIC - Only play if not muted and we are not in the intro overlay
+      if (!muted && newTime.s !== timeLeft.s && tickAudio.current) {
+        tickAudio.current.currentTime = 0;
+        tickAudio.current.volume = 0.4;
+        tickAudio.current.play().catch(() => {});
+      }
+      
+      setTimeLeft(newTime);
     }, 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [timeLeft.s, muted]);
+
+  if (isHero) {
+    return (
+      <div className="flex gap-4 md:gap-12 pointer-events-none select-none">
+        <audio ref={tickAudio} src="https://assets.mixkit.co/sfx/preview/mixkit-mechanical-clock-tick-1121.mp3" />
+        {Object.entries(timeLeft).map(([key, val]) => (
+          <div key={key} className="flex flex-col items-center">
+            <span className="text-[12vw] md:text-[15vw] font-black italic tracking-tighter text-white tabular-nums leading-none">
+              {String(val).padStart(2, '0')}
+            </span>
+            <span className="text-[10px] md:text-xs font-bold text-zinc-600 uppercase mt-4 tracking-[0.5em]">{key}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   return (
-    <motion.div style={{ opacity, scale }} className="fixed bottom-10 right-10 z-[500] pointer-events-none origin-bottom-right">
+    <motion.div style={{ opacity: opacityOverride || opacity, scale }} className="fixed bottom-10 right-10 z-[500] pointer-events-none origin-bottom-right">
+      <audio ref={tickAudio} src="https://assets.mixkit.co/sfx/preview/mixkit-mechanical-clock-tick-1121.mp3" />
       <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-4 md:p-6 rounded-2xl flex gap-4 shadow-2xl">
         {Object.entries(timeLeft).map(([key, val]) => (
           <div key={key} className="flex flex-col items-center">
@@ -515,8 +542,12 @@ const App = () => {
   return (
     <div className="min-h-screen bg-[#020202] text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black font-sans relative">
       <ScanlineOverlay />
-      <PersistentCountdown />
+      
+      {/* PERSISTENT COUNTDOWN UI */}
+      <PersistentCountdown muted={showIntro} />
+
       <audio ref={audioRef} loop src="https://assets.mixkit.co/sfx/preview/mixkit-sci-fi-subtle-pulsing-2673.mp3" />
+      
       <AnimatePresence>
         {showIntro && (
           <motion.div 
@@ -524,9 +555,14 @@ const App = () => {
             transition={{ duration: 1.2, ease: [0.76, 0, 0.24, 1] }} 
             className="fixed inset-0 z-[3000] bg-[#020202] flex flex-col items-center justify-center p-6 text-center overflow-hidden"
           >
+             {/* GIANT FADED COUNTDOWN BACKDROP IN LANDING */}
+             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05]">
+                <PersistentCountdown isHero={true} />
+             </div>
+
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#10b98122_0%,_transparent_70%)]" />
+             
              <div className="relative z-10 space-y-8 md:space-y-12 max-w-2xl flex flex-col items-center justify-center h-full">
-                {/* ADJUSTED LOGO SCALE */}
                 <motion.div 
                   animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} 
                   transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
@@ -582,12 +618,42 @@ const App = () => {
         </div>
       </header>
 
+      {/* AMBIENT BACKGROUND BLOBS */}
       <div className="fixed inset-0 pointer-events-none z-0">
          <motion.div animate={{ x: [0, 50, -50, 0], y: [0, -30, 30, 0], scale: [1, 1.2, 0.9, 1] }} transition={{ duration: 30, repeat: Infinity, ease: "linear" }} className="absolute top-[10%] left-[5%] w-[60vw] h-[60vw] bg-emerald-500/5 rounded-full blur-[150px]" />
          <motion.div animate={{ x: [0, -50, 50, 0], y: [0, 30, -30, 0], scale: [1, 0.9, 1.2, 1] }} transition={{ duration: 25, repeat: Infinity, ease: "linear" }} className="absolute bottom-[10%] right-[5%] w-[70vw] h-[70vw] bg-blue-500/5 rounded-full blur-[180px]" />
       </div>
 
-      <main className="relative z-10 pt-64">
+      <main className="relative z-10">
+        
+        {/* GIANT HERO COUNTDOWN SECTION (PRE-SCROLL) */}
+        <section className="min-h-screen flex flex-col items-center justify-center p-8 text-center relative overflow-hidden">
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }} 
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: false }}
+            className="space-y-6 z-10"
+          >
+            <span className="text-[10px] md:text-xs uppercase tracking-[1em] text-emerald-500 font-black italic">synchronizing_cycle</span>
+            <PersistentCountdown isHero={true} muted={isAudioMuted || showIntro} />
+            <div className="space-y-2">
+              <p className="text-xl md:text-3xl font-black italic text-white uppercase tracking-tighter">Everything comes to an end.</p>
+              <p className="text-[10px] font-mono text-zinc-500 uppercase tracking-widest">Prepare for 2026</p>
+            </div>
+          </motion.div>
+
+          {/* SCROLL INDICATOR */}
+          <motion.div 
+            animate={{ y: [0, 10, 0] }} 
+            transition={{ repeat: Infinity, duration: 1.5 }}
+            className="absolute bottom-10 flex flex-col items-center gap-4 opacity-40"
+          >
+            <span className="text-[8px] font-mono uppercase tracking-[0.5em]">Scroll to Cook</span>
+            <ChevronDown size={20} />
+          </motion.div>
+        </section>
+
+        {/* MONTH SECTIONS */}
         {YEAR_DATA.map((month) => (
           <section key={month.month} className="relative py-20 md:py-32 border-b border-white/5 last:border-0">
             <SectionHeader month={month.month} tagline={month.tagline} direction={month.direction} />
@@ -596,6 +662,8 @@ const App = () => {
             </div>
           </section>
         ))}
+        
+        {/* FINAL FOOTER */}
         <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-[#020202] z-50 relative overflow-hidden">
            <div className="relative z-10">
               <img src="logo.png" className="w-40 h-40 mb-12 mx-auto opacity-40 animate-pulse object-contain" alt="Footer Logo" />
@@ -603,6 +671,7 @@ const App = () => {
               <p className="text-xl md:text-2xl font-mono text-emerald-400 italic uppercase tracking-widest mb-20 max-w-2xl mx-auto opacity-70">
                 The 2025 archive is finalized. See you in 2026.
               </p>
+              
               <div className="flex flex-col md:flex-row gap-8 w-full max-w-4xl px-4">
                 <a 
                   href={PUMP_FUN_LINK} 
@@ -631,9 +700,11 @@ const App = () => {
            </div>
         </section>
       </main>
+
       <AnimatePresence>
         {selectedItem && <ExpandedModal item={selectedItem} onClose={() => setSelectedItem(null)} />}
       </AnimatePresence>
+
       <style>{`
         body { background: #020202; overflow-x: hidden; }
         ::-webkit-scrollbar { width: 0px; }
