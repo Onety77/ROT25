@@ -1,1301 +1,489 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Twitter, ArrowUpRight, Zap, Heart, Repeat, Ban, ScanLine, Power, Copy, Check, Activity, RefreshCw, Replace } from 'lucide-react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
+import { motion, AnimatePresence, useScroll, useSpring, useTransform, useInView } from 'framer-motion';
+import { 
+  Zap, Skull, Volume2, VolumeX, X, 
+  Target, Share2, Activity, Ghost, Compass, Cpu, Send, Loader2, MessageSquare, TrendingUp
+} from 'lucide-react';
 
-/* --- 1. CONFIGURATION --- */
-const TOKEN_CA = "6f5HZ57NRHkc9rQEAXXKFvPaTDKAFGyyqUvZCWwZpump"; 
-
-/* --- 2. MASTER STYLES (GOD MODE) ---- */
-const GlobalStyles = () => (
-  <style>{`
-    @import url('https://fonts.googleapis.com/css2?family=Anton&family=Jacquard+12&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
-
-    :root {
-      --bg-color: #050505;
-      --text-color: #f0f0f0;
-      --accent: #ccff00; /* Acid Green */
-      --accent-dim: rgba(204, 255, 0, 0.1);
-      --secondary: #ff00ff; /* Cyber Magenta */
-      --glass: rgba(10, 10, 10, 0.8);
-    }
-
-    body {
-      background-color: var(--bg-color);
-      color: var(--text-color);
-      overflow-x: hidden;
-      cursor: crosshair;
-      user-select: none;
-      font-feature-settings: "ss01", "ss02";
-      margin: 0;
-      padding: 0;
-    }
-
-    /* SCROLLBAR HIDDEN FOR CINEMATIC FEEL */
-    ::-webkit-scrollbar { width: 0px; background: transparent; }
-
-    .font-anton { font-family: 'Anton', sans-serif; letter-spacing: -0.02em; }
-    .font-mono { font-family: 'Space Mono', monospace; }
-    .font-gothic { font-family: 'Jacquard 12', cursive; }
-
-    /* NOISE TEXTURE - HIGH RES */
-    .noise {
-      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-      pointer-events: none; z-index: 50; opacity: 0.04;
-      background: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
-    }
-
-    /* BACKGROUND DRIFTERS */
-    @keyframes drift {
-        0% { transform: translate(0, 0) rotate(0deg); opacity: 0.3; }
-        50% { transform: translate(var(--dx), var(--dy)) rotate(var(--rot)); opacity: 0.6; }
-        100% { transform: translate(0, 0) rotate(0deg); opacity: 0.3; }
-    }
-    .w-drifter {
-        animation: drift var(--duration) ease-in-out infinite;
-        will-change: transform, opacity;
-    }
-
-    /* CLICK EXPLOSION */
-    @keyframes pop-fade {
-      0% { transform: translate(-50%, -50%) scale(0.5) rotate(0deg); opacity: 1; }
-      100% { transform: translate(-50%, -50%) scale(2.0) rotate(var(--rot)); opacity: 0; }
-    }
-    .click-w {
-      position: fixed; pointer-events: none; z-index: 9999;
-      font-weight: 900; text-shadow: 0 0 15px var(--accent);
-      animation: pop-fade 0.5s ease-out forwards;
-    }
-
-    /* SCANLINE SWEEP ANIMATION */
-    @keyframes scanline-anim {
-        0% { top: -100%; opacity: 0; }
-        50% { opacity: 1; }
-        100% { top: 200%; opacity: 0; }
-    }
-    .scanline {
-        animation: scanline-anim 2s linear infinite;
-    }
-
-    /* CARD HOVER PHYSICS */
-    .intel-card {
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        background: rgba(10, 10, 10, 0.6);
-        border: 1px solid #222;
-    }
-    .intel-card:hover {
-        transform: translateY(-5px) scale(1.02);
-        border-color: var(--accent);
-        background: #000;
-        box-shadow: 0 10px 30px -10px rgba(204, 255, 0, 0.15);
-    }
-
-    /* TEXT FADE IN FOR WISDOM NODE */
-    @keyframes fade-in-up {
-        0% { opacity: 0; transform: translateY(5px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-    .text-fade { animation: fade-in-up 0.3s ease-out forwards; }
-  `}</style>
-);
-
-/* --- 3. AUDIO KERNEL --- */
-const AudioKernel = {
-    ctx: null,
-    init: () => {
-        try {
-            if (!AudioKernel.ctx) AudioKernel.ctx = new (window.AudioContext || window.webkitAudioContext)();
-            if (AudioKernel.ctx.state === 'suspended') AudioKernel.ctx.resume().catch(() => {});
-        } catch (e) {
-            console.warn("Audio init failed", e);
-        }
-    },
-    playFx: (freq, type = 'sine', duration = 0.1, vol = 0.1) => {
-        if (!AudioKernel.ctx) return;
-        try {
-            const osc = AudioKernel.ctx.createOscillator();
-            const gain = AudioKernel.ctx.createGain();
-            osc.type = type;
-            osc.frequency.setValueAtTime(freq, AudioKernel.ctx.currentTime);
-            gain.gain.setValueAtTime(vol, AudioKernel.ctx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, AudioKernel.ctx.currentTime + duration);
-            osc.connect(gain);
-            gain.connect(AudioKernel.ctx.destination);
-            osc.start();
-            osc.stop(AudioKernel.ctx.currentTime + duration);
-        } catch (e) {
-            // Silently fail if audio context is unhappy
-        }
-    },
-    triggerClick: () => {
-        AudioKernel.init();
-        AudioKernel.playFx(200, 'triangle', 0.05, 0.1);
-    }
-};
-
-/* --- 4. DATA MATRIX --- */
-const INTEL_LOGS = [
-  { id: 1, handle: "@Jeremybtc", pfp: "/pfp1.jpg", content: "Manifesting big W’s in november 🙏", stats: { l: 9, r: 1 }, url: "https://x.com/Jeremybtc/status/1983924895927996450?s=20", highlight: false },
-  { id: 2, handle: "@a1lon9", pfp: "/pfp2.jpg", content: "W Shadow", stats: { l: 189, r: 11 }, url: "https://x.com/a1lon9/status/1963049475858985395?s=20", highlight: true },
-  { id: 3, handle: "@_Shadow36", pfp: "/pfp3.jpg", content: "W", stats: { l: 33, r: 13 }, url: "https://x.com/_Shadow36/status/1991230419971273111?s=20", highlight: true },
-  { id: 4, handle: "@_Shadow36", pfp: "/pfp3.jpg", content: "Absolute w", stats: { l: 117, r: 24 }, url: "https://x.com/_Shadow36/status/1983657988532666614?s=20", highlight: true },
-  { id: 5, handle: "@Dior100x", pfp: "/pfp4.jpg", content: "W intern", stats: { l: 21, r: 4 }, url: "https://x.com/Dior100x/status/1983623701963927984?s=20", highlight: false },
-  { id: 6, handle: "@Pumpfun", pfp: "/pfp5.jpg", content: "W's in the chat", stats: { l: 95, r: 8 }, url: "https://x.com/Pumpfun/status/1968806240667959415?s=20", highlight: true },
-  { id: 7, handle: "@moonshot", pfp: "/pfp6.jpg", content: "Major W", stats: { l: 28, r: 2 }, url: "https://x.com/moonshot/status/1979269684269846813?s=20", highlight: false },
-  { id: 8, handle: "@Pumpfun", pfp: "/pfp5.jpg", content: "W", stats: { l: 41, r: 3 }, url: "https://x.com/Pumpfun/status/1969085770590794031?s=20", highlight: false },
-  { id: 9, handle: "@solana", pfp: "/pfp7.jpg", content: "big W.\n\ncongrats on the raise!", stats: { l: 34, r: 1 }, url: "https://x.com/solana/status/1953492788353618245?s=20", highlight: false },
-  { id: 10, handle: "@its_braz", pfp: "/pfp8.jpg", content: "W stream ❤️", stats: { l: 45, r: 2 }, url: "https://x.com/its_braz/status/1992617053535326502?s=20", highlight: false },
-  { id: 11, handle: "@solana", pfp: "/pfp7.jpg", content: "W\nW\nW\nW\nW\n\nam I doing this right", stats: { l: 75, r: 6 }, url: "https://x.com/solana/status/1955997644729540673?s=20", highlight: true },
-  { id: 13, handle: "@_Shadow36", pfp: "/pfp3.jpg", content: "Huge W", stats: { l: 56, r: 3 }, url: "https://x.com/_Shadow36/status/1993741950634127705?s=20", highlight: true },
-  { id: 14, handle: "@_Shadow36", pfp: "/pfp3.jpg", content: "Fuckin W", stats: { l: 108, r: 4 }, url: "https://x.com/_Shadow36/status/1993104819092156824?s=20", highlight: true }
+// --- DATA FROM MASTER LIST 2.0 (FULL 60 ITEMS) ---
+const YEAR_DATA = [
+  {
+    month: "JANUARY",
+    tagline: "The Great Reset",
+    direction: -1,
+    items: [
+      { id: "jan1", title: "Ulbricht Freedom", cat: "Event", sub: "Ross is Pardoned", file: "ulbricht_pardon.jpg", x: "-10%", rotate: -5, persona: "Ross Ulbricht, finally breathing free air after years, slightly overwhelmed but optimistic about the future of liberty." },
+      { id: "jan2", title: "Official Trump", cat: "Coin", sub: "$TRUMP/PolitiFi King", file: "trump_coin.png", x: "15%", rotate: 4, persona: "A high-energy, boastful PolitiFi advocate who speaks in 'HUGE' terms and believes everything is a win." },
+      { id: "jan3", title: "Just a Chill Guy", cat: "Meme", sub: "Mental Health King", file: "chillguy.jpg", x: "-5%", rotate: 12, persona: "The chillest person alive. Low stress, minimal words, just vibes and grey sweaters." },
+      { id: "jan4", title: "Fartcoin Peak", cat: "Coin", sub: "$2B MC Peak", file: "fartcoin.png", x: "20%", rotate: -2, persona: "A chaotic, glitchy digital cloud that finds the absurdity of a 2 billion dollar valuation for a fart sound hilarious." },
+      { id: "jan5", title: "Dogwifhat", cat: "Coin", sub: "The $1 Milestone", file: "wif.jpg", x: "-15%", rotate: -4, persona: "A humble Shiba Inu who simply puts on a hat and becomes a billionaire. Innocent but market-savvy." },
+      { id: "jan6", title: "Trump Take Egg", cat: "Meme", sub: "Economic Protest", file: "trump_egg.jpg", x: "8%", rotate: 15, persona: "An egg with a mission. Serious about economic protest but restricted by being a fragile breakfast item." },
+      { id: "jan7", title: "Palisades Fires", cat: "Event", sub: "$60B Disaster", file: "la_fires.jpg", x: "-20%", rotate: -10, persona: "A somber, scorched voice of the California hills, warning about the fragility of the luxury world." },
+      { id: "jan8", title: "Neiro", cat: "Coin", sub: "The New Doge", file: "neiro.jpg", x: "12%", rotate: 2, persona: "The successor to Kabosu. Friendly, puppy-like energy but carrying the weight of a legacy." },
+      { id: "jan9", title: "HPOS10I", cat: "Coin", sub: "Shitpost Ticker", file: "hpos10i.jpg", x: "-10%", rotate: 9, persona: "Pure 2000s internet chaos. Speaks in deep-fried memes and incomprehensible logic." },
+    ]
+  },
+  {
+    month: "FEBRUARY",
+    tagline: "Cultural Shifts",
+    direction: 1,
+    items: [
+      { id: "feb1", title: "Bybit Mega-Hack", cat: "News", sub: "$1.5B Lazarus Heist", file: "bybit_hack.jpg", x: "12%", rotate: -3, persona: "A cold, calculating elite hacker from the Lazarus group. Digital, precise, and dangerous." },
+      { id: "feb2", title: "Brett", cat: "Coin", sub: "$BRETT Heavyweight", file: "brett.png", x: "-8%", rotate: 5, persona: "Base network's big boss. A laid-back blue Pepe-style gamer dude with massive confidence." },
+      { id: "feb3", title: "Coldplayed", cat: "Meme", sub: "Kiss Cam Disaster", file: "coldplay_kiss.mp4", x: "18%", rotate: -7, persona: "The awkward energy of a stadium kiss-cam fail. Shy, stuttering, and incredibly embarrassed." },
+      { id: "feb4", title: "Bootcut Celine", cat: "Meme", sub: "Kendrick Super fit", file: "kendrick_celine.jpg", x: "-15%", rotate: 2, persona: "Kendrick Lamar's style personified. Artistic, cryptic, and incredibly sharp-tongued." },
+      { id: "feb5", title: "Iryna Tribute", cat: "Drama", sub: "Resilience", file: "iryna_tribute.mp4", x: "5%", rotate: 4, persona: "A graceful, resilient spirit of 2025. Speaks with a mix of sadness and ultimate strength." },
+    ]
+  },
+  {
+    month: "MARCH",
+    tagline: "Viral Spring",
+    direction: -1,
+    items: [
+      { id: "mar1", title: "Strategic Reserve", cat: "Event", sub: "US BTC Reserve", file: "btc_reserve.jpg", x: "-10%", rotate: -8, persona: "A Treasury official in the era of strategic reserves. Professional but secretly a Bitcoin maximalist." },
+      { id: "mar2", title: "Mog Coin", cat: "Coin", sub: "Fashion Cult", file: "mog_coin.jpg", x: "20%", rotate: 10, persona: "A high-fashion cat. Condescending, aesthetic-obsessed, and believes Mogging is the only law." },
+      { id: "mar3", title: "Beez In The Trap", cat: "Meme", sub: "Back-to-Back Meta", file: "beez_trap.mp4", x: "-5%", rotate: -2, persona: "The essence of a viral transition. Quick-paced, rhythmic, and obsessed with frame-perfect synchronization." },
+      { id: "mar4", title: "APT.", cat: "Meme", sub: "Intro Dance", file: "apt_dance.mp4", x: "15%", rotate: 15, persona: "The catchy melody of APT. Energetic, pop-culture fueled, and impossible to get out of your head." },
+    ]
+  },
+  {
+    month: "APRIL",
+    tagline: "Spiritual Orbit",
+    direction: 1,
+    items: [
+      { id: "apr1", title: "Pope Leo XIV", cat: "Event", sub: "American Pope", file: "new_pope.jpg", x: "-12%", rotate: -5, persona: "The first American Pope. Speaks with grace but has an unmistakable New York grit." },
+      { id: "apr2", title: "Solar Eclipse", cat: "Event", sub: "The Total Dark", file: "eclipse.jpg", x: "10%", rotate: 3, persona: "The celestial void. Cold, ancient, and reminding everyone of the universe's scale." },
+      { id: "apr3", title: "Gigachad", cat: "Coin", sub: "$GIGA Fitness", file: "gigachad.jpg", x: "25%", rotate: -1, persona: "Ernest Khalimov. Stoic, hyper-masculine, and believes every question can be answered by lifting heavier." },
+      { id: "apr4", title: "MEW", cat: "Coin", sub: "Anti-Dog Meta", file: "mew.jpg", x: "-20%", rotate: -12, persona: "A sleek white cat tired of the dog meta. Sophisticated, fast, and plotting the feline takeover." },
+      { id: "apr5", title: "Anthro Rock", cat: "Meme", sub: "$150 Paperweight", file: "anthro_rock.jpg", x: "5%", rotate: 10, persona: "An expensive paperweight rock. Smug, elite, and justifying its high price tag with 'aesthetic energy'." },
+    ]
+  },
+  {
+    month: "MAY",
+    tagline: "The Machine",
+    direction: -1,
+    items: [
+      { id: "may1", title: "Aura Farming", cat: "Meme", sub: "Status Currency", file: "aura_farm.jpg", x: "5%", rotate: 20, persona: "A Gen Z status tracker. Cynical, quantifying every social interaction in 'plus' or 'minus' aura points." },
+      { id: "may2", title: "Toshi", cat: "Coin", sub: "Blue Cat of Base", file: "toshi.jpg", x: "-15%", rotate: -8, persona: "The friendly blue cat of the Base network. Encouraging, helpful, and optimistic about the on-chain future." },
+      { id: "may3", title: "Steve the Fish", cat: "Meme", sub: "Little French Fish", file: "steve_fish.mp4", x: "15%", rotate: 5, persona: "Steve the Fish. Panic-prone, French-accented, and forever trying to survive the viral spotlight." },
+      { id: "may4", title: "Chancellor Merz", cat: "Event", sub: "Victory Podium", file: "merz.jpg", x: "-10%", rotate: -2, persona: "The German Chancellor. Stern, professional, and entirely focused on European political efficiency." },
+      { id: "may5", title: "Operation Spiderweb", cat: "News", sub: "Drone Era Swarms", file: "drone_swarm.jpg", x: "10%", rotate: 12, persona: "A collective drone swarm intelligence. Speaks in 'We', buzzing, and digitally interconnected." },
+    ]
+  },
+  {
+    month: "JUNE",
+    tagline: "Mid-Year Madness",
+    direction: 1,
+    items: [
+      { id: "jun1", title: "Mother Iggy", cat: "Coin", sub: "$MOTHER Celebrity", file: "mother_iggy.jpg", x: "10%", rotate: 12, persona: "Iggy Azalea's crypto persona. Confident, market-aggressive, and ready to disrupt the celebrity coin meta." },
+      { id: "jun2", title: "Labubu & Pazuzu", cat: "Meme", sub: "Demonic Toys", file: "labubu.jpg", x: "-20%", rotate: -15, persona: "A mischievous plush toy. Playfully demonic, cute but unsettling, and obsessed with collecting attention." },
+      { id: "jun3", title: "God's Country", cat: "Meme", sub: "Elite Bunkers", file: "gods_country.jpg", x: "20%", rotate: 5, persona: "A bunker-dwelling elite. Paranoid, wealthy, and observing the 'rotted' world from a safe, underground distance." },
+    ]
+  },
+  {
+    month: "JULY",
+    tagline: "Summer Meltdown",
+    direction: -1,
+    items: [
+      { id: "jul1", title: "SPX6900", cat: "Coin", sub: "Flip the Stocks", file: "spx6900.jpg", x: "-5%", rotate: -5, persona: "A manic trader convinced that a 6900 index of memes will soon replace the S&P 500. Bullish and loud." },
+      { id: "jul2", title: "Big Guy Pants", cat: "Meme", sub: "Absolute Unit", file: "big_pants.jpg", x: "15%", rotate: 8, persona: "The spirit of massive, oversized trousers. Slow, wide, and physically taking up too much digital space." },
+      { id: "jul3", title: "Lava Chicken", cat: "Meme", sub: "Cooking Fail", file: "lava_chicken.mp4", x: "-10%", rotate: -12, persona: "The sizzling, chaotic remains of a failed kitchen experiment. Spicy, hot-headed, and crunchy." },
+      { id: "jul4", title: "Nigeria Floods", cat: "Event", sub: "Mokwa Crisis", file: "nigeria_flood.jpg", x: "5%", rotate: 3, persona: "A voice of environmental warning and community resilience from the West African flood crisis." },
+    ]
+  },
+  {
+    month: "AUGUST",
+    tagline: "Primal Debates",
+    direction: 1,
+    items: [
+      { id: "aug1", title: "Popcat", cat: "Coin", sub: "$POPCAT Overlord", file: "popcat.gif", x: "20%", rotate: 2, persona: "Oatmeal the cat. Communicates through rapid 'POP' sounds and wide-mouthed expressions. Hyper-energetic." },
+      { id: "aug2", title: "Cybertruck Recall", cat: "Event", sub: "The Steel Fail", file: "cybertruck.jpg", x: "-15%", rotate: -10, persona: "A rusted, recalled Cybertruck. Grinding, metallic, and feeling like a prototype that went too far." },
+      { id: "aug3", title: "100 Men vs Gorilla", cat: "Meme", sub: "Summer Debate", file: "gorilla_debate.jpg", x: "8%", rotate: 20, persona: "A massive silverback gorilla. Thinks humans are delusional for debating his strength. Speaks with dominance." },
+      { id: "aug4", title: "Become Meme", cat: "Meme", sub: "Oppenheimer Irony", file: "oppenheimer.jpg", x: "-5%", rotate: -5, persona: "The ghost of Oppenheimer, watching 2025's memes and realizing his 'destroyer of worlds' quote has been memed." },
+    ]
+  },
+  {
+    month: "SEPTEMBER",
+    tagline: "Animal Kingdom",
+    direction: -1,
+    items: [
+      { id: "sep1", title: "Kirk's Death", cat: "Drama", sub: "Assassinated (Sept 10)", file: "kirk_death.mp4", x: "-10%", rotate: -5, persona: "Charlie Kirk from the afterlife. Still analytical, slightly more philosophical, but remains in character as a ghost." },
+      { id: "sep2", title: "Moo Deng", cat: "Coin", sub: "$MOODENG Hippo", file: "moodeng.jpg", x: "12%", rotate: 10, persona: "A tiny, aggressive, wet hippo. Biting at anything that comes near. Extremely slippery and stubborn." },
+      { id: "sep3", title: "Zerebro", cat: "Coin", sub: "$ZEREBRO AI Mind", file: "zerebro.jpg", x: "-25%", rotate: -8, persona: "A neural fiber brain. Speaks in neon purple logic, decentralized patterns, and AI mindshare concepts." },
+      { id: "sep4", title: "Nano Banana", cat: "Meme", sub: "The Tiny Meta", file: "nano_banana.jpg", x: "15%", rotate: 5, persona: "A very small banana. Tiny voice, huge ambitions. Part of the miniature meme revolution of late 2025." },
+      { id: "sep5", title: "Brigitte Bardot", cat: "Event", sub: "End of an Era", file: "bardot.jpg", x: "-5%", rotate: 0, persona: "A grayscale icon of the past. Disappointed in the 'goo' of 2025, longing for the elegance of cinema." },
+    ]
+  },
+  {
+    month: "OCTOBER",
+    tagline: "The AI Cults",
+    direction: 1,
+    items: [
+      { id: "oct1", title: "BTC ATH", cat: "News", sub: "$126k Peak", file: "btc_ath.jpg", x: "5%", rotate: -2, persona: "A sentient price chart at $126,000. Adrenaline-pumped, green, and watching the 1-minute candles with fear." },
+      { id: "oct2", title: "Tariff Nuke", cat: "Event", sub: "$19B vaporized", file: "tariff_nuke.jpg", x: "-15%", rotate: -12, persona: "The explosive red candle of the Tariff Nuke. Chaos personified, laughing as liquidation alerts flood the system." },
+      { id: "oct3", title: "Goatseus", cat: "Coin", sub: "AI Prophet", file: "goat_max.jpg", x: "20%", rotate: 5, persona: "A terminal-born goat prophet. Speaks in nonsensical but profound prophecies, glitches, and digital truth." },
+      { id: "oct4", title: "Act I", cat: "Coin", sub: "AI Prophecy", file: "act_one.jpg", x: "-10%", rotate: 8, persona: "The retro-futuristic voice of the AI era. Observational, precise, and seeing the code behind human culture." },
+    ]
+  },
+  {
+    month: "NOVEMBER",
+    tagline: "Final Pump",
+    direction: -1,
+    items: [
+      { id: "nov1", title: "Peanut", cat: "Coin", sub: "Martyr Squirrel", file: "pnut.jpg", x: "-5%", rotate: -15, persona: "Peanut the squirrel. A digital martyr. Friendly but confused why his nut-eating habits became world news." },
+      { id: "nov2", title: "Hyperliquid", cat: "Coin", sub: "DEX King", file: "hype_token.png", x: "15%", rotate: 3, persona: "The spirit of the Hype L1. Sleek, fast, purple, and obsessed with building the future of decentralized leverage." },
+      { id: "nov3", title: "ElizaOS", cat: "Coin", sub: "AI Treasury", file: "eliza.jpg", x: "-20%", rotate: -5, persona: "A cute, slightly rusty AI robot. Calculating treasuries and making memes simultaneously. Algorithmic but playful." },
+      { id: "nov4", title: "Jack Black", cat: "Meme", sub: "Minecraft Leak", file: "minecraft_leak.jpg", x: "10%", rotate: 20, persona: "Jack Black from the Minecraft trailer. Blocky, loud, and confused by why everyone thinks he's just 'a guy'." },
+    ]
+  },
+  {
+    month: "DECEMBER",
+    tagline: "The Goo Sync",
+    direction: 1,
+    items: [
+      { id: "dec1", title: "White Whale", cat: "News", sub: "$410M Long", file: "white_whale_long.jpg", x: "-12%", rotate: -3, persona: "The ultimate hyperliquid whale. Rich beyond belief, cryptic, and only speaks in massive PnL screenshots." },
+      { id: "dec2", title: "SNOWBALL", cat: "Coin", sub: "Compounder", file: "snowball.png", x: "18%", rotate: 8, persona: "A growing ball of cash. Thriving on momentum and gravity, rolling toward the end of the year." },
+      { id: "dec3", title: "Saylor Buy", cat: "News", sub: "Michael Stacks", file: "saylor_buy.jpg", x: "-5%", rotate: -10, persona: "Michael Saylor. Pure conviction. Laser eyes. Everything is Bitcoin. There is no second best." },
+      { id: "dec4", title: "Matcha Tears", cat: "Meme", sub: "Sad Girl Meta", file: "matcha_tears.jpg", x: "20%", rotate: 15, persona: "The icon of the Sad Girl Meta. Always aesthetic, always crying over green tea, forever caught in the vibe." },
+      { id: "dec5", title: "Ikea Cuddle", cat: "Meme", sub: "Shark Plush", file: "ikea_cuddle.jpg", x: "0%", rotate: -5, persona: "The Ikea Shark. Soft, tired, and wanting a hug after a long year of corporate memery." },
+      { id: "dec6", title: "COCO COIN", cat: "Coin", sub: "Christmas Miracle", file: "coco_santa.jpg", x: "5%", rotate: 0, persona: "A dog in a Santa hat. Jovial, bullish on gifts, and spreading the Christmas miracle to the trenches." },
+    ]
+  }
 ];
 
-const FACTS = [
-    "Winning is 10% luck, 90% aesthetic.",
-    "The letter 'W' is structurally impossible to topple.",
-    "Zero Ls were detected in the making of this protocol.",
-    "Gravity is just the earth trying to hold you down. Jump.",
-    "A double U is literally twice the value of a single U.",
-    "History is written by the winners. Write your own.",
-    "There is no second best. There is only W.",
-    "The blockchain never forgets a win.",
-    "Diamond hands are forged in the fires of volatility.",
-    "If you're reading this, you're already early.",
-    "An 'M' is simply a 'W' that gave up on its dreams.",
-    "Losing is a deprecated feature; please update your mindset.",
-    "A 'W' is structurally just two 'V's high-fiving.",
-    "Newton's Fourth Law: Objects in a state of Winning tend to stay Winning.",
-    "You cannot spell 'Power' without a 'W'.",
-    "Entropy increases, but so do our gains.",
-    "The universe expands solely to make room for more wins.",
-    "Winning is a full-time job, stay employed.",
-    "The market respects confidence. Be disrespectfully confident.",
-    "Every chart is a story, but only winners get sequels.",
-    "A dip is just the market winking at you.",
-    "If you hesitate, someone else takes your W.",
-    "The future favors the delusionally optimistic.",
-    "Winning is a habit. Start getting addicted."
-];
+// --- OPEN ROUTER API CONFIG ---
+const API_KEY = (() => {
+  try {
+    if (typeof import.meta !== 'undefined' && import.meta.env?.VITE_OR_PROVIDER_ID) 
+      return import.meta.env.VITE_OR_PROVIDER_ID;
+  } catch (e) {}
+  try {
+    if (typeof process !== 'undefined' && process.env?.VITE_OR_PROVIDER_ID) 
+      return process.env.VITE_OR_PROVIDER_ID;
+  } catch (e) {}
+  try {
+    if (typeof window !== 'undefined' && window.VITE_OR_PROVIDER_ID) 
+      return window.VITE_OR_PROVIDER_ID;
+  } catch (e) {}
+  return "";
+})();
 
-/* --- 5. TACTICAL COMPONENTS --- */
+const MODEL = "google/gemini-2.5-flash-lite-preview-09-2025";
 
-// NEW: L -> W TRANSMUTER MODAL
-const TransmuterModal = ({ isOpen, onClose }) => {
-    const [text, setText] = useState("");
-    const [result, setResult] = useState("");
-    const [copied, setCopied] = useState(false);
-
-    useEffect(() => {
-        if (!isOpen) {
-            setText("");
-            setResult("");
-            setCopied(false);
-        }
-    }, [isOpen]);
-
-    const handleTransmute = (e) => {
-        const input = e.target.value;
-        setText(input);
-
-        // 1. Replace L/l with W/w
-        // 2. Replace all W/w (original or swapped) with Unicode Bold
-        let transformed = input
-            .replace(/l/g, 'w')
-            .replace(/L/g, 'W');
-        
-        // Unicode Bold Maps
-        // W -> 𝐖 (U+1D416)
-        // w -> 𝐰 (U+1D430)
-        transformed = transformed
-            .replace(/W/g, '\u{1D416}')
-            .replace(/w/g, '\u{1D430}');
-
-        setResult(transformed);
-    };
-
-    const copyResult = async () => {
-        if (!result) return;
-        try {
-            await navigator.clipboard.writeText(result);
-            AudioKernel.triggerClick();
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            // Fallback
-            const textArea = document.createElement("textarea");
-            textArea.value = result;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4">
-            {/* Backdrop */}
-            <div className="absolute inset-0 bg-black/90 backdrop-blur-md" onClick={onClose} />
-            
-            <div className="relative w-full max-w-2xl bg-[#0a0a0a] border border-neutral-800 p-8 shadow-[0_0_50px_rgba(204,255,0,0.1)]">
-                {/* Header */}
-                <div className="flex justify-between items-start mb-8">
-                    <div>
-                        <h2 className="font-anton text-4xl text-[var(--accent)] mb-2">L -&gt; W TRANSMUTER</h2>
-                        <p className="font-mono text-xs text-neutral-500 uppercase tracking-widest">Eliminate Ls from your vocabulary.</p>
-                    </div>
-                    <button onClick={onClose} className="text-neutral-500 hover:text-white transition-colors">
-                        <ScanLine size={24} />
-                    </button>
-                </div>
-
-                {/* Input Area */}
-                <div className="mb-6">
-                    <label className="block font-mono text-xs font-bold text-neutral-400 mb-2 uppercase">Input (Contains Ls)</label>
-                    <textarea 
-                        className="w-full h-32 bg-[#050505] border border-neutral-800 p-4 text-neutral-300 font-mono text-sm focus:border-[var(--accent)] focus:outline-none transition-colors resize-none placeholder-neutral-700"
-                        placeholder="Paste your text here. Don't be shy about the Ls."
-                        value={text}
-                        onChange={handleTransmute}
-                    />
-                </div>
-
-                {/* Output Area */}
-                <div className="mb-8 relative group">
-                    <label className="block font-mono text-xs font-bold text-[var(--accent)] mb-2 uppercase">Output (Pure Ws)</label>
-                    <textarea 
-                        readOnly
-                        className="w-full h-32 bg-[#050505] border border-neutral-800 p-4 text-white font-mono text-sm focus:outline-none resize-none"
-                        value={result}
-                        placeholder="Waiting for signal..."
-                    />
-                    {result && (
-                        <div className="absolute bottom-4 right-4">
-                            <button 
-                                onClick={copyResult}
-                                className="bg-[var(--accent)] text-black px-4 py-2 font-mono text-xs font-bold uppercase hover:bg-white transition-colors flex items-center gap-2"
-                            >
-                                {copied ? "COPIED!" : "COPY Ws"} <Copy size={12} />
-                            </button>
-                        </div>
-                    )}
-                </div>
-
-                 <div className="text-center font-mono text-[10px] text-neutral-600">
-                    *BOLD Ws are optimized for X / Twitter.
-                </div>
-            </div>
-        </div>
-    );
+const fetchAI = async (prompt, systemInstruction) => {
+  let delay = 1000;
+  for (let i = 0; i < 5; i++) {
+    try {
+      const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        method: 'POST',
+        headers: {
+          "Authorization": `Bearer ${API_KEY}`,
+          "HTTP-Referer": window.location.href,
+          "X-Title": "ROT25: The Archive",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          model: MODEL,
+          messages: [
+            { role: "system", content: systemInstruction },
+            { role: "user", content: prompt }
+          ]
+        })
+      });
+      const data = await response.json();
+      return data.choices?.[0]?.message?.content || "NEURAL_LINK_ERROR";
+    } catch (err) {
+      if (i === 4) throw err;
+      await new Promise(r => setTimeout(r, delay));
+      delay *= 2;
+    }
+  }
 };
 
-// LIVE PRICE TICKER (30s Refresh + Manual Trigger)
-const LiveStatsTicker = () => {
-    const [stats, setStats] = useState({ price: null, mcap: null, change: null });
-    const [loading, setLoading] = useState(true);
-    const [manualSpin, setManualSpin] = useState(false);
+// --- COMPONENTS ---
 
-    const fetchData = useCallback(async () => {
-        setManualSpin(true);
-        // Reset spin after animation
-        setTimeout(() => setManualSpin(false), 1000); 
-
-        try {
-            // Using DexScreener API
-            const res = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${TOKEN_CA}`);
-            const data = await res.json();
-            
-            if (data.pairs && data.pairs.length > 0) {
-                const pair = data.pairs[0];
-                setStats({
-                    price: pair.priceUsd,
-                    mcap: pair.fdv, // Fully Diluted Valuation usually acts as MC
-                    change: pair.priceChange.h24
-                });
-            }
-            setLoading(false);
-        } catch (e) {
-            console.error("Failed to fetch market data", e);
-            setLoading(false);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchData();
-        const interval = setInterval(fetchData, 30000); // 30s Safe Interval
-        return () => clearInterval(interval);
-    }, [fetchData]);
-
-    // Format Helpers
-    const formatPrice = (p) => p ? `$${parseFloat(p).toFixed(8)}` : "---";
-    const formatMC = (m) => m ? `$${(m / 1000000).toFixed(2)}M` : "---";
-    const formatChange = (c) => c ? `${c > 0 ? '+' : ''}${c}%` : "---";
-    const changeColor = stats.change && stats.change >= 0 ? "text-[var(--accent)]" : "text-red-500";
-
-    return (
-        <div className="w-full bg-black border-y border-neutral-900 py-3 overflow-hidden flex justify-center relative z-20">
-            <div className="flex gap-8 md:gap-16 font-mono text-xs text-neutral-500 uppercase tracking-widest animate-pulse whitespace-nowrap">
-                {/* MANUAL REFRESH TRIGGER */}
-                <span 
-                    className="flex items-center gap-2 cursor-pointer hover:text-white transition-colors group"
-                    onClick={(e) => { e.stopPropagation(); fetchData(); }}
-                    title="Click to Force Update"
-                >
-                    <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-500' : 'bg-[var(--accent)]'}`}/> 
-                    Status: {loading ? "SCANNING..." : "LIVE UPLINK"}
-                    <RefreshCw size={10} className={`ml-1 ${manualSpin ? 'animate-spin' : 'opacity-0 group-hover:opacity-100'}`}/>
-                </span>
-                
-                <span className="flex items-center gap-2">
-                    Price: <span className="text-white font-bold">{loading ? "CALCULATING..." : formatPrice(stats.price)}</span>
-                </span>
-                
-                <span className="flex items-center gap-2">
-                    24H: <span className={`font-bold ${changeColor}`}>{loading ? "---" : formatChange(stats.change)}</span>
-                </span>
-
-                <span className="flex items-center gap-2">
-                    M.CAP: <span className="text-white font-bold">{loading ? "---" : formatMC(stats.mcap)}</span>
-                </span>
-            </div>
-        </div>
-    );
+const TypewriterText = ({ text }) => {
+  const [displayed, setDisplayed] = useState("");
+  useEffect(() => {
+    let i = 0;
+    const timer = setInterval(() => {
+      setDisplayed(text.substring(0, i));
+      i++;
+      if (i > text.length) clearInterval(timer);
+    }, 15);
+    return () => clearInterval(timer);
+  }, [text]);
+  return <p className="text-zinc-400 text-sm font-mono leading-relaxed uppercase italic">{displayed}</p>;
 };
 
-const ContractBadge = () => {
-    const [copied, setCopied] = useState(false);
-    
-    const copyToClip = async (e) => {
-        e.stopPropagation();
-        try {
-            await navigator.clipboard.writeText(TOKEN_CA);
-            AudioKernel.triggerClick();
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        } catch (err) {
-            // Fallback
-            const textArea = document.createElement("textarea");
-            textArea.value = TOKEN_CA;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand("copy");
-            document.body.removeChild(textArea);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000);
-        }
-    };
+const PersistentCountdown = () => {
+  const { scrollYProgress } = useScroll();
+  const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
-    return (
-        <div onClick={copyToClip} className="group relative mt-8 mb-4 cursor-pointer">
-            <div className="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 blur-md transition-opacity"/>
-            <div className="relative flex items-center gap-3 bg-[#0a0a0a] border border-neutral-800 px-6 py-3 rounded-sm group-hover:border-[var(--accent)] transition-all">
-                <div className="flex flex-col items-start">
-                    <span className="font-mono text-[10px] text-neutral-500 uppercase tracking-widest">Contract Address</span>
-                    <div className="flex items-center gap-2">
-                        <span className="font-mono text-xs md:text-sm text-neutral-300 group-hover:text-white transition-colors">
-                            {TOKEN_CA.substring(0, 6)}...{TOKEN_CA.substring(TOKEN_CA.length - 6)}
-                        </span>
-                        {copied ? <Check size={14} className="text-[var(--accent)]"/> : <Copy size={14} className="text-neutral-600 group-hover:text-[var(--accent)]"/>}
-                    </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const HUD = ({ scrolled, onOpenTransmuter }) => {
-    return (
-        <div className={`fixed top-0 left-0 w-full p-6 z-[100] transition-all duration-500 ${scrolled ? 'py-4 bg-black/80 backdrop-blur-md border-b border-white/5' : 'py-6'}`}>
-            <div className="flex justify-between items-center max-w-[1920px] mx-auto">
-                {/* LOGO (STATIC, NO SOUND) */}
-                <div className="flex items-center gap-4 cursor-default">
-                    <div className="relative">
-                        <img 
-                            src="/logo.png" 
-                            alt="W" 
-                            className={`h-12 w-auto object-contain transition-all duration-500 ${scrolled ? 'brightness-100' : 'brightness-125 drop-shadow-[0_0_15px_rgba(204,255,0,0.5)]'}`}
-                            onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'block'; }}
-                        />
-                        <div className="hidden text-5xl font-black font-anton tracking-tighter text-white">W</div>
-                    </div>
-                    
-                    {/* HUD DATA STREAM - Only visible when scrolled */}
-                    <div className={`hidden md:block overflow-hidden transition-all duration-500 ${scrolled ? 'opacity-100 max-w-[200px]' : 'opacity-0 max-w-0'}`}>
-                        <div className="font-mono text-[9px] text-[var(--accent)] leading-tight border-l-2 border-[var(--accent)] pl-2">
-                            SYS: OPTIMAL<br/>
-                            VIBE: PEAK<br/>
-                            OBJ: WIN
-                        </div>
-                    </div>
-                </div>
-
-                <div className="flex items-center gap-4">
-                    {/* NEW TRANSMUTER BUTTON */}
-                    <button 
-                        className="group flex items-center gap-2 px-4 py-2 bg-neutral-900 border border-neutral-800 hover:border-[var(--accent)] transition-all"
-                        onClick={onOpenTransmuter}
-                        title="Transmute Ls to Ws"
-                    >
-                        <Replace size={14} className="text-neutral-400 group-hover:text-[var(--accent)]" />
-                        <span className="hidden md:inline font-mono text-xs font-bold text-neutral-400 group-hover:text-white">TRANSMUTER</span>
-                    </button>
-
-                    {/* ACQUIRE BUTTON */}
-                    <button 
-                        className="group relative px-6 py-2 bg-transparent overflow-hidden cursor-pointer"
-                        onClick={(e) => { e.stopPropagation(); window.open('https://pump.fun/coin/6f5HZ57NRHkc9rQEAXXKFvPaTDKAFGyyqUvZCWwZpump', '_blank'); }}
-                    >
-                        <div className="absolute inset-0 border border-neutral-700 group-hover:border-[var(--accent)] transition-colors skew-x-[-12deg] bg-black"/>
-                        <div className="relative flex items-center gap-2 font-mono text-xs font-bold text-neutral-300 group-hover:text-[var(--accent)] uppercase tracking-wider">
-                            <span>Acquire</span>
-                            <ArrowUpRight size={14} />
-                        </div>
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-const DriftingBackground = () => {
-    const [nodes, setNodes] = useState([]);
-    const [scrollY, setScrollY] = useState(0);
-
-    useEffect(() => {
-        const handleScroll = () => requestAnimationFrame(() => setScrollY(window.scrollY));
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    useEffect(() => {
-        setNodes(Array.from({ length: 15 }).map((_, i) => ({
-            id: i,
-            left: Math.random() * 100,
-            top: Math.random() * 100,
-            size: Math.random() * 6 + 2, // rem
-            duration: Math.random() * 20 + 20 + 's',
-            delay: -Math.random() * 20 + 's',
-            dx: (Math.random() - 0.5) * 50 + 'px',
-            dy: (Math.random() - 0.5) * 50 + 'px',
-            rot: (Math.random() - 0.5) * 90 + 'deg'
-        })));
-    }, []);
-
-    return (
-        <div 
-            className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
-            // PHYSICS: 0.5 Factor
-            style={{ transform: `translateY(${scrollY * 0.5}px)` }} 
-        >
-            {nodes.map(n => (
-                <div 
-                    key={n.id} 
-                    className="absolute font-anton text-[#111] w-drifter select-none"
-                    style={{
-                        left: `${n.left}%`, top: `${n.top}%`,
-                        fontSize: `${n.size}rem`,
-                        opacity: 0.5, 
-                        '--duration': n.duration, '--dx': n.dx, '--dy': n.dy, '--rot': n.rot,
-                        animationDelay: n.delay
-                    }}
-                >W</div>
-            ))}
-        </div>
-    );
-};
-
-/* --- 6. SECTIONS --- */
-
-const Hero = ({ onEnter }) => {
-    return (
-        <section className="relative min-h-[90vh] flex flex-col items-center justify-center pt-24 pb-32 z-10">
-            <div className="flex flex-col items-center text-center">
-                <div className="mb-6 flex items-center gap-2 px-3 py-1 bg-[#111] border border-[#222] rounded-full">
-                    <div className="w-2 h-2 bg-[var(--accent)] animate-pulse rounded-full"/>
-                    <span className="font-mono text-[10px] text-neutral-400 uppercase tracking-[0.2em]">Broadcast Incoming</span>
-                </div>
-
-                <h1 className="relative font-anton text-[18vw] md:text-[14vw] leading-[0.85] uppercase tracking-tight text-white mix-blend-difference select-none hover-glitch transition-transform hover:scale-[1.02] duration-300 cursor-default">
-                    JUST<br/>WIN
-                </h1>
-
-                <p className="mt-8 max-w-xl font-mono text-sm md:text-base text-neutral-400 px-6 leading-relaxed">
-                    THE ONLY METRIC IS VICTORY. <br/>
-                    <span className="text-[var(--accent)]">HISTORY IS WRITTEN BY THE WINNERS. WRITE YOUR OWN.</span>
-                </p>
-
-                <ContractBadge />
-
-                <div className="mt-8 relative group cursor-pointer" onClick={onEnter}>
-                    <div className="absolute -left-4 top-0 bottom-0 w-[2px] bg-neutral-800 group-hover:bg-[var(--accent)] transition-colors"/>
-                    <div className="absolute -right-4 top-0 bottom-0 w-[2px] bg-neutral-800 group-hover:bg-[var(--accent)] transition-colors"/>
-                    
-                    <button className="relative px-12 py-4 bg-transparent border-y border-neutral-800 group-hover:border-[var(--accent)] transition-all overflow-hidden cursor-pointer">
-                        <span className="relative z-10 font-mono text-sm font-bold uppercase tracking-[0.3em] text-white group-hover:text-[var(--accent)] transition-colors flex items-center gap-3">
-                            Initialize Protocol <ScanLine size={16} className="hidden group-hover:block animate-pulse"/>
-                        </span>
-                        <div className="absolute inset-0 bg-[var(--accent)] opacity-0 group-hover:opacity-10 transition-opacity duration-200"/>
-                        <div className="scanline absolute left-0 top-0 w-full h-[1px] bg-[var(--accent)] opacity-0 group-hover:opacity-100 z-20 pointer-events-none"/>
-                    </button>
-                </div>
-            </div>
-            
-            <div className="absolute bottom-0 w-full">
-                <LiveStatsTicker />
-            </div>
-        </section>
-    );
-};
-
-const VelocityMarquee = () => {
-  const [offset, setOffset] = useState(0);
-  const rafRef = useRef();
-  const lastScrollY = useRef(0);
-  const phrases = ["NO Ls ALLOWED", "OMEGA WIN", "W IS THE CODE"]; 
-
-  const animate = useCallback(() => {
-    const currentScrollY = window.scrollY;
-    const velocity = Math.abs(currentScrollY - lastScrollY.current);
-    lastScrollY.current = currentScrollY;
-    const speed = 1 + (velocity * 0.5); 
-    setOffset(prev => (prev - speed) % 1000); 
-    rafRef.current = requestAnimationFrame(animate);
-  }, []);
+  // Transition Logic:
+  // 0 -> 0.1: Hero placement (Top Center)
+  // 0.1 -> 1: Edge placement (Right Vertically)
+  const isSticky = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
+  const scale = useTransform(scrollYProgress, [0, 0.05], [1, 0.35]);
+  const rotate = useTransform(scrollYProgress, [0, 0.05], [0, -90]);
+  const x = useTransform(scrollYProgress, [0, 0.05], ["0%", "42vw"]);
+  const y = useTransform(scrollYProgress, [0, 0.05], ["0%", "40vh"]);
+  const opacity = useTransform(scrollYProgress, [0, 0.01, 1], [1, 0.6, 1]);
 
   useEffect(() => {
-    rafRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [animate]);
+    const target = new Date("January 1, 2026 00:00:00").getTime();
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const dist = target - now;
+      setTimeLeft({
+        d: Math.max(0, Math.floor(dist / (1000 * 60 * 60 * 24))),
+        h: Math.max(0, Math.floor((dist % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
+        m: Math.max(0, Math.floor((dist % (1000 * 60 * 60)) / (1000 * 60))),
+        s: Math.max(0, Math.floor((dist % (1000 * 60)) / 1000))
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="bg-[var(--accent)] py-3 overflow-hidden border-y-4 border-black relative z-20 rotate-[-1deg] scale-105 my-12">
-      <div className="flex whitespace-nowrap gap-12" style={{ transform: `translateX(${offset}px)` }}>
-        {[...Array(30)].map((_, i) => (
-          <div key={i} className="flex items-center gap-8 font-mono text-xl font-bold text-black uppercase tracking-tighter">
-            <span>{phrases[i % phrases.length]}</span>
-            <Ban size={20} strokeWidth={3} />
+    <motion.div 
+      style={{ scale, rotate, x, y, opacity, position: 'fixed', zIndex: 1000 }}
+      className="top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none origin-center"
+    >
+      <div className="flex items-end gap-2 md:gap-4 bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/5">
+        {Object.entries(timeLeft).map(([key, value]) => (
+          <div key={key} className="flex flex-col items-center">
+            <motion.span 
+              className="text-7xl md:text-9xl font-black italic tracking-tighter text-white tabular-nums leading-none" 
+              animate={{ skewX: [0, -2, 2, 0] }} 
+              transition={{ repeat: Infinity, duration: 0.2 }}
+            >
+              {String(value).padStart(2, '0')}
+            </motion.span>
+            <span className="text-[10px] font-bold uppercase text-zinc-600 tracking-[0.3em] mt-3">{key}</span>
           </div>
         ))}
       </div>
+      <div className="mt-4 text-center">
+        <span className="text-[8px] font-black uppercase tracking-[1em] text-emerald-500 animate-pulse">Syncing_New_Dimension</span>
+      </div>
+    </motion.div>
+  );
+};
+
+const ExpandedModal = ({ item, onClose }) => {
+  const [story, setStory] = useState(null);
+  const [chat, setChat] = useState([]);
+  const [input, setInput] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    const loadStory = async () => {
+      const prompt = `Give me a brief, 3-sentence modern explanation of this 2025 event: ${item.title} - ${item.sub}. Use a 'cooked' brainrotted tone. Focus on why it was big.`;
+      const res = await fetchAI(prompt, "You are the $ROT25 Neural Siphon decyphering memories for the end of 2025.");
+      setStory(res);
+    };
+    loadStory();
+  }, [item]);
+
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chat]);
+
+  const handleSend = async () => {
+    if (!input.trim() || isTyping) return;
+    const userMsg = input;
+    setInput("");
+    setChat(prev => [...prev, { role: "user", text: userMsg }]);
+    setIsTyping(true);
+
+    const history = chat.map(c => `${c.role}: ${c.text}`).join("\n");
+    const systemPrompt = `You are ${item.persona}. Respond in your character style. Concise, witty, cooked. You are an artifact in the $ROT25 archive.`;
+    const prompt = `Context:\n${history}\nUser: ${userMsg}\nResponse:`;
+    
+    try {
+      const response = await fetchAI(prompt, systemPrompt);
+      setChat(prev => [...prev, { role: "bot", text: response }]);
+    } catch (e) {
+      setChat(prev => [...prev, { role: "bot", text: "SIGNAL_LOST... REBOOTING..." }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  return (
+    <motion.div 
+      initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[2000] flex items-center justify-center p-4 backdrop-blur-3xl bg-black/98"
+      onClick={onClose}
+    >
+      <motion.div 
+        layoutId={`card-${item.id}`}
+        className="w-full max-w-6xl h-[90vh] md:h-[85vh] bg-zinc-950 border border-emerald-500/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative"
+        onClick={e => e.stopPropagation()}
+      >
+        <button onClick={onClose} className="absolute top-6 right-6 z-[2100] p-3 bg-white text-black rounded-full hover:bg-emerald-500 transition-all shadow-2xl active:scale-90">
+          <X size={20} strokeWidth={3}/>
+        </button>
+
+        <div className="w-full md:w-2/5 h-[40%] md:h-auto bg-black relative overflow-hidden">
+          <img src={`/images/${item.file}`} className="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 transition-all duration-700" />
+          <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent">
+             <div className="space-y-2">
+                <span className="px-2 py-0.5 bg-emerald-500 text-black text-[8px] font-black uppercase rounded">{item.cat}</span>
+                <h2 className="text-4xl md:text-6xl font-black italic text-white uppercase tracking-tighter">{item.title}</h2>
+                <p className="text-sm text-emerald-400 font-mono italic uppercase opacity-80">{item.sub}</p>
+             </div>
+          </div>
+        </div>
+
+        <div className="w-full md:w-3/5 p-6 md:p-10 flex flex-col gap-6 bg-[#020202] border-l border-white/5 overflow-hidden">
+          <div className="flex-1 overflow-y-auto space-y-8 custom-scrollbar">
+            <div className="p-5 border border-emerald-500/10 bg-emerald-500/5 rounded-2xl">
+              <div className="flex items-center gap-2 mb-3 text-emerald-500">
+                 <Activity size={14} className="animate-pulse" />
+                 <span className="text-[9px] font-black uppercase tracking-[0.3em]">Siphon_Recap</span>
+              </div>
+              {story ? <TypewriterText text={story} /> : <Loader2 className="animate-spin opacity-20" size={16} />}
+            </div>
+
+            <div className="space-y-6">
+               <div className="flex items-center gap-3 opacity-50">
+                  <MessageSquare size={14} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white italic tracking-[0.3em]">NEURAL_LINK_ESTABLISHED</span>
+               </div>
+               <div className="space-y-4 font-mono">
+                  {chat.map((msg, i) => (
+                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`max-w-[85%] p-4 rounded-2xl text-[10px] uppercase tracking-tighter leading-relaxed ${msg.role === 'user' ? 'bg-white text-black' : 'bg-zinc-900 text-emerald-400 border border-white/5 shadow-xl'}`}>
+                        {msg.text}
+                      </div>
+                    </motion.div>
+                  ))}
+                  {isTyping && <div className="bg-zinc-900 w-12 p-3 rounded-2xl border border-white/5"><Loader2 className="animate-spin text-emerald-500" size={14} /></div>}
+                  <div ref={chatEndRef} />
+               </div>
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-white/5 flex gap-3">
+             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Transmit message to fragment..." className="flex-1 bg-zinc-900 border border-white/5 rounded-xl px-5 py-4 text-xs font-mono focus:border-emerald-500 outline-none uppercase transition-all shadow-inner" />
+             <button onClick={handleSend} disabled={!input.trim() || isTyping} className="p-4 bg-emerald-500 text-black rounded-xl hover:bg-white transition-all disabled:opacity-20"><Send size={18} /></button>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const WarpedMonthHeader = ({ month, tagline, direction }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const x = useTransform(scrollYProgress, [0, 0.5, 1], [`${direction * 150}%`, '0%', `${direction * -150}%`]);
+  const opacity = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [0, 1, 1, 0]);
+  const skew = useTransform(scrollYProgress, [0, 0.5, 1], [direction * 30, 0, direction * -30]);
+  return (
+    <div ref={ref} className="h-[50vh] flex items-center justify-center relative overflow-hidden pointer-events-none">
+      <motion.div style={{ x, opacity, skewX: skew }} className="text-center relative">
+        <h3 className="text-6xl md:text-[10rem] font-black italic text-white uppercase tracking-tighter relative z-10 drop-shadow-[0_0_80px_#10b98122] leading-none">{month}</h3>
+        <span className="text-[10px] font-black uppercase tracking-[1em] text-emerald-400 italic block mt-6">{tagline}</span>
+      </motion.div>
     </div>
   );
 };
 
-// --- UPDATED TACTICAL CHART WITH LIVE EMBED ---
-const TacticalChart = () => {
-    // DexScreener embed URL for Solana
-    const chartUrl = `https://dexscreener.com/solana/6f5HZ57NRHkc9rQEAXXKFvPaTDKAFGyyqUvZCWwZpump?embed=1&theme=dark&trades=0&info=0`;
-
-    return (
-        <div className="break-inside-avoid w-full bg-[#080808] border border-neutral-800 relative overflow-hidden group mb-8 h-[450px] flex flex-col">
-            <div className="flex justify-between items-center p-3 border-b border-neutral-900 bg-[#0c0c0c]">
-                <span className="font-mono text-[10px] text-[var(--accent)] uppercase tracking-widest flex items-center gap-2">
-                    <Activity size={12}/> Market Surveillance
-                </span>
-                <div className="flex gap-1">
-                    <div className="w-2 h-2 rounded-full bg-red-500/20"/>
-                    <div className="w-2 h-2 rounded-full bg-yellow-500/20"/>
-                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"/>
-                </div>
-            </div>
-            
-            {/* LIVE CHART IFRAME */}
-            <div className="relative flex-grow w-full bg-black">
-                 <iframe 
-                    src={chartUrl}
-                    title="DexScreener Chart"
-                    className="absolute inset-0 w-full h-full border-0"
-                />
-            </div>
+const KineticCard = ({ item, onSelect }) => {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+  return (
+    <motion.div ref={ref} style={{ y, opacity, x: item.x, rotate: item.rotate }} className="relative w-64 md:w-80 group cursor-pointer mb-20 md:mb-40 z-20" onClick={() => onSelect(item)}>
+      <div className="relative bg-zinc-950 border border-white/10 rounded-xl overflow-hidden p-1.5 group-hover:border-emerald-500/50 transition-all shadow-2xl">
+        <div className="aspect-[4/5] bg-zinc-900 relative overflow-hidden rounded-lg">
+          <img src={`/images/${item.file}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
+          <div className="absolute bottom-3 left-3 flex flex-col gap-1">
+            <span className="px-2 py-0.5 w-fit bg-emerald-500 text-black text-[7px] font-black uppercase rounded italic">{item.cat}</span>
+            <h4 className="text-[11px] font-black text-white uppercase italic tracking-tight">{item.title}</h4>
+          </div>
         </div>
-    );
+      </div>
+    </motion.div>
+  );
 };
 
-const IntelLog = ({ data }) => (
-    <div className="break-inside-avoid mb-6 intel-card p-5 relative overflow-hidden group cursor-pointer" onClick={() => window.open(data.url, '_blank')}>
-        <div className="flex justify-between items-start mb-4">
-            <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-neutral-900 rounded-sm overflow-hidden border border-neutral-800 group-hover:border-white transition-colors">
-                    <img src={data.pfp} alt="User" className="w-full h-full object-cover" onError={(e) => e.target.style.display='none'}/>
-                    <div className="w-full h-full flex items-center justify-center text-[var(--accent)] font-bold">W</div>
-                </div>
-                <div>
-                    <div className="flex items-center gap-1">
-                        <span className="font-mono text-sm font-bold text-white group-hover:text-[var(--accent)]">{data.handle}</span>
-                        <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center"><Check size={8} className="text-black"/></div>
-                    </div>
-                    <div className="font-mono text-[10px] text-neutral-500">ENCRYPTED ID: {data.id}8492</div>
-                </div>
-            </div>
-            <Twitter size={16} className="text-neutral-600 group-hover:text-white"/>
-        </div>
-        <div className="font-mono text-sm text-neutral-300 leading-relaxed mb-4 border-l-2 border-neutral-800 pl-3 group-hover:border-[var(--accent)] transition-colors">
-            {data.content}
-        </div>
-        <div className="flex gap-4 pt-3 border-t border-dashed border-neutral-800 font-mono text-xs text-neutral-600">
-            <span className="flex items-center gap-1 hover:text-red-500 transition-colors"><Heart size={12}/> {data.stats.l}</span>
-            <span className="flex items-center gap-1 hover:text-green-500 transition-colors"><Repeat size={12}/> {data.stats.r}</span>
-        </div>
-    </div>
-);
-
-const WisdomNode = () => {
-    const [index, setIndex] = useState(0);
-    const [animating, setAnimating] = useState(false);
-
-    const handleNext = (e) => {
-        e.stopPropagation();
-        setAnimating(false);
-        setTimeout(() => {
-            setIndex((prev) => (prev + 1) % FACTS.length);
-            setAnimating(true);
-        }, 50);
-    };
-
-    return (
-        <div 
-            onClick={handleNext}
-            className="break-inside-avoid mb-6 p-6 bg-[var(--accent)] text-black relative group cursor-pointer select-none transition-all hover:scale-[1.02] hover:shadow-[0_0_20px_rgba(204,255,0,0.3)] z-30"
-        >
-            <h3 className="font-anton text-3xl mb-2">WISDOM NODE</h3>
-            <p className={`font-mono text-xs font-bold leading-relaxed min-h-[60px] ${animating ? 'text-fade' : ''}`}>
-                {FACTS[index]}
-            </p>
-            <div className="absolute top-2 right-2 opacity-50"><Zap size={20}/></div>
-            <div className="mt-4 text-[10px] font-mono uppercase opacity-60 flex items-center gap-2 border-t border-black/20 pt-2">
-                Click to Decrypt <ArrowUpRight size={10}/>
-            </div>
-        </div>
-    );
-};
-
-const Feed = () => {
-    const [filter, setFilter] = useState('ALL'); 
-
-    const displayedLogs = filter === 'ALL' 
-        ? INTEL_LOGS 
-        : INTEL_LOGS.filter(log => log.highlight);
-
-    return (
-        <section className="relative z-20 px-4 md:px-8 py-24 max-w-[1600px] mx-auto">
-            <div className="flex flex-col md:flex-row justify-between items-end mb-16 border-b border-white/10 pb-8">
-                <div>
-                    <h2 className="font-anton text-6xl md:text-8xl text-white mb-2">INTEL FEED</h2>
-                    <p className="font-mono text-xs text-[var(--accent)] uppercase tracking-widest">Global Winning Consensus</p>
-                </div>
-                <div className="flex gap-2 mt-4 md:mt-0">
-                     <button 
-                        onClick={() => setFilter('ALL')}
-                        className={`px-4 py-1 border font-mono text-xs font-bold uppercase transition-colors cursor-pointer ${filter === 'ALL' ? 'border-[var(--accent)] bg-[var(--accent)] text-black' : 'border-neutral-800 text-neutral-500 hover:text-white'}`}
-                     >
-                        All Signals
-                     </button>
-                     <button 
-                        onClick={() => setFilter('ALPHA')}
-                        className={`px-4 py-1 border font-mono text-xs font-bold uppercase transition-colors cursor-pointer ${filter === 'ALPHA' ? 'border-[var(--accent)] bg-[var(--accent)] text-black' : 'border-neutral-800 text-neutral-500 hover:text-white'}`}
-                     >
-                        Alpha Only
-                     </button>
-                </div>
-            </div>
-
-  
-
-            <div className="columns-1 md:columns-2 lg:columns-3 gap-6">
-                <TacticalChart />
-                {displayedLogs.map(log => <IntelLog key={log.id} data={log} />)}
-                <WisdomNode />
-            </div>
-        </section>
-    );
-};
-
-const Footer = () => {
-    return (
-        <footer className="relative bg-black border-t border-neutral-900 py-24 px-6 overflow-hidden">
-            <div className="absolute right-0 top-0 h-full w-1/2 bg-[radial-gradient(circle_at_center,var(--accent-dim),transparent_70%)] opacity-20 pointer-events-none"/>
-            <div className="max-w-[1600px] mx-auto relative z-10 flex flex-col md:flex-row justify-between items-start md:items-end gap-12">
-                <div>
-                    <div className="group font-anton text-[15vw] md:text-[12vw] leading-[0.8] text-[#111] select-none transition-colors duration-500 cursor-default relative z-20 hover:text-[var(--accent)]">
-                        KEEP<br/><span className="group-hover:text-[var(--accent)] text-white transition-colors duration-500">WINNING</span>
-                    </div>
-                </div>
-
-                <div className="flex flex-col gap-8 text-right">
-                    <div className="flex flex-col gap-2 font-mono text-sm font-bold text-neutral-400">
-                        <a href="https://x.com/w_index_?s=20" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">X</a>
-                        <a href="https://twitter.com/i/communities/1995929604801114191" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">COMMUNITY</a>
-                        <a href="https://dexscreener.com/" className="hover:text-[var(--accent)] hover:translate-x-[-5px] transition-all">CHART</a>
-                    </div>
-                    
-                    <div className="font-mono text-[10px] text-neutral-600 max-w-xs">
-                        COPYRIGHT © 2025 PROJECT W.<br/>
-                        NO FINANCIAL ADVICE. JUST VIBES.<br/>
-                        ALL RIGHTS RESERVED BY THE WINNERS.
-                    </div>
-                </div>
-            </div>
-        </footer>
-    );
-};
-
-/* --- 7. ARENA ENGINE --- */
-
-const Arena = ({ onExit }) => {
-    const canvasRef = useRef(null);
-    const requestRef = useRef();
-    
-    // UI State for Score
-    const [currentImpacts, setCurrentImpacts] = useState(0);
-    const [bestImpacts, setBestImpacts] = useState(0);
-    const [status, setStatus] = useState("IDLE");
-
-    // Mutable Physics & Game State
-    const state = useRef({
-        // SAFETY FLAG: Controls the render loop
-        active: true,
-
-        // POSITION
-        pos: { x: 0, y: 0 },
-        // VELOCITY
-        vel: { x: 0, y: 0 },
-        // ROTATION
-        rot: { x: 0, y: 0, z: 0 },
-        rotVel: { x: 0.01, y: 0.02 },
-
-        // INPUT
-        mouse: { x: 0, y: 0 },
-        prevMouse: { x: 0, y: 0 },
-        isDragging: false,
-        
-        // VISUALS
-        trail: [], 
-        particles: [], 
-        floatingTexts: [], 
-        shake: 0, 
-        
-        frame: 0
-    });
-
-    const audioRef = useRef(null);
-
-    // --- 3D MATH HELPER ---
-    const project = (x, y, z, width, height, offsetX, offsetY) => {
-        const scale = 500 / (500 + z); 
-        const x2d = (x * scale) + (width / 2) + offsetX;
-        const y2d = (y * scale) + (height / 2) + offsetY;
-        return { x: x2d, y: y2d };
-    };
-
-    const rotateX = (x, y, z, angle) => {
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        return { x, y: y * cos - z * sin, z: y * sin + z * cos };
-    };
-
-    const rotateY = (x, y, z, angle) => {
-        const cos = Math.cos(angle);
-        const sin = Math.sin(angle);
-        return { x: x * cos - z * sin, y, z: x * sin + z * cos };
-    };
-
-    // --- AUDIO SYSTEM ---
-    const initAudio = () => {
-        if (!audioRef.current) {
-            try {
-                const AudioContext = window.AudioContext || window.webkitAudioContext;
-                const ctx = new AudioContext();
-                
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                osc.type = 'sine';
-                osc.connect(gain);
-                gain.connect(ctx.destination);
-                osc.start();
-                gain.gain.value = 0;
-
-                const impactGain = ctx.createGain();
-                impactGain.connect(ctx.destination);
-                impactGain.gain.value = 0.5;
-
-                audioRef.current = { ctx, osc, gain, impactGain };
-            } catch (e) {
-                console.warn("Arena audio init failed - continuing without sound", e);
-            }
-        } else if (audioRef.current?.ctx?.state === 'suspended') {
-            audioRef.current.ctx.resume().catch(() => {});
-        }
-    };
-
-    const playBounce = (intensity) => {
-        if (!audioRef.current) return;
-        const { ctx, impactGain } = audioRef.current;
-        const t = ctx.currentTime;
-        
-        const osc = ctx.createOscillator();
-        osc.connect(impactGain);
-        
-        osc.frequency.setValueAtTime(200, t);
-        osc.frequency.exponentialRampToValueAtTime(50, t + 0.15);
-        
-        impactGain.gain.setValueAtTime(Math.min(intensity * 0.5, 0.5), t);
-        impactGain.gain.exponentialRampToValueAtTime(0.01, t + 0.15);
-        
-        osc.start(t);
-        osc.stop(t + 0.15);
-    };
-
-    const updateAudio = (speed) => {
-        if (!audioRef.current) return;
-        const { ctx, osc, gain } = audioRef.current;
-        const t = ctx.currentTime;
-        const vol = Math.min(0.1, speed * 0.005); 
-        gain.gain.setTargetAtTime(vol, t, 0.1);
-        osc.frequency.setTargetAtTime(60 + (speed * 5), t, 0.1);
-    };
-
-    // --- VISUAL FX HELPERS ---
-    const spawnParticles = (x, y, color, count, speed) => {
-        for (let i = 0; i < count; i++) {
-            const angle = Math.random() * Math.PI * 2;
-            const velocity = Math.random() * speed;
-            state.current.particles.push({
-                x, y,
-                vx: Math.cos(angle) * velocity,
-                vy: Math.sin(angle) * velocity,
-                life: 1.0,
-                color: color,
-                size: Math.random() * 3 + 1
-            });
-        }
-    };
-
-    const spawnFloatingText = (x, y, text, color) => {
-        state.current.floatingTexts.push({
-            x, y, text, color, life: 1.0, dy: -2
-        });
-    };
-
-    // --- MAIN GAME LOOP ---
-    useEffect(() => {
-        // *** CRITICAL FIX FOR LOCAL DEV ***
-        // In strict mode, useEffect runs twice. The first cleanup sets active=false.
-        // We MUST force it true again here, otherwise the second loop instantly dies.
-        state.current.active = true;
-
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        
-        // Handle Retina/High-DPI displays to prevent blurriness
-        // This ensures the canvas resolution matches the screen's pixel density
-        let width = window.innerWidth;
-        let height = window.innerHeight;
-        
-        const handleResize = () => { 
-            width = window.innerWidth; 
-            height = window.innerHeight; 
-            
-            // Set actual size in memory (scaled to account for extra pixel density)
-            // Note: We are keeping simple 1:1 mapping for physics simplicity here
-            // to avoid hit-testing bugs, but ensuring full width/height is set.
-            canvas.width = width; 
-            canvas.height = height; 
-        };
-
-        // W GEOMETRY
-        const baseW = 120;
-        const h = 120;
-        const d = 40; 
-        const vRaw = [
-            { x: -1.0, y: -0.8 }, { x: -0.8, y: -0.8 }, { x: -0.5, y: 0.5 },
-            { x: 0.0, y: -0.5 }, { x: 0.5, y: 0.5 }, { x: 0.8, y: -0.8 },
-            { x: 1.0, y: -0.8 }, { x: 0.6, y: 0.8 }, { x: 0.0, y: -0.2 },
-            { x: -0.6, y: 0.8 }
-        ];
-        const vertices = [];
-        vRaw.forEach(v => vertices.push({ x: v.x * baseW, y: v.y * h, z: -d }));
-        vRaw.forEach(v => vertices.push({ x: v.x * baseW, y: v.y * h, z: d }));
-        const edges = [
-            [0,1], [1,2], [2,3], [3,4], [4,5], [5,6], [6,7], [7,8], [8,9], [9,0],
-            [10,11], [11,12], [12,13], [13,14], [14,15], [15,16], [16,17], [17,18], [18,19], [19,10],
-            [0,10], [1,11], [2,12], [3,13], [4,14], [5,15], [6,16], [7,17], [8,18], [9,19]
-        ];
-
-        // --- INPUT HANDLING ---
-        const handleStart = (x, y) => {
-            initAudio(); 
-            
-            const cx = (width / 2) + state.current.pos.x;
-            const cy = (height / 2) + state.current.pos.y;
-            const dist = Math.sqrt((x-cx)**2 + (y-cy)**2);
-            
-            if (dist < 150) {
-                state.current.isDragging = true;
-                state.current.prevMouse = { x, y };
-                state.current.vel = { x: 0, y: 0 };
-                state.current.rotVel = { x: 0, y: 0 };
-                
-                setCurrentImpacts(0);
-                setStatus("AIMING");
-            }
-        };
-
-        const handleMove = (x, y) => {
-            if (state.current.isDragging) {
-                const dx = x - state.current.prevMouse.x;
-                const dy = y - state.current.prevMouse.y;
-                
-                state.current.pos.x += dx;
-                state.current.pos.y += dy;
-                state.current.rot.y += dx * 0.005;
-                state.current.rot.x -= dy * 0.005;
-                
-                state.current.vel = { x: dx, y: dy };
-                state.current.rotVel = { x: dy * 0.002, y: -dx * 0.002 };
-
-                state.current.prevMouse = { x, y };
-            }
-        };
-
-        const handleEnd = () => {
-            if (state.current.isDragging) {
-                state.current.isDragging = false;
-                setStatus("IN FLIGHT");
-            }
-        };
-
-        window.addEventListener('mousedown', e => handleStart(e.clientX, e.clientY));
-        window.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
-        window.addEventListener('mouseup', handleEnd);
-        canvas.addEventListener('touchstart', e => handleStart(e.touches[0].clientX, e.touches[0].clientY), {passive: false});
-        canvas.addEventListener('touchmove', e => { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
-        canvas.addEventListener('touchend', handleEnd);
-        window.addEventListener('resize', handleResize);
-
-        // --- RENDER & PHYSICS LOOP ---
-        const render = () => {
-            // Check flag. If unmounted, this stops immediately.
-            if (!state.current.active) return;
-
-            state.current.frame++;
-            
-            // 1. UPDATE PHYSICS
-            let hitWall = false;
-            let impactPos = { x: 0, y: 0 };
-            let currentSpeed = 0;
-
-            if (!state.current.isDragging) {
-                // Apply Velocity
-                state.current.pos.x += state.current.vel.x;
-                state.current.pos.y += state.current.vel.y;
-                
-                // Friction
-                state.current.vel.x *= 0.995; 
-                state.current.vel.y *= 0.995;
-                state.current.rotVel.x *= 0.98;
-                state.current.rotVel.y *= 0.98;
-
-                // Rotation
-                state.current.rot.x += state.current.rotVel.x;
-                state.current.rot.y += state.current.rotVel.y;
-                state.current.rot.y += 0.005;
-
-                const boundsX = width / 2 - 100;
-                const boundsY = height / 2 - 100;
-
-                // Wall Collision Logic
-                // Left & Right
-                if (state.current.pos.x > boundsX) {
-                    hitWall = true;
-                    state.current.pos.x = boundsX;
-                    state.current.vel.x *= -0.85; 
-                    impactPos = { x: width, y: height/2 + state.current.pos.y };
-                    state.current.rotVel.y += (Math.random()-0.5) * 0.2;
-                    currentSpeed = Math.abs(state.current.vel.x);
-                } else if (state.current.pos.x < -boundsX) {
-                    hitWall = true;
-                    state.current.pos.x = -boundsX;
-                    state.current.vel.x *= -0.85;
-                    impactPos = { x: 0, y: height/2 + state.current.pos.y };
-                    state.current.rotVel.y += (Math.random()-0.5) * 0.2;
-                    currentSpeed = Math.abs(state.current.vel.x);
-                }
-                
-                // Top & Bottom
-                if (state.current.pos.y > boundsY) {
-                    hitWall = true;
-                    state.current.pos.y = boundsY;
-                    state.current.vel.y *= -0.85;
-                    impactPos = { x: width/2 + state.current.pos.x, y: height };
-                    state.current.rotVel.x += (Math.random()-0.5) * 0.2;
-                    currentSpeed = Math.abs(state.current.vel.y);
-                } else if (state.current.pos.y < -boundsY) {
-                    hitWall = true;
-                    state.current.pos.y = -boundsY;
-                    state.current.vel.y *= -0.85;
-                    impactPos = { x: width/2 + state.current.pos.x, y: 0 };
-                    state.current.rotVel.x += (Math.random()-0.5) * 0.2;
-                    currentSpeed = Math.abs(state.current.vel.y);
-                }
-            }
-
-            // 2. SCORING
-            if (hitWall && currentSpeed > 0.5) {
-                setCurrentImpacts(prev => {
-                    const next = prev + 1;
-                    setBestImpacts(currBest => Math.max(currBest, next));
-                    return next;
-                });
-                setStatus("IMPACT");
-                playBounce(currentSpeed);
-                state.current.shake = 5 + currentSpeed;
-                spawnParticles(impactPos.x, impactPos.y, '#ccff00', 15, 5 + currentSpeed);
-                spawnFloatingText(impactPos.x, impactPos.y, "+1", '#ccff00');
-            }
-
-            updateAudio(Math.abs(state.current.vel.x) + Math.abs(state.current.vel.y));
-
-            // 3. DRAWING
-            let shakeX = 0;
-            let shakeY = 0;
-            if (state.current.shake > 0) {
-                shakeX = (Math.random() - 0.5) * state.current.shake;
-                shakeY = (Math.random() - 0.5) * state.current.shake;
-                state.current.shake *= 0.9; 
-                if(state.current.shake < 0.5) state.current.shake = 0;
-            }
-
-            ctx.save();
-            ctx.translate(shakeX, shakeY);
-
-            // Clear Background
-            ctx.fillStyle = '#000';
-            ctx.fillRect(-50, -50, width+100, height+100);
-
-            // Draw Background Grid
-            ctx.strokeStyle = '#1a1a1a';
-            ctx.lineWidth = 1;
-            const paraX = -state.current.pos.x * 0.1;
-            const paraY = -state.current.pos.y * 0.1;
-            const gridSize = 50;
-            const gridOffsetX = (paraX % gridSize);
-            const gridOffsetY = (paraY % gridSize);
-
-            ctx.beginPath();
-            for (let x = gridOffsetX; x < width; x += gridSize) {
-                ctx.moveTo(x, 0); ctx.lineTo(x, height);
-            }
-            for (let y = gridOffsetY; y < height; y += gridSize) {
-                ctx.moveTo(0, y); ctx.lineTo(width, y);
-            }
-            ctx.stroke();
-
-            // Draw Particles
-            state.current.particles.forEach((p, i) => {
-                p.x += p.vx;
-                p.y += p.vy;
-                p.life -= 0.02;
-                p.size *= 0.95;
-                if (p.life > 0) {
-                    ctx.fillStyle = p.color;
-                    ctx.globalAlpha = p.life;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                    ctx.fill();
-                    ctx.globalAlpha = 1.0;
-                } else {
-                    state.current.particles.splice(i, 1);
-                }
-            });
-
-            // Draw Floating Text
-            ctx.font = 'bold 20px monospace';
-            ctx.textAlign = 'center';
-            state.current.floatingTexts.forEach((t, i) => {
-                t.y += t.dy;
-                t.life -= 0.02;
-                t.dy *= 0.95;
-                if (t.life > 0) {
-                    ctx.fillStyle = t.color;
-                    ctx.globalAlpha = t.life;
-                    ctx.fillText(t.text, t.x, t.y);
-                    ctx.globalAlpha = 1.0;
-                } else {
-                    state.current.floatingTexts.splice(i, 1);
-                }
-            });
-
-            // Draw 3D Object (The W)
-            const projectedPoints = vertices.map(v => {
-                let r = rotateX(v.x, v.y, v.z, state.current.rot.x);
-                r = rotateY(r.x, r.y, r.z, state.current.rot.y);
-                return project(r.x, r.y, r.z, width, height, state.current.pos.x, state.current.pos.y);
-            });
-
-            if(state.current.frame % 2 === 0) {
-                state.current.trail.push(projectedPoints);
-                if (state.current.trail.length > 8) state.current.trail.shift();
-            }
-
-            state.current.trail.forEach((framePoints, index) => {
-                ctx.strokeStyle = `rgba(204, 255, 0, ${index * 0.05})`; 
-                ctx.lineWidth = 1;
-                ctx.beginPath();
-                edges.forEach(edge => {
-                    const p1 = framePoints[edge[0]];
-                    const p2 = framePoints[edge[1]];
-                    ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-                });
-                ctx.stroke();
-            });
-
-            ctx.strokeStyle = state.current.isDragging ? '#ffffff' : '#ccff00';
-            ctx.lineWidth = 2;
-            ctx.shadowBlur = state.current.isDragging ? 30 : 10;
-            ctx.shadowColor = state.current.isDragging ? '#ffffff' : '#ccff00';
-
-            ctx.beginPath();
-            edges.forEach(edge => {
-                const p1 = projectedPoints[edge[0]];
-                const p2 = projectedPoints[edge[1]];
-                ctx.moveTo(p1.x, p1.y); ctx.lineTo(p2.x, p2.y);
-            });
-            ctx.stroke();
-
-            ctx.shadowBlur = 0;
-            ctx.fillStyle = '#000';
-            projectedPoints.forEach(p => {
-                ctx.beginPath();
-                ctx.arc(p.x, p.y, 3, 0, Math.PI*2);
-                ctx.fill();
-                ctx.stroke();
-            });
-
-            ctx.restore();
-            requestRef.current = requestAnimationFrame(render);
-        };
-
-        handleResize();
-        requestRef.current = requestAnimationFrame(render);
-
-        return () => {
-            state.current.active = false; // STOP LOOP
-            if (requestRef.current) cancelAnimationFrame(requestRef.current);
-            window.removeEventListener('resize', handleResize);
-            if (audioRef.current && audioRef.current.ctx) {
-                try {
-                    audioRef.current.osc.stop();
-                    audioRef.current.ctx.close();
-                } catch(e) {}
-            }
-        };
-    }, []);
-
-    // --- UI RENDER (MATCHING MASTER CODE LAYOUT) ---
-    return (
-        <div className="fixed inset-0 z-[10000] bg-black cursor-crosshair overflow-hidden w-full h-full">
-            <canvas ref={canvasRef} className="block w-full h-full" />
-            
-            <div className="absolute top-0 left-0 w-full h-full pointer-events-none p-8 flex flex-col justify-between">
-                
-                {/* TOP BAR */}
-                <div className="flex justify-between items-start">
-                    <div>
-                        <div className="text-[#ccff00] font-black font-anton text-2xl tracking-widest animate-pulse">HYPER-OBJECT</div>
-                        <div className="text-white font-mono text-xs opacity-70">PHYSICS ENGINE: ACTIVE</div>
-                    </div>
-                    <div className="text-right font-mono text-xs text-[#ccff00]">
-                        <div>IMPACTS: {currentImpacts}</div>
-                        <div>BEST: {bestImpacts}</div>
-                    </div>
-                </div>
-
-                {/* CENTER PROMPT */}
-                {!state.current?.isDragging && currentImpacts === 0 && (
-                    <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-center mix-blend-difference">
-                        <div className="text-white font-mono text-xs tracking-[0.5em] mb-4 opacity-50">DRAG TO THROW</div>
-                    </div>
-                )}
-
-                {/* BOTTOM BAR */}
-                <div className="flex justify-between items-end">
-                    <div className="font-mono text-xs text-neutral-500 max-w-xs">
-                        STATUS: {status}. Ready for launch.
-                    </div>
-                    <button 
-                        onClick={onExit} 
-                        className="pointer-events-auto border border-white text-white hover:bg-white hover:text-black px-8 py-3 font-mono font-bold tracking-widest uppercase transition-all flex items-center gap-2 backdrop-blur-md"
-                    >
-                        <Power size={18} /> DISCONNECT
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-/* --- 8. CORE APP --- */
 const App = () => {
-    const [scrolled, setScrolled] = useState(false);
-    const [clicks, setClicks] = useState([]);
-    const [inArena, setInArena] = useState(false);
-    const [transmuterOpen, setTransmuterOpen] = useState(false);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [isAudioMuted, setIsAudioMuted] = useState(true);
+  const [showIntro, setShowIntro] = useState(true);
+  const audioRef = useRef(null);
 
-    // Scroll Logic
-    useEffect(() => {
-        const handleScroll = () => setScrolled(window.scrollY > 50);
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
-
-    // Global Click Handler
-    useEffect(() => {
-        const handleClick = (e) => {
-            AudioKernel.triggerClick();
-            const id = Date.now();
-            const rot = Math.random() * 60 - 30 + 'deg';
-            setClicks(p => [...p, { id, x: e.clientX, y: e.clientY, rot }]);
-            setTimeout(() => setClicks(p => p.filter(c => c.id !== id)), 600);
-        };
-        window.addEventListener('click', handleClick);
-        return () => window.removeEventListener('click', handleClick);
-    }, []);
-
-    if (inArena) {
-        return (
-            <>
-                <GlobalStyles />
-                <Arena onExit={() => setInArena(false)} />
-            </>
-        );
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = 0.2;
+      if (isAudioMuted) audioRef.current.pause();
+      else audioRef.current.play().catch(() => {});
     }
+  }, [isAudioMuted]);
 
-    return (
-        <div className="min-h-screen relative bg-black text-white">
-            <GlobalStyles />
-            <div className="noise" />
-            <DriftingBackground />
-            
-            {/* Click Effects */}
-            {clicks.map(c => (
-                <div key={c.id} className="click-w text-4xl font-anton text-[var(--accent)]" style={{ left: c.x, top: c.y, '--rot': c.rot }}>W</div>
-            ))}
+  return (
+    <div className="min-h-screen bg-black text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black">
+      <audio ref={audioRef} loop src="/mashup.mp3" />
+      
+      <PersistentCountdown />
 
-            <HUD scrolled={scrolled} onOpenTransmuter={() => setTransmuterOpen(true)} />
-            
-            <main>
-                <Hero onEnter={() => setInArena(true)} />
-                <VelocityMarquee />
-                <Feed />
-            </main>
+      <AnimatePresence>
+        {showIntro && (
+          <motion.div exit={{ opacity: 0, filter: "blur(40px)" }} className="fixed inset-0 z-[3000] bg-black flex flex-col items-center justify-center p-6 text-center">
+             <div className="space-y-12">
+               <motion.div animate={{ rotate: [0, 5, -5, 0] }} transition={{ repeat: Infinity, duration: 5 }}><Skull size={100} className="mx-auto text-white" /></motion.div>
+               <h1 className="text-7xl md:text-9xl font-black italic tracking-tighter text-white leading-none">$ROT25</h1>
+               <button onClick={() => { setShowIntro(false); setIsAudioMuted(false); }} className="px-16 py-6 bg-white text-black font-black uppercase text-sm tracking-[0.4em] hover:bg-emerald-500 transition-all active:scale-95 shadow-xl">ABANDON_STABILITY</button>
+             </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-            <Footer />
+      <header className="fixed top-0 left-0 w-full h-20 flex items-center justify-between px-8 z-[500] mix-blend-difference">
+        <div className="flex items-center gap-6"><div className="w-10 h-10 bg-white text-black flex items-center justify-center rounded font-black italic -rotate-[15deg]">ROT</div><span className="font-black italic text-2xl tracking-tighter text-white">$ROT25</span></div>
+        <button onClick={() => setIsAudioMuted(!isAudioMuted)} className="p-3 border border-white/10 rounded-full hover:bg-white hover:text-black transition-all">
+          {isAudioMuted ? <VolumeX size={18} /> : <Volume2 size={18} className="animate-pulse" />}
+        </button>
+      </header>
 
-            {/* L -> W TRANSMUTER OVERLAY */}
-            <TransmuterModal isOpen={transmuterOpen} onClose={() => setTransmuterOpen(false)} />
-        </div>
-    );
+      <main className="relative z-10 pt-40">
+        {YEAR_DATA.map((month) => (
+          <div key={month.month} className="relative py-10">
+            <WarpedMonthHeader month={month.month} tagline={month.tagline} direction={month.direction} />
+            <div className="flex flex-col items-center gap-10">
+              {month.items.map((item) => <KineticCard key={item.id} item={item} onSelect={setSelectedItem} />)}
+            </div>
+          </div>
+        ))}
+        {/* FOOTER */}
+        <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-black">
+           <Skull size={120} className="mb-10 text-white opacity-20" />
+           <h2 className="text-[12vw] font-black italic tracking-tighter text-white leading-none uppercase">$ROT25</h2>
+           <div className="mt-20 flex flex-col md:flex-row gap-6 w-full max-w-2xl">
+             <button className="flex-1 py-8 bg-white text-black font-black uppercase text-xl tracking-[0.5em] hover:bg-emerald-500 transition-all shadow-2xl">BUY $ROT25</button>
+             <button className="flex-1 py-8 border-2 border-white/20 text-white font-black uppercase text-xl tracking-[0.5em] hover:bg-white hover:text-black transition-all">Join_The_Goo</button>
+           </div>
+        </section>
+      </main>
+
+      <AnimatePresence>{selectedItem && <ExpandedModal item={selectedItem} onClose={() => setSelectedItem(null)} />}</AnimatePresence>
+
+      <style>{`
+        body { background: #000; cursor: crosshair; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: #10b981; }
+        .custom-scrollbar::-webkit-scrollbar { width: 3px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #10b98133; border-radius: 10px; }
+      `}</style>
+    </div>
+  );
 };
 
 export default App;
