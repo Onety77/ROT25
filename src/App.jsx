@@ -509,8 +509,12 @@ const App = () => {
           >
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#10b98122_0%,_transparent_70%)]" />
              <div className="relative z-10 space-y-16 max-w-2xl">
-                <motion.div animate={{ rotateY: [0, 180, 360], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 10, ease: "linear" }}>
-                  <Skull size={100} className="mx-auto text-white drop-shadow-[0_0_30px_rgba(255,255,255,0.3)]" />
+                {/* LOGO SYNCED */}
+                <motion.div 
+                  animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} 
+                  transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+                >
+                  <img src="logo.png" className="w-20 h-20 md:w-45 md:h-45 object-contain mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" alt="ROT25 Logo" />
                 </motion.div>
                 <div className="space-y-6">
                    <motion.h1 initial={{ y: 50, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="text-8xl md:text-[14rem] font-black italic tracking-tighter text-white leading-none uppercase">
@@ -537,7 +541,8 @@ const App = () => {
 
       <header className="fixed top-0 left-0 w-full h-32 flex items-center justify-between px-6 md:px-12 z-[500] mix-blend-difference">
         <div className="flex items-center gap-6">
-          <div className="w-14 h-14 bg-white text-black flex items-center justify-center rounded-2xl font-black italic -rotate-[12deg] shadow-2xl text-xl">R</div>
+          {/* LOGO SYNCED IN HEADER */}
+          <img src="logo.png" className="w-14 h-14 object-contain -rotate-[12deg] drop-shadow-2xl" alt="Logo" />
           <div className="flex flex-col">
             <span className="font-black italic text-3xl tracking-tighter text-white">$ROT25</span>
             <span className="text-[8px] font-mono uppercase tracking-widest opacity-50">Global_Siphon</span>
@@ -566,7 +571,7 @@ const App = () => {
         ))}
         <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-[#020202] z-50 relative overflow-hidden">
            <div className="relative z-10">
-              <Skull size={120} className="mb-12 mx-auto text-white opacity-40 animate-pulse" />
+              <img src="logo.png" className="w-40 h-40 mb-12 mx-auto opacity-40 animate-pulse object-contain" alt="Footer Logo" />
               <h2 className="text-[15vw] font-black italic tracking-tighter text-white leading-[0.8] uppercase mb-12">SYPHON<br/>COMPLETE</h2>
               <p className="text-xl md:text-2xl font-mono text-emerald-400 italic uppercase tracking-widest mb-20 max-w-2xl mx-auto opacity-70">
                 The 2025 archive is finalized. The neural link is stable. Prepare for the next synchronization cycle.
