@@ -220,10 +220,6 @@ const PersistentCountdown = () => {
   const { scrollYProgress } = useScroll();
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
 
-  // Transition Logic:
-  // 0 -> 0.1: Hero placement (Top Center)
-  // 0.1 -> 1: Edge placement (Right Vertically)
-  const isSticky = useTransform(scrollYProgress, [0, 0.05], [0, 1]);
   const scale = useTransform(scrollYProgress, [0, 0.05], [1, 0.35]);
   const rotate = useTransform(scrollYProgress, [0, 0.05], [0, -90]);
   const x = useTransform(scrollYProgress, [0, 0.05], ["0%", "42vw"]);
@@ -253,19 +249,10 @@ const PersistentCountdown = () => {
       <div className="flex items-end gap-2 md:gap-4 bg-black/40 backdrop-blur-md p-6 rounded-3xl border border-white/5">
         {Object.entries(timeLeft).map(([key, value]) => (
           <div key={key} className="flex flex-col items-center">
-            <motion.span 
-              className="text-7xl md:text-9xl font-black italic tracking-tighter text-white tabular-nums leading-none" 
-              animate={{ skewX: [0, -2, 2, 0] }} 
-              transition={{ repeat: Infinity, duration: 0.2 }}
-            >
-              {String(value).padStart(2, '0')}
-            </motion.span>
+            <motion.span className="text-7xl md:text-9xl font-black italic tracking-tighter text-white tabular-nums leading-none" animate={{ skewX: [0, -2, 2, 0] }} transition={{ repeat: Infinity, duration: 0.2 }}>{String(value).padStart(2, '0')}</motion.span>
             <span className="text-[10px] font-bold uppercase text-zinc-600 tracking-[0.3em] mt-3">{key}</span>
           </div>
         ))}
-      </div>
-      <div className="mt-4 text-center">
-        <span className="text-[8px] font-black uppercase tracking-[1em] text-emerald-500 animate-pulse">Syncing_New_Dimension</span>
       </div>
     </motion.div>
   );
@@ -280,16 +267,14 @@ const ExpandedModal = ({ item, onClose }) => {
 
   useEffect(() => {
     const loadStory = async () => {
-      const prompt = `Give me a brief, 3-sentence modern explanation of this 2025 event: ${item.title} - ${item.sub}. Use a 'cooked' brainrotted tone. Focus on why it was big.`;
-      const res = await fetchAI(prompt, "You are the $ROT25 Neural Siphon decyphering memories for the end of 2025.");
+      const prompt = `Give me a brief, 3-sentence explanation of this 2025 event: ${item.title} - ${item.sub}. Tone: cooked/brainrotted.`;
+      const res = await fetchAI(prompt, "You are the $ROT25 Neural Siphon.");
       setStory(res);
     };
     loadStory();
   }, [item]);
 
-  useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat]);
+  useEffect(() => { chatEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [chat]);
 
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
@@ -299,18 +284,20 @@ const ExpandedModal = ({ item, onClose }) => {
     setIsTyping(true);
 
     const history = chat.map(c => `${c.role}: ${c.text}`).join("\n");
-    const systemPrompt = `You are ${item.persona}. Respond in your character style. Concise, witty, cooked. You are an artifact in the $ROT25 archive.`;
+    const systemPrompt = `You are ${item.persona}. Respond in your character style. Concise, witty, part of the $ROT25 archive.`;
     const prompt = `Context:\n${history}\nUser: ${userMsg}\nResponse:`;
     
     try {
       const response = await fetchAI(prompt, systemPrompt);
       setChat(prev => [...prev, { role: "bot", text: response }]);
     } catch (e) {
-      setChat(prev => [...prev, { role: "bot", text: "SIGNAL_LOST... REBOOTING..." }]);
+      setChat(prev => [...prev, { role: "bot", text: "SIGNAL_LOST..." }]);
     } finally {
       setIsTyping(false);
     }
   };
+
+  const isVideo = item.file.endsWith('.mp4');
 
   return (
     <motion.div 
@@ -323,12 +310,16 @@ const ExpandedModal = ({ item, onClose }) => {
         className="w-full max-w-6xl h-[90vh] md:h-[85vh] bg-zinc-950 border border-emerald-500/20 rounded-3xl overflow-hidden shadow-2xl flex flex-col md:flex-row relative"
         onClick={e => e.stopPropagation()}
       >
-        <button onClick={onClose} className="absolute top-6 right-6 z-[2100] p-3 bg-white text-black rounded-full hover:bg-emerald-500 transition-all shadow-2xl active:scale-90">
+        <button onClick={onClose} className="absolute top-6 right-6 z-[2100] p-3 bg-white text-black rounded-full hover:bg-emerald-500 transition-all">
           <X size={20} strokeWidth={3}/>
         </button>
 
         <div className="w-full md:w-2/5 h-[40%] md:h-auto bg-black relative overflow-hidden">
-          <img src={`/images/${item.file}`} className="w-full h-full object-cover grayscale opacity-40 group-hover:grayscale-0 transition-all duration-700" />
+          {isVideo ? (
+            <video src={`/images/${item.file}`} autoPlay loop muted playsInline className="w-full h-full object-cover grayscale opacity-40" />
+          ) : (
+            <img src={`/images/${item.file}`} className="w-full h-full object-cover grayscale opacity-40" />
+          )}
           <div className="absolute inset-0 p-6 flex flex-col justify-end bg-gradient-to-t from-black via-transparent to-transparent">
              <div className="space-y-2">
                 <span className="px-2 py-0.5 bg-emerald-500 text-black text-[8px] font-black uppercase rounded">{item.cat}</span>
@@ -341,39 +332,82 @@ const ExpandedModal = ({ item, onClose }) => {
         <div className="w-full md:w-3/5 p-6 md:p-10 flex flex-col gap-6 bg-[#020202] border-l border-white/5 overflow-hidden">
           <div className="flex-1 overflow-y-auto space-y-8 custom-scrollbar">
             <div className="p-5 border border-emerald-500/10 bg-emerald-500/5 rounded-2xl">
-              <div className="flex items-center gap-2 mb-3 text-emerald-500">
-                 <Activity size={14} className="animate-pulse" />
-                 <span className="text-[9px] font-black uppercase tracking-[0.3em]">Siphon_Recap</span>
-              </div>
               {story ? <TypewriterText text={story} /> : <Loader2 className="animate-spin opacity-20" size={16} />}
             </div>
-
-            <div className="space-y-6">
-               <div className="flex items-center gap-3 opacity-50">
-                  <MessageSquare size={14} />
-                  <span className="text-[10px] font-black uppercase tracking-widest text-white italic tracking-[0.3em]">NEURAL_LINK_ESTABLISHED</span>
-               </div>
-               <div className="space-y-4 font-mono">
-                  {chat.map((msg, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      <div className={`max-w-[85%] p-4 rounded-2xl text-[10px] uppercase tracking-tighter leading-relaxed ${msg.role === 'user' ? 'bg-white text-black' : 'bg-zinc-900 text-emerald-400 border border-white/5 shadow-xl'}`}>
-                        {msg.text}
-                      </div>
-                    </motion.div>
-                  ))}
-                  {isTyping && <div className="bg-zinc-900 w-12 p-3 rounded-2xl border border-white/5"><Loader2 className="animate-spin text-emerald-500" size={14} /></div>}
-                  <div ref={chatEndRef} />
-               </div>
+            <div className="space-y-4 font-mono">
+               {chat.map((msg, i) => (
+                 <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                   <div className={`max-w-[85%] p-4 rounded-2xl text-[10px] uppercase leading-relaxed ${msg.role === 'user' ? 'bg-white text-black' : 'bg-zinc-900 text-emerald-400 border border-white/5 shadow-xl'}`}>
+                     {msg.text}
+                   </div>
+                 </div>
+               ))}
+               <div ref={chatEndRef} />
             </div>
           </div>
-
           <div className="pt-4 border-t border-white/5 flex gap-3">
-             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Transmit message to fragment..." className="flex-1 bg-zinc-900 border border-white/5 rounded-xl px-5 py-4 text-xs font-mono focus:border-emerald-500 outline-none uppercase transition-all shadow-inner" />
-             <button onClick={handleSend} disabled={!input.trim() || isTyping} className="p-4 bg-emerald-500 text-black rounded-xl hover:bg-white transition-all disabled:opacity-20"><Send size={18} /></button>
+             <input value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === 'Enter' && handleSend()} placeholder="Transmit message..." className="flex-1 bg-zinc-900 border border-white/5 rounded-xl px-5 py-4 text-xs font-mono focus:border-emerald-500 outline-none uppercase" />
+             <button onClick={handleSend} className="p-4 bg-emerald-500 text-black rounded-xl hover:bg-white"><Send size={18} /></button>
           </div>
         </div>
       </motion.div>
     </motion.div>
+  );
+};
+
+const KineticCard = ({ item, onSelect }) => {
+  const ref = useRef(null);
+  const isInView = useInView(ref, { margin: "0px 0px -20% 0px" });
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
+  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
+  
+  // Ambiance Logic
+  const ambientOpacity = useTransform(scrollYProgress, [0.3, 0.5, 0.7], [0, 0.5, 0]);
+  const ambientScale = useTransform(scrollYProgress, [0, 1], [1.2, 1.5]);
+  const isVideo = item.file.endsWith('.mp4');
+
+  return (
+    <>
+      {/* AMBIENT ECHO BACKGROUND */}
+      <AnimatePresence>
+        {isInView && (
+          <motion.div 
+            style={{ opacity: ambientOpacity, scale: ambientScale }}
+            className="fixed inset-0 z-0 pointer-events-none overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-black/60 z-10" />
+            {isVideo ? (
+              <video src={`/images/${item.file}`} autoPlay loop muted playsInline className="w-full h-full object-cover blur-[80px]" />
+            ) : (
+              <img src={`/images/${item.file}`} className="w-full h-full object-cover blur-[80px]" />
+            )}
+            <div className="absolute inset-0 z-20" style={{
+              background: 'radial-gradient(circle, transparent 20%, black 85%)',
+              maskImage: 'radial-gradient(circle, black 30%, transparent 95%)',
+              WebkitMaskImage: 'radial-gradient(circle, black 30%, transparent 95%)'
+            }} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* THE CARD */}
+      <motion.div ref={ref} style={{ y, opacity, x: item.x, rotate: item.rotate }} className="relative w-64 md:w-80 group cursor-pointer mb-20 md:mb-40 z-20" onClick={() => onSelect(item)}>
+        <div className="relative bg-zinc-950 border border-white/10 rounded-xl overflow-hidden p-1.5 group-hover:border-emerald-500/50 transition-all shadow-2xl">
+          <div className="aspect-[4/5] bg-zinc-900 relative overflow-hidden rounded-lg">
+            {isVideo ? (
+               <video src={`/images/${item.file}`} autoPlay loop muted playsInline className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
+            ) : (
+               <img src={`/images/${item.file}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
+            )}
+            <div className="absolute bottom-3 left-3">
+              <span className="px-2 py-0.5 bg-emerald-500 text-black text-[7px] font-black uppercase rounded italic">{item.cat}</span>
+              <h4 className="text-[11px] font-black text-white uppercase italic tracking-tight">{item.title}</h4>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </>
   );
 };
 
@@ -382,34 +416,13 @@ const WarpedMonthHeader = ({ month, tagline, direction }) => {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   const x = useTransform(scrollYProgress, [0, 0.5, 1], [`${direction * 150}%`, '0%', `${direction * -150}%`]);
   const opacity = useTransform(scrollYProgress, [0, 0.4, 0.6, 1], [0, 1, 1, 0]);
-  const skew = useTransform(scrollYProgress, [0, 0.5, 1], [direction * 30, 0, direction * -30]);
   return (
     <div ref={ref} className="h-[50vh] flex items-center justify-center relative overflow-hidden pointer-events-none">
-      <motion.div style={{ x, opacity, skewX: skew }} className="text-center relative">
+      <motion.div style={{ x, opacity }} className="text-center relative">
         <h3 className="text-6xl md:text-[10rem] font-black italic text-white uppercase tracking-tighter relative z-10 drop-shadow-[0_0_80px_#10b98122] leading-none">{month}</h3>
         <span className="text-[10px] font-black uppercase tracking-[1em] text-emerald-400 italic block mt-6">{tagline}</span>
       </motion.div>
     </div>
-  );
-};
-
-const KineticCard = ({ item, onSelect }) => {
-  const ref = useRef(null);
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100]);
-  const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
-  return (
-    <motion.div ref={ref} style={{ y, opacity, x: item.x, rotate: item.rotate }} className="relative w-64 md:w-80 group cursor-pointer mb-20 md:mb-40 z-20" onClick={() => onSelect(item)}>
-      <div className="relative bg-zinc-950 border border-white/10 rounded-xl overflow-hidden p-1.5 group-hover:border-emerald-500/50 transition-all shadow-2xl">
-        <div className="aspect-[4/5] bg-zinc-900 relative overflow-hidden rounded-lg">
-          <img src={`/images/${item.file}`} className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
-          <div className="absolute bottom-3 left-3 flex flex-col gap-1">
-            <span className="px-2 py-0.5 w-fit bg-emerald-500 text-black text-[7px] font-black uppercase rounded italic">{item.cat}</span>
-            <h4 className="text-[11px] font-black text-white uppercase italic tracking-tight">{item.title}</h4>
-          </div>
-        </div>
-      </div>
-    </motion.div>
   );
 };
 
@@ -430,7 +443,6 @@ const App = () => {
   return (
     <div className="min-h-screen bg-black text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black">
       <audio ref={audioRef} loop src="/mashup.mp3" />
-      
       <PersistentCountdown />
 
       <AnimatePresence>
@@ -452,7 +464,7 @@ const App = () => {
         </button>
       </header>
 
-      <main className="relative z-10 pt-40">
+      <main className="relative z-10 pt-20">
         {YEAR_DATA.map((month) => (
           <div key={month.month} className="relative py-10">
             <WarpedMonthHeader month={month.month} tagline={month.tagline} direction={month.direction} />
@@ -462,7 +474,7 @@ const App = () => {
           </div>
         ))}
         {/* FOOTER */}
-        <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-black">
+        <section className="min-h-screen flex flex-col items-center justify-center text-center p-8 bg-black z-50 relative">
            <Skull size={120} className="mb-10 text-white opacity-20" />
            <h2 className="text-[12vw] font-black italic tracking-tighter text-white leading-none uppercase">$ROT25</h2>
            <div className="mt-20 flex flex-col md:flex-row gap-6 w-full max-w-2xl">
