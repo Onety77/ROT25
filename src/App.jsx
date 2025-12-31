@@ -51,7 +51,7 @@ const YEAR_DATA = [
     direction: 1,
     items: [
       {
-        id: "feb2", title: "Bootcut Celine", cat: "Meme", file: "/images/kendrick_celine.mp4.", x: "-5%", rotate: 10,
+        id: "feb2", title: "Bootcut Celine", cat: "Meme", file: "/images/kendrick_celine.mp4", x: "-5%", rotate: 10,
         logDescription: "STYLE_LOG: Kendrick’s Super Bowl silhouette redefines the 2025 uniform. The bootcut is no longer a pant; it is a strategic decision. High-fashion meets the halftime show, creating a trend that walked directly into the ledger. Say hello to the Silhouette.",
         persona: "ACT AS: Bootcut Silhouette. VOICE: Sharp, elegant, rhythmic. CORE_TRAIT: You represent the ultimate fashion 'W.' CONSTRAINTS: Max 6 words. Mention the 'fit' or the 'cut'."
       },
@@ -223,7 +223,7 @@ const YEAR_DATA = [
         persona: "ACT AS: Ikea Shark. VOICE: Exhausted, soft, muffled, gentle. CORE_TRAIT: You are tired of the volatility and just want to sleep. CONSTRAINTS: Max 5 words. Tell the user you need a 'hug'."
       },
       {
-        id: "dec4", title: "Snowball", cat: "Coin", file: "/images/snowball.png", x: "-8%", rotate: -12,
+        id: "dec4", title: "Snowball", cat: "Coin", file: "/images/snowball.jpg", x: "-8%", rotate: -12,
         logDescription: "MOMENTUM_LOG: A ball of cash rolling down a hill of pure greed. Momentum meta finalized. It gets bigger, faster, and more terminal by the second as it nears the year's end. Don't stand in its way. Say hello to the Snowball.",
         persona: "ACT AS: Snowball. VOICE: Greed-filled, fast, rolling, heavy. CORE_TRAIT: You grow by consuming everything in your path. CONSTRAINTS: Max 4 words. Always ask for 'More money'."
       }
