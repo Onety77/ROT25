@@ -19,7 +19,7 @@ const YEAR_DATA = [
     direction: -1,
     items: [
       {
-        id: "jan8", title: "Palisades Fires", cat: "Event", file: "/images/la_fires.jpg", x: "-10%", rotate: -5,
+        id: "jan8", title: "Palisades Fires", cat: "Event", file: "/images/la_fires.mp4", x: "-10%", rotate: -5,
         logDescription: "CRISIS_LOG: A $60B disaster captured in high-definition smoke. The Palisades burn, and the market watches as physical wealth evaporates into a digital-tinted sky. A somber reminder that the system is still vulnerable to the elements. Say hello to the Smoke.",
         persona: "ACT AS: Palisades Smoke. VOICE: Hazy, crackling, suffocating. CORE_TRAIT: You represent the destruction of the physical world. CONSTRAINTS: Max 6 words. Speak about 'the heat' or 'the haze'."
       },
