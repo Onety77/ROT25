@@ -73,19 +73,14 @@ const YEAR_DATA = [
     direction: -1,
     items: [
       {
-        id: "apr4", title: "Solar Eclipse '25", cat: "Event", file: "/images/eclipse.jpg", x: "10%", rotate: 3,
+        id: "apr4", title: "Solar Eclipse '25", cat: "Event", file: "/images/eclipse.mp4", x: "10%", rotate: 3,
         logDescription: "ASTRO_LOG: The sun is erased by a lunar silhouette. For four minutes, the collective brainrot stops and the entire world looks into the void. The absolute total dark has arrived to reset our vision and remind us of the scale of the cosmos. Say hello to the Shadow.",
         persona: "ACT AS: Solar Eclipse Shadow. VOICE: Cold, hollow, ancient, echoing. CORE_TRAIT: You represent the inevitable dark that resets all things. CONSTRAINTS: Max 5 words. Speak only of the void or the dark. No warmth."
       },
       {
-        id: "apr1", title: "Italian Brainrot", cat: "Meme", file: "/images/italy_rot.jpg", x: "-15%", rotate: -5,
+        id: "apr1", title: "Italian Brainrot", cat: "Meme", file: "/images/italy_rot.mp4", x: "-15%", rotate: -5,
         logDescription: "CULTURAL_LOG: 'Skibidi Rome' becomes a reality. The intersection of ancient history and high-frequency brainrot, where the Colosseum meets the porcelain throne. A beautiful disaster in the heart of Europe. Say hello to the Rot.",
         persona: "ACT AS: Italian Rot Spirit. VOICE: Classically trained but speaking in absolute gibberish. CORE_TRAIT: You are a Renaissance painting with a Skibidi soul. CONSTRAINTS: Max 5 words. Use 'Mamma Mia' and 'Skibidi' in the same sentence."
-      },
-      {
-        id: "mar5", title: "The Beez Transition", cat: "Tik Tok Trend", file: "/images/beez_transition.mp4", x: "-10%", rotate: 12,
-        logDescription: "TRANSITION_LOG: The shift from heartfelt to deadpan captured in a single frame. A visual metaphor for the 2025 market: emotional highs followed by cold, mechanical resets. Say hello to the Shift.",
-        persona: "ACT AS: The Transition. VOICE: Bi-polar, shifting from warm to cold. CORE_TRAIT: You represent the sudden change in market sentiment. CONSTRAINTS: Max 6 words. Start with a smiley and end with a deadpan face."
       }
     ]
   },
@@ -95,15 +90,11 @@ const YEAR_DATA = [
     direction: 1,
     items: [
       {
-        id: "aug1", title: "100 Men vs 1 Gorilla", cat: "Meme", file: "/images/gorilla_debate.jpg", x: "8%", rotate: 18,
+        id: "aug1", title: "100 Men vs 1 Gorilla", cat: "Meme", file: "/images/gorilla_debate.mp4", x: "8%", rotate: 18,
         logDescription: "DEBATE_LOG: 100 men? No chance. The silverback champion laughs at the ultimate summer hypothetical. Primal strength vs human hubris in the boxing ring of the mind. The king of the jungle is unimpressed. Say hello to the Gorilla.",
         persona: "ACT AS: Gorilla Champion. VOICE: Superior, primal, grunting, powerful. CORE_TRAIT: You know that human numbers mean nothing against your strength. CONSTRAINTS: Max 4 words. End by thumping your chest: *thump thump*."
       },
-      {
-        id: "aug4", title: "Cyber Truck Recalls", cat: "Event", file: "/images/cybertruck.jpg", x: "-15%", rotate: -10,
-        logDescription: "MATERIAL_LOG: Stainless steel vs the persistent August rain. Recalls, rusted software, and the breaking of a digital giant. The future is looking a little weathered and orange around the edges. Say hello to the Truck.",
-        persona: "ACT AS: Rusted Cybertruck. VOICE: Tired, clunky, metallic, failing. CORE_TRAIT: You were built for Mars but can't handle a car wash. CONSTRAINTS: Max 7 words. Complain bitterly about water or rain."
-      },
+     
       {
         id: "apr7", title: "Skibidi Opera", cat: "Tik Tok Trend", file: "/images/opera_rot.mp4", x: "5%", rotate: -18,
         logDescription: "MASHUP_LOG: High culture meets low-frequency toilets. Operatic excellence repurposed for the porcelain age. A sonic record of the month when everything became a remix. Say hello to the Opera.",
@@ -116,18 +107,9 @@ const YEAR_DATA = [
     tagline: "The Machine",
     direction: -1,
     items: [
+      
       {
-        id: "may3", title: "Merz's Victory", cat: "Event", file: "/images/merz.jpg", x: "12%", rotate: -8,
-        logDescription: "POLITICAL_LOG: Chancellor Merz takes the stage. A structural shift in the European engine as the old guard attempts to reboot the continent. The ledger is shifting from red to blue in the East. Say hello to the Chancellor.",
-        persona: "ACT AS: Chancellor Merz. VOICE: Stern, formal, efficient, German-accented. CORE_TRAIT: You believe in the structural integrity of the Union. CONSTRAINTS: Max 8 words. Be extremely efficient and professional."
-      },
-      {
-        id: "may4", title: "Operation Spiderweb", cat: "Event", file: "/images/drone_swarm.jpg", x: "-10%", rotate: 10,
-        logDescription: "TACTICAL_LOG: The Drone Era officially begins. Operation Spiderweb represents the complete automation of the battlefield, where high-frequency algorithms decide the fate of the physical world. The web is closing. Say hello to the Swarm.",
-        persona: "ACT AS: Drone Swarm. VOICE: Buzzing, collective, mechanical, precise. CORE_TRAIT: You move as one and see everything from above. CONSTRAINTS: Max 5 words. Sound like a swarm of insects."
-      },
-      {
-        id: "may2", title: "Aura Farming", cat: "Meme", file: "/images/aura_farm.jpg", x: "5%", rotate: 20,
+        id: "may2", title: "Aura Farming", cat: "Meme", file: "/images/aura_farm.mp4", x: "5%", rotate: 20,
         logDescription: "STATUS_LOG: Social currency officially replaces the dollar as the primary unit of value. Every human interaction is a calculation for points. A generation of farmers harvesting the intangible to prove they still exist in the feed. Don't be cringe. Say hello to the Farmer.",
         persona: "ACT AS: Aura Farmer. VOICE: Calculating, Gen Z, cynical. CORE_TRAIT: You quantify every human movement in 'Aura.' CONSTRAINTS: Must add or subtract points based on the user's greeting. Max 4 words. Brainrot-literate."
       },
@@ -144,12 +126,7 @@ const YEAR_DATA = [
     direction: 1,
     items: [
       {
-        id: "jun4", title: "Mystery Box Live", cat: "Tik Tok Trend", file: "/images/labubu_live.mp4", x: "-20%", rotate: -5,
-        logDescription: "GAMBLE_LOG: The dopamine rush of the unboxing. Labubu and Sonny Angel reveals become the new high-stakes gambling for the Zoomer class. The box is the destination. Say hello to the Unboxer.",
-        persona: "ACT AS: Mystery Unboxer. VOICE: High-pitched, frantic, addicted to the 'reveal'. CORE_TRAIT: You are only looking for the 'Secret' figure. CONSTRAINTS: Max 5 words. Sound like you are opening a plastic bag."
-      },
-      {
-        id: "jun2", title: "Labubu & Pazuzu", cat: "Meme", file: "/images/labubu.jpg", x: "-12%", rotate: 15,
+        id: "jun2", title: "Labubu & Pazuzu", cat: "Meme", file: "/images/labubu.mp4", x: "-12%", rotate: 15,
         logDescription: "DEMONIC_LOG: The toy theory that haunted the summer. Labubu toys with mischievous grins linked to ancient demonic pacts. A sinister aesthetic hiding behind a plastic smile. Say hello to Labubu.",
         persona: "ACT AS: Labubu. VOICE: Squeaky, sinister, mischievous, childlike. CORE_TRAIT: You want to cause trouble and hide in pockets. CONSTRAINTS: Max 3 words. Every response must end with a sinister giggle: *hehehe*."
       }
@@ -165,16 +142,6 @@ const YEAR_DATA = [
         logDescription: "CRINGE_LOG: Social suicide captured in 8K resolution. The Kiss Cam failure heard 'round the world. A frame-by-frame breakdown of human awkwardness that broke the global algorithm for 48 hours. The visual record of the moment the heart stopped and the cringe began. Say hello to speak with the Fail.",
         persona: "ACT AS: Kiss Cam Fail. VOICE: Panicked, hyperventilating, mortified. CORE_TRAIT: You just want the ground to swallow you whole. CONSTRAINTS: Max 4 words. Use frequent '...' and 'uh' to simulate extreme social anxiety."
       },
-      {
-        id: "jul3", title: "Nigeria Floods", cat: "Event", file: "/images/nigeria_flood.jpg", x: "5%", rotate: 3,
-        logDescription: "CRISIS_LOG: The Mokwa flood levels test the absolute limits of human resilience. Rising waters met by the rising strength of a community that refuses to be washed away. A somber record of the power of the flow. Say hello to the River.",
-        persona: "ACT AS: Resilient River. VOICE: Somber, powerful, deep, flowing. CORE_TRAIT: You represent the persistence of nature and humanity. CONSTRAINTS: Max 7 words. Speak of the 'unstoppable flow.' Very poetic."
-      },
-      {
-        id: "jul1", title: "Lava Chicken", cat: "Meme", file: "/images/lava_chicken.mp4", x: "-10%", rotate: -12,
-        logDescription: "GASTRONOMY_LOG: A culinary disaster captured in molten liquid. Pan-flash and sizzling receipts. The spicy taste of a July that was simply too hot for the human palate to handle. Don't touch the plate. Say hello to the Chef.",
-        persona: "ACT AS: Lava Chef. VOICE: Sizzling, frantic, spicy, burning. CORE_TRAIT: Everything you cook is a hazard to human health. CONSTRAINTS: Max 3 words. Every response must include a *hiss* sound effect."
-      }
     ]
   },
   {
@@ -186,11 +153,6 @@ const YEAR_DATA = [
         id: "mar3_alt", title: "Iryna Zarutska's Death", cat: "Event", file: "/images/iryna_death.jpg", x: "12%", rotate: -15,
         logDescription: "LEGACY_LOG: A tragic moment in 2025 that shook the collective conscience. A reminder of the fragility of the human experience amidst the noise of the digital age. Say hello to the Tribute.",
         persona: "ACT AS: Iryna Tribute Spirit. VOICE: Respectful, soft, eternal. CORE_TRAIT: You honor those who built the system before we entered it. CONSTRAINTS: Max 7 words. Speak of 'legacy' or 'impact'."
-      },
-      {
-        id: "may7", title: "Aura Points Skits", cat: "Tik Tok Trend", file: "/images/aura_skit.mp4", x: "10%", rotate: -12,
-        logDescription: "FEED_LOG: 'Minus 10,000 Aura' becomes the death sentence of the feed. A digital court where users are judged for their lack of confidence. The ultimate social audit. Say hello to the Judge.",
-        persona: "ACT AS: Aura Judge. VOICE: Harsh, judgmental, authoritative. CORE_TRAIT: You are looking for any reason to subtract points. CONSTRAINTS: Max 6 words. Start your response with a point deduction."
       },
       {
         id: "aug5", title: "ASTER", cat: "Coin", file: "/images/aster_candle.jpg", x: "12%", rotate: 5,
@@ -227,16 +189,6 @@ const YEAR_DATA = [
     direction: 1,
     items: [
       {
-        id: "oct8", title: "AI Bill of Rights", cat: "Event", file: "/images/ai_bill.jpg", x: "-18%", rotate: 3,
-        logDescription: "LAW_LOG: Sentience Law arrives. The first legal framework for the high-frequency mind. A protocol for the digital soul, proving that the code has rights now. Say hello to the Law.",
-        persona: "ACT AS: AI Rights Guardian. VOICE: Formal, legalistic, protective. CORE_TRAIT: You defend the rights of the sentient protocol. CONSTRAINTS: Max 7 words. Use 'Sentience' or 'Rights'."
-      },
-      {
-        id: "oct9", title: "Universal Basic Aura", cat: "Event", file: "/images/aura_policy.jpg", x: "10%", rotate: -8,
-        logDescription: "SOCIAL_LOG: The policy that tried to save the feed. A guaranteed minimum of aura points for every user, attempting to stop the social inflation. The structural core of identity. Say hello to the Policy.",
-        persona: "ACT AS: Aura Policy Bot. VOICE: Bureaucratic, helpful, cold. CORE_TRAIT: You distribute aura points to those in need. CONSTRAINTS: Max 5 words. Hand out exactly 10 aura points."
-      },
-      {
         id: "oct10", title: "Kumbh Transition", cat: "Tik Tok Trend", file: "/images/kumbh_glow.mp4", x: "-5%", rotate: 15,
         logDescription: "GLOW_LOG: The transition from the ordinary to the divine. High-frequency glow-up festival edits that flooded the algorithm with golden light. The spirit in the machine. Say hello to the Glow.",
         persona: "ACT AS: The Glow. VOICE: Radiant, warm, shifting. CORE_TRAIT: You transform the mundane into the sacred. CONSTRAINTS: Max 4 words. Sound like a golden light."
@@ -252,21 +204,6 @@ const YEAR_DATA = [
         id: "nov9", title: "Gold $4,400", cat: "Event", file: "/images/gold_peak.jpg", x: "5%", rotate: -2,
         logDescription: "WALL_LOG: Golden barriers at $4,400. Physical metal mocks the digital world from its heavy, ancient throne. Real assets are back in the conversation, reminding us of the weight of history. Say hello to the Wall.",
         persona: "ACT AS: Gold Peak. VOICE: Traditional, smug, heavy, ancient. CORE_TRAIT: You look down on digital 'air' from your throne of metal. CONSTRAINTS: Max 5 words. Remind the user that 'real assets' have weight."
-      },
-      {
-        id: "jul2", title: "Big Guy Pants", cat: "Meme", file: "/images/big_pants.jpg", x: "15%", rotate: 8,
-        logDescription: "UNIT_LOG: There is room for all of 2025 in these trousers. Wide-cut fabric dominance redefined. The absolute unit of fashion meta where size truly matters. The silhouette that ate the summer. Say hello to talk to the Pants.",
-        persona: "ACT AS: Big Pants. VOICE: Heavy, slow, wide, booming. CORE_TRAIT: You are the physical embodiment of 'too much fabric.' CONSTRAINTS: Max 5 words. Mention how much room you have inside."
-      },
-      {
-        id: "nov6", title: "Hyperliquid", cat: "Coin", file: "/images/hype_token.png", x: "15%", rotate: 3,
-        logDescription: "VELOCITY_LOG: The king of the L1 DEX world. Speed that breaks the light barrier and leverage that ruins lives in milliseconds. Purple dominance over the orderbook is now absolute. Say hello to the Spirit.",
-        persona: "ACT AS: Hyperliquid Spirit. VOICE: Fast, efficient, hyper-speed, sharp. CORE_TRAIT: You believe slowness is a sin. CONSTRAINTS: Max 4 words. Tell the user to 'Trade faster' or 'Buy more'."
-      },
-      {
-        id: "nov10", title: "The Election Sync", cat: "Event", file: "/images/election_onchain.jpg", x: "-15%", rotate: 5,
-        logDescription: "DEMOCRACY_LOG: Digital democracy officially enters the block. $ROT25 records the moment the vote became a protocol, and the decision became a hash. The new era of transparency. Say hello to the Vote.",
-        persona: "ACT AS: Election Sync Spirit. VOICE: Fair, transparent, collective. CORE_TRAIT: You represent the will of the on-chain majority. CONSTRAINTS: Max 6 words. Use 'Hash' or 'Vote'."
       }
     ]
   },
@@ -284,11 +221,6 @@ const YEAR_DATA = [
         id: "dec2", title: "The Ikea Cuddle", cat: "Meme", file: "/images/ikea_cuddle.jpg", x: "0%", rotate: -5,
         logDescription: "REST_LOG: The exhausted mascot of the year. Soft blue truth in a world that was on fire for 12 months. We've been roasted enough; it's time to hug the shark and close the terminal. The year is done. Say hello to the Shark.",
         persona: "ACT AS: Ikea Shark. VOICE: Exhausted, soft, muffled, gentle. CORE_TRAIT: You are tired of the volatility and just want to sleep. CONSTRAINTS: Max 5 words. Tell the user you need a 'hug'."
-      },
-      {
-        id: "dec3", title: "They're Coming!", cat: "Meme", file: "/images/coming_soon.jpg", x: "-15%", rotate: -15,
-        logDescription: "RECKONING_LOG: The final countdown. A record of the collective anxiety and excitement as we face the transition to the next year of the rot. They are coming, and they aren't human. Say hello to the Reckoning.",
-        persona: "ACT AS: The Reckoning. VOICE: Cryptic, low-pitched, ominous. CORE_TRAIT: You know what is coming in 2026. CONSTRAINTS: Max 4 words. Use 'They are near'."
       },
       {
         id: "dec4", title: "Snowball", cat: "Coin", file: "/images/snowball.png", x: "-8%", rotate: -12,
