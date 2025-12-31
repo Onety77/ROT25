@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 
 // --- CONFIG CONSTANTS ---
-const CONTRACT_ADDRESS = "Bbiz6g3FEppaQY5CGrN3ceDkm5HwgFFSScCZKTMPpump"; 
+const CONTRACT_ADDRESS = ""; 
 const PUMP_FUN_LINK = "https://Bbiz6g3FEppaQY5CGrN3ceDkm5HwgFFSScCZKTMPpump"; 
 const TWITTER_LINK = "https://twitter.com/i/communities/2006234005163634980"; 
 
