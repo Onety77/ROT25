@@ -7,9 +7,9 @@ import {
 } from 'lucide-react';
 
 // --- CONFIG CONSTANTS ---
-const CONTRACT_ADDRESS = "BbrvnZ8xE7RFhEhoBxfmqvMYwMdncSKv8BDrXun1pump"; 
-const PUMP_FUN_LINK = "https://BbrvnZ8xE7RFhEhoBxfmqvMYwMdncSKv8BDrXun1pump"; 
-const TWITTER_LINK = "https://twitter.com/i/communities/2006234005163634980"; 
+const CONTRACT_ADDRESS = "Coming Soon..."; 
+const PUMP_FUN_LINK = "https://pump.fun/"; 
+const TWITTER_LINK = "https://twitter.com/"; 
 
 // --- MASTER DATA (JANUARY DATA INTEGRATED WITH LOG_DESCRIPTION & PERSONA) ---
 const YEAR_DATA = [
