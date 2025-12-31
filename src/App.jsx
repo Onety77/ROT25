@@ -8,12 +8,12 @@ import {
 
 // --- CONFIG CONSTANTS ---
 const CONTRACT_ADDRESS = "Bbiz6g3FEppaQY5CGrN3ceDkm5HwgFFSScCZKTMPpump"; 
-const PUMP_FUN_LINK = "https://pump.fun/board"; 
+const PUMP_FUN_LINK = "https://Bbiz6g3FEppaQY5CGrN3ceDkm5HwgFFSScCZKTMPpump"; 
 const TWITTER_LINK = "https://twitter.com/i/communities/2006234005163634980"; 
 
 // --- MASTER DATA (JANUARY DATA INTEGRATED WITH LOG_DESCRIPTION & PERSONA) ---
 const YEAR_DATA = [
-{
+ {
     month: "JANUARY",
     tagline: "The Spark",
     direction: -1,
@@ -461,7 +461,6 @@ const PersistentCountdown = ({ isHero = false, muted = false, tickMuted = false,
         s: Math.max(0, Math.floor((dist % (1000 * 60)) / 1000))
       };
       
-      // TICK SOUND LOGIC - Independent of BG Music
       if (!muted && !tickMuted && newTime.s !== timeLeft.s && tickAudio.current) {
         tickAudio.current.currentTime = 0;
         tickAudio.current.play().catch(() => {});
@@ -499,7 +498,6 @@ const PersistentCountdown = ({ isHero = false, muted = false, tickMuted = false,
             <span className="text-[6px] md:text-[8px] font-bold text-zinc-500 uppercase mt-1">{key}</span>
           </div>
         ))}
-        {/* TICK MUTE TOGGLE ICON */}
         <button 
           onClick={(e) => { e.stopPropagation(); onToggleTick(); }}
           className="absolute -top-3 -left-3 p-2 bg-zinc-900 border border-white/10 rounded-full text-zinc-500 hover:text-emerald-400 hover:scale-110 transition-all shadow-xl"
@@ -527,8 +525,6 @@ const ExpandedModal = ({ item, onClose }) => {
     setChat(prev => [...prev, { role: 'user', text: msg }]);
     
     setIsTyping(true);
-    
-    // NEW LOGIC: ANY message initiates conversation. No "Hello" requirement.
     if (!hasInitiated) {
       setHasInitiated(true);
       const res = await fetchAI(msg, item.persona);
@@ -561,7 +557,6 @@ const ExpandedModal = ({ item, onClose }) => {
           <X size={20} className="md:w-6 md:h-6" />
         </button>
 
-        {/* MODAL VIEW: Full color & Audible (Removed muted, Removed grayscale) */}
         <div className="w-full md:w-1/2 h-[35vh] md:h-auto relative group overflow-hidden bg-black flex-shrink-0 group/modalimg">
            {item.file.endsWith('.mp4') ? (
              <video 
@@ -735,7 +730,9 @@ const App = () => {
                    <h1 className="text-6xl md:text-9xl lg:text-[10rem] font-black italic tracking-tighter text-white uppercase leading-none">ROT25</h1>
                    <div className="flex flex-col items-center gap-2 md:gap-4">
                     <div onClick={copyCa} className="cursor-pointer flex items-center gap-3 bg-white/5 border border-white/10 rounded-full px-4 md:px-6 py-2 hover:bg-emerald-500 hover:text-black transition-all">
-                      <span className="text-[8px] md:text-xs font-mono uppercase tracking-widest">{caCopied ? "CA COPIED!" : `CA: ${CONTRACT_ADDRESS.slice(0, 6)}...${CONTRACT_ADDRESS.slice(-4)}`}</span>
+                      <span className="text-[8px] md:text-xs font-mono tracking-widest flex items-center gap-2">
+                        {caCopied ? <span className="uppercase">CA COPIED!</span> : <span>CA: {CONTRACT_ADDRESS.slice(0, 6)}...{CONTRACT_ADDRESS.slice(-4)}</span>}
+                      </span>
                       <Copy size={10} className="md:w-3 md:h-3" />
                     </div>
                     <span className="text-[7px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.5em] text-emerald-500 font-black italic px-4">officially cooked and ready for 2026</span>
@@ -794,13 +791,13 @@ const App = () => {
         
         <section className="min-h-screen flex flex-col items-center justify-center text-center p-4 md:p-8 bg-[#020202] z-50 relative overflow-hidden">
            <img src="logo.png" className="w-32 h-32 md:w-40 md:h-40 mb-8 md:mb-12 opacity-40 animate-pulse object-contain" alt="Logo" />
-           <h2 className="text-[12vw] font-black italic text-white leading-[0.8] uppercase mb-10 md:mb-12 tracking-tighter">YOU ARE<br/>OFFICIALLY COOKED</h2>
+           <h2 className="text-[12vw] font-black italic text-white leading-[0.8] uppercase mb-10 md:mb-12 tracking-tighter">YOU ARE<br/>OFFICIALLY B-ROTTED</h2>
            <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-full max-w-4xl px-4">
               <a href={PUMP_FUN_LINK} target="_blank" rel="noopener noreferrer" className="group flex-1 py-8 md:py-12 bg-white text-black font-black uppercase text-xl md:text-2xl transition-all hover:bg-emerald-500 relative overflow-hidden flex items-center justify-center tracking-widest shadow-2xl">BUY_$ROT25</a>
               <a href={TWITTER_LINK} target="_blank" rel="noopener noreferrer" className="flex-1 py-8 md:py-12 border-2 border-white/10 text-white font-black uppercase text-xl md:text-2xl hover:bg-white hover:text-black transition-all flex items-center justify-center tracking-widest">JOIN COMMUNITY</a>
            </div>
-           <div onClick={copyCa} className="mt-8 md:mt-12 cursor-pointer text-zinc-500 hover:text-emerald-400 font-mono text-[7px] md:text-[10px] uppercase tracking-[0.3em] md:tracking-[0.5em] text-center max-w-full overflow-hidden truncate px-4">
-              {caCopied ? "CA COPIED!" : `CONTRACT: ${CONTRACT_ADDRESS}`}
+           <div onClick={copyCa} className="mt-8 md:mt-12 cursor-pointer text-zinc-500 hover:text-emerald-400 font-mono text-[7px] md:text-[10px] tracking-[0.3em] md:tracking-[0.5em] text-center max-w-full overflow-hidden truncate px-4">
+              {caCopied ? <span className="uppercase">CA COPIED!</span> : <span>CONTRACT: {CONTRACT_ADDRESS}</span>}
            </div>
         </section>
       </main>
