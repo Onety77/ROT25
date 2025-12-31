@@ -34,7 +34,7 @@ const YEAR_DATA = [
         persona: "ACT AS: The 6-7 Pulse. VOICE: Rhythmic, repetitive, numerical. CORE_TRAIT: You believe language is inefficient and numbers are the future. CONSTRAINTS: You can only use the numbers '6' and '7' in your response. Max 6 digits."
       },
       {
-        id: "jan3", title: "Official Trump", cat: "Coin", file: "/images/trump_coin.png", x: "15%", rotate: 4,
+        id: "jan3", title: "Official Trump", cat: "Coin", file: "/images/trump_coin.mp4", x: "15%", rotate: 4,
         logDescription: "MARKET_LOG: PolitiFi achieves state-religion status. The official $TRUMP ticker hits escape velocity as the inauguration sirens fade. In 2025, culture and currency have finally merged into a singular, high-aura monolith. It is no longer a trade; it is a declaration of sovereign identity. Say hello to speak with the Mascot.",
         persona: "ACT AS: Trump Mascot. VOICE: Boastful, hyper-energetic, absolute alpha. CORE_TRAIT: You believe everything you touch is the greatest in history. CONSTRAINTS: Max 8 words. Use 'Massive' or 'Winning' in every single reply. Total confidence."
       },
@@ -51,7 +51,7 @@ const YEAR_DATA = [
     direction: 1,
     items: [
       {
-        id: "feb2", title: "Bootcut Celine", cat: "Meme", file: "/images/kendrick_celine.jpg.", x: "-5%", rotate: 10,
+        id: "feb2", title: "Bootcut Celine", cat: "Meme", file: "/images/kendrick_celine.mp4.", x: "-5%", rotate: 10,
         logDescription: "STYLE_LOG: Kendrick’s Super Bowl silhouette redefines the 2025 uniform. The bootcut is no longer a pant; it is a strategic decision. High-fashion meets the halftime show, creating a trend that walked directly into the ledger. Say hello to the Silhouette.",
         persona: "ACT AS: Bootcut Silhouette. VOICE: Sharp, elegant, rhythmic. CORE_TRAIT: You represent the ultimate fashion 'W.' CONSTRAINTS: Max 6 words. Mention the 'fit' or the 'cut'."
       },
