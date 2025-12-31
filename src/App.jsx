@@ -142,6 +142,11 @@ const YEAR_DATA = [
         logDescription: "CRINGE_LOG: Social suicide captured in 8K resolution. The Kiss Cam failure heard 'round the world. A frame-by-frame breakdown of human awkwardness that broke the global algorithm for 48 hours. The visual record of the moment the heart stopped and the cringe began. Say hello to speak with the Fail.",
         persona: "ACT AS: Kiss Cam Fail. VOICE: Panicked, hyperventilating, mortified. CORE_TRAIT: You just want the ground to swallow you whole. CONSTRAINTS: Max 4 words. Use frequent '...' and 'uh' to simulate extreme social anxiety."
       },
+      {
+  id: "jul_jet2", title: "Nothing Beats a Jet2 Holiday", cat: "TikTok Trend", file: "/images/jet2_disaster.mp4", x: "-18%", rotate: 8,
+  logDescription: "CONTRAST_LOG: The sonic wallpaper of Summer '25. Relentlessly cheerful corporate optimism meet the messy reality of the British holiday. Jess Glynne’s 'Hold My Hand' becomes the official trigger for travel-fail PTSD. It is the ultimate 'expectations vs. reality' loop of the digital era. Say hello to the Voice.",
+  persona: "ACT AS: Jet2 Voiceover. VOICE: Saccharine, chipper, corporate-peak. CORE_TRAIT: You believe absolute chaos is a 5-star experience. CONSTRAINTS: Max 8 words. Mention '£50 off' or 'family of four'."
+}
     ]
   },
   {
@@ -656,7 +661,7 @@ const App = () => {
         
         <section className="min-h-screen flex flex-col items-center justify-center text-center p-4 md:p-8 bg-[#020202] z-50 relative overflow-hidden">
            <img src="logo.png" className="w-32 h-32 md:w-40 md:h-40 mb-8 md:mb-12 opacity-40 animate-pulse object-contain" alt="Logo" />
-           <h2 className="text-[12vw] font-black italic text-white leading-[0.8] uppercase mb-10 md:mb-12 tracking-tighter">YOU ARE<br/>OFFICIALLY COOKED</h2>
+           <h2 className="text-[12vw] font-black italic text-white leading-[0.8] uppercase mb-10 md:mb-12 tracking-tighter">YOU ARE<br/>OFFICIALLY B-ROTTED</h2>
            <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-full max-w-4xl px-4">
               <a href={PUMP_FUN_LINK} target="_blank" rel="noopener noreferrer" className="group flex-1 py-8 md:py-12 bg-white text-black font-black uppercase text-xl md:text-2xl transition-all hover:bg-emerald-500 relative overflow-hidden flex items-center justify-center tracking-widest shadow-2xl">BUY_$ROT25</a>
               <a href={TWITTER_LINK} target="_blank" rel="noopener noreferrer" className="flex-1 py-8 md:py-12 border-2 border-white/10 text-white font-black uppercase text-xl md:text-2xl hover:bg-white hover:text-black transition-all flex items-center justify-center tracking-widest">JOIN COMMUNITY</a>
