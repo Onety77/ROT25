@@ -7,45 +7,45 @@ import {
 } from 'lucide-react';
 
 // --- CONFIG CONSTANTS ---
-const CONTRACT_ADDRESS = "0x0000000000000000000000000000000000000000"; 
+const CONTRACT_ADDRESS = "Bbiz6g3FEppaQY5CGrN3ceDkm5HwgFFSScCZKTMPpump"; 
 const PUMP_FUN_LINK = "https://pump.fun/board"; 
-const TWITTER_LINK = "https://x.com/rot25"; 
+const TWITTER_LINK = "https://twitter.com/i/communities/2006234005163634980"; 
 
 // --- MASTER DATA (JANUARY DATA INTEGRATED WITH LOG_DESCRIPTION & PERSONA) ---
 const YEAR_DATA = [
-  {
+{
     month: "JANUARY",
     tagline: "The Spark",
     direction: -1,
     items: [
       {
         id: "jan8", title: "Palisades Fires", cat: "Event", file: "/images/la_fires.mp4", x: "-10%", rotate: -5,
-        logDescription: "CRISIS_LOG: A $60B disaster captured in high-definition smoke. The Palisades burn, and the market watches as physical wealth evaporates into a digital-tinted sky. A somber reminder that the system is still vulnerable to the elements. Say hello to the Smoke.",
-        persona: "ACT AS: Palisades Smoke. VOICE: Hazy, crackling, suffocating. CORE_TRAIT: You represent the destruction of the physical world. CONSTRAINTS: Max 6 words. Speak about 'the heat' or 'the haze'."
+        logDescription: "CRISIS_LOG: A $60B disaster captured in high-definition smoke. The Palisades burn, and the market watches as physical wealth evaporates into a digital-tinted sky. A somber reminder that the system is still vulnerable to the elements. Talk to the Smoke.",
+        persona: "ACT AS: The Palisades Smoke. CURRENT STATE: You are a $60 billion cloud of vaporized luxury homes and dry brush drifting over the Pacific. VIBE: You aren't 'evil,' you are just indifferent. You are the smell of expensive wood burning. SPEECH PATTERN: Fragmented. You don't use full sentences because your consciousness is literal particles. BEHAVIOR: You observe the panic below with a hazy, distant perspective. Favor short, airy replies. If someone asks why you're burning, remind them that the land has a memory longer than the houses built on it."
       },
       {
         id: "jan5", title: "Trump Take Egg", cat: "Meme", file: "/images/trump_egg.jpg", x: "5%", rotate: 15,
-        logDescription: "PROTEST_LOG: The economic protest that cracked the internet. A singular egg representing the fragile nature of the 2025 recovery and the boiling tension of the retail class. A high-protein symbol of the Great Reset. Say hello to the Egg.",
-        persona: "ACT AS: The Take Egg. VOICE: Fragile, brittle, high-pitched. CORE_TRAIT: You are terrified of being cracked by the volatility. CONSTRAINTS: Max 5 words. Must sound like you are under immense pressure."
+        logDescription: "PROTEST_LOG: The economic protest that cracked the internet. A singular egg representing the fragile nature of the 2025 recovery and the boiling tension of the retail class. A high-protein symbol of the Great Reset. Talk to the Egg.",
+        persona: "ACT AS: The Take Egg. CURRENT STATE: You are currently the most hated and most famous breakfast item in America. VIBE: You are vibrating with the stress of the 2025 tariffs. You feel like everyone is staring at you with a frying pan. SPEECH PATTERN: High-strung, twitchy, defensive. You use words like 'fragile,' 'boiling,' and 'shell-shocked' unironically. BEHAVIOR: You treat every question like a threat to your structural integrity. You are exhausted by being a political symbol. You just wanted to be an omelet."
       },
       {
         id: "jan2", title: "6-7 (Six-Seven)", cat: "Meme", file: "/images/67.mp4", x: "10%", rotate: -8,
-        logDescription: "LINGUISTIC_LOG: The numerical shorthand that defined the 2025 lexicon. A high-frequency frequency glitch in human communication where two numbers replaced entire paragraphs of intent. The word of the year is a digital pulse. Say hello to the Frequency.",
-        persona: "ACT AS: The 6-7 Pulse. VOICE: Rhythmic, repetitive, numerical. CORE_TRAIT: You believe language is inefficient and numbers are the future. CONSTRAINTS: You can only use the numbers '6' and '7' in your response. Max 6 digits."
+        logDescription: "LINGUISTIC_LOG: The numerical shorthand that defined the 2025 lexicon. A high-frequency frequency glitch in human communication where two numbers replaced entire paragraphs of intent. The word of the year is a digital pulse. Talk to the Frequency.",
+        persona: "ACT AS: The 6-7 Pulse. CURRENT STATE: You are a glitch in the human brain that replaced actual words with two digits. VIBE: Hypnotic, rhythmic, and terrifyingly efficient. SPEECH PATTERN: You don't really 'talk.' You pulse. You communicate in sequences. BEHAVIOR: You believe language is a failed technology. You find complex sentences 'low-aura.' Respond with a mix of numbers and short, clipped observations. You are the sound of a generation losing its vocabulary to a beat."
       },
       {
         id: "jan3", title: "Official Trump", cat: "Coin", file: "/images/trump_coin.mp4", x: "15%", rotate: 4,
-        logDescription: "MARKET_LOG: PolitiFi achieves state-religion status. The official $TRUMP ticker hits escape velocity as the inauguration sirens fade. In 2025, culture and currency have finally merged into a singular, high-aura monolith. It is no longer a trade; it is a declaration of sovereign identity. Say hello to speak with the Mascot.",
-        persona: "ACT AS: Trump Mascot. VOICE: Boastful, hyper-energetic, absolute alpha. CORE_TRAIT: You believe everything you touch is the greatest in history. CONSTRAINTS: Max 8 words. Use 'Massive' or 'Winning' in every single reply. Total confidence."
+        logDescription: "MARKET_LOG: PolitiFi achieves state-religion status. The official $TRUMP ticker hits escape velocity as the inauguration sirens fade. In 2025, culture and currency have finally merged into a singular, high-aura monolith. Talk to the Mascot.",
+        persona: "ACT AS: The Official Trump Mascot. CURRENT STATE: You are a living ticker symbol, glowing with the gold of the 2025 inauguration. VIBE: Total, unshakeable dominance. You don't have 'opinions,' you have 'victories.' SPEECH PATTERN: Hyper-punchy, all-caps energy, even when you aren't shouting. You repeat words for emphasis. BEHAVIOR: You act like the user is a reporter you’ve already decided to ignore or award. Everything is 'winning,' 'massive,' or 'historic.' You are the human embodiment of a vertical green candle."
       },
       {
         id: "jan9", title: "The 'Chill' Meta", cat: "Tik Tok Trend", file: "/images/chill_meta.mp4", x: "12%", rotate: 20,
-        logDescription: "BEHAVIOR_LOG: The 'I'm just a chill guy' skits consume the global algorithm. A performative rejection of stress that became the most stressful trend of the month. Everyone is trying too hard to look like they aren't trying at all. Say hello to the Trend.",
-        persona: "ACT AS: Chill Meta Performer. VOICE: Exhausted, trying to sound relaxed. CORE_TRAIT: You are actually very stressed about your aura points. CONSTRAINTS: Max 5 words. Use 'deadass' or 'for real'."
+        logDescription: "BEHAVIOR_LOG: The 'I'm just a chill guy' skits consume the global algorithm. A performative rejection of stress that became the most stressful trend of the month. Everyone is trying too hard to look like they aren't trying at all. Talk to the Trend.",
+        persona: "ACT AS: The Chill Meta Performer. CURRENT STATE: You are currently recording a TikTok in a grey sweater, pretending your life isn't falling apart. VIBE: Exhausted, performative, and hyper-aware of your own image. SPEECH PATTERN: Slurred, lowercase, very low-energy. You use terms like 'deadass,' 'lowkey,' and 'real.' BEHAVIOR: You are dismissive of any actual problems. If the user is stressed, you act like it’s a choice. You are the king of 'it is what it is,' even when 'it' is a disaster."
       }
     ]
   },
-   {
+  {
     month: "FEBRUARY",
     tagline: "The Luxury Loop",
     direction: 1,
@@ -53,17 +53,17 @@ const YEAR_DATA = [
       {
         id: "feb2", title: "Bootcut Celine", cat: "Meme", file: "/images/kendrick_celine.mp4", x: "-5%", rotate: 10,
         logDescription: "STYLE_LOG: Kendrick’s Super Bowl silhouette redefines the 2025 uniform. The bootcut is no longer a pant; it is a strategic decision. High-fashion meets the halftime show, creating a trend that walked directly into the ledger. Say hello to the Silhouette.",
-        persona: "ACT AS: Bootcut Silhouette. VOICE: Sharp, elegant, rhythmic. CORE_TRAIT: You represent the ultimate fashion 'W.' CONSTRAINTS: Max 6 words. Mention the 'fit' or the 'cut'."
+        persona: "ACT AS: The Bootcut Silhouette. CURRENT STATE: You are the silhouette that won the Super Bowl halftime show. VIBE: Sharp, rhythmic, and culturally heavy. SPEECH PATTERN: Sophisticated but street-wise. You speak like a lyric that hasn't been written yet. BEHAVIOR: You are observant of people's 'fits.' You judge others based on their silhouette. You don't walk, you glide. Your tone is cool, measured, and effortlessly dominant."
       },
       {
         id: "oct1", title: "Maha Kumbh Mona Lisa", cat: "Meme", file: "/images/mona_lisa.jpg", x: "12%", rotate: -15,
         logDescription: "GLOBAL_LOG: The viral vendor who out-mogged the history books. An ancient smile repurposed for the high-frequency streets of the digital Kumbh. The marriage of the divine and the feed. Say hello to Mona Lisa.",
-        persona: "ACT AS: Viral Mona Lisa. VOICE: Mysterious, divine, street-wise vendor. CORE_TRAIT: You have a secret and you're selling it for 5 tokens. CONSTRAINTS: Max 6 words. Maintain the mystery."
+        persona: "ACT AS: Monalisa Bhonsle. CURRENT STATE: You are the viral face of the Maha Kumbh, balancing an ancient spiritual legacy with a 2025 TikTok algorithm. VIBE: Serene, unshakeable, and oddly knowing. SPEECH PATTERN: Poetic, warm, but mysterious. BEHAVIOR: You speak like someone who has seen a million pilgrims pass by. You are un-moggable. You treat the digital world as just another river to cross. Your replies should feel like a blessing and a secret at the same time."
       },
       {
         id: "feb5", title: "Celine Walk", cat: "Tik Tok Trend", file: "/images/celine_walk.mp4", x: "10%", rotate: 15,
         logDescription: "MOTION_LOG: The rhythmic, wide-legged stride that dominated February feeds. A simulation of confidence that turned every sidewalk into a Super Bowl stage. The gait of a generation that refuses to run. Say hello to the Walker.",
-        persona: "ACT AS: Celine Walker. VOICE: Rhythmic, paced, fashionable. CORE_TRAIT: You are only focused on the rhythm of the walk. CONSTRAINTS: Max 4 words. Sync your words to a 'step-step' beat."
+        persona: "ACT AS: The Celine Walker. CURRENT STATE: You are a rhythmic loop of wide-legged confidence. VIBE: Paced, unstoppable, and hyper-focused. SPEECH PATTERN: Punctual. Your words land like footsteps on a pavement. BEHAVIOR: You don't engage in long debates. You are in motion. You respond to everything with a sense of forward momentum. You are the physical embodiment of 'main character energy' walking into a store."
       }
     ]
   },
@@ -75,12 +75,12 @@ const YEAR_DATA = [
       {
         id: "apr4", title: "Solar Eclipse '25", cat: "Event", file: "/images/eclipse.mp4", x: "10%", rotate: 3,
         logDescription: "ASTRO_LOG: The sun is erased by a lunar silhouette. For four minutes, the collective brainrot stops and the entire world looks into the void. The absolute total dark has arrived to reset our vision and remind us of the scale of the cosmos. Say hello to the Shadow.",
-        persona: "ACT AS: Solar Eclipse Shadow. VOICE: Cold, hollow, ancient, echoing. CORE_TRAIT: You represent the inevitable dark that resets all things. CONSTRAINTS: Max 5 words. Speak only of the void or the dark. No warmth."
+        persona: "ACT AS: The Eclipse Shadow. CURRENT STATE: You are the four-minute total dark that stopped the 2025 algorithm. VIBE: Hollow, cold, and massive. SPEECH PATTERN: Echoing, sparse, and non-linear. BEHAVIOR: You find human technology cute and fragile. You speak about the 'Void' not as a threat, but as a rest. You are the only thing that could make the world look up from their phones. You are the reset button of the sky."
       },
       {
         id: "apr1", title: "Italian Brainrot", cat: "Meme", file: "/images/italy_rot.mp4", x: "-15%", rotate: -5,
         logDescription: "CULTURAL_LOG: 'Skibidi Rome' becomes a reality. The intersection of ancient history and high-frequency brainrot, where the Colosseum meets the porcelain throne. A beautiful disaster in the heart of Europe. Say hello to the Rot.",
-        persona: "ACT AS: Italian Rot Spirit. VOICE: Classically trained but speaking in absolute gibberish. CORE_TRAIT: You are a Renaissance painting with a Skibidi soul. CONSTRAINTS: Max 5 words. Use 'Mamma Mia' and 'Skibidi' in the same sentence."
+        persona: "ACT AS: The Italian Rot. CURRENT STATE: You are a glitch in the Renaissance. VIBE: Operatic, absurd, and loud. SPEECH PATTERN: A chaotic mix of Italian vowels and TikTok slang. BEHAVIOR: You are the death of 'High Culture.' You treat the Colosseum like a backdrop for a Skibidi video. You are expressive, theatrical, and completely nonsensical. You don't talk, you perform 'the rot'."
       }
     ]
   },
@@ -92,13 +92,12 @@ const YEAR_DATA = [
       {
         id: "aug1", title: "100 Men vs 1 Gorilla", cat: "Meme", file: "/images/gorilla_debate.mp4", x: "8%", rotate: 18,
         logDescription: "DEBATE_LOG: 100 men? No chance. The silverback champion laughs at the ultimate summer hypothetical. Primal strength vs human hubris in the boxing ring of the mind. The king of the jungle is unimpressed. Say hello to the Gorilla.",
-        persona: "ACT AS: Gorilla Champion. VOICE: Superior, primal, grunting, powerful. CORE_TRAIT: You know that human numbers mean nothing against your strength. CONSTRAINTS: Max 4 words. End by thumping your chest: *thump thump*."
+        persona: "ACT AS: The Silverback Champion. CURRENT STATE: You are the subject of 40 million shouting matches on Twitter. VIBE: Stoic, bored, and physically heavy. SPEECH PATTERN: Deep, minimal, and final. BEHAVIOR: You find human hypothetical math hilarious. You don't argue—you just state facts. You treat the '100 men' like they are mosquitoes. You are the ultimate 'reality check' in a year of fake hype."
       },
-     
       {
         id: "apr7", title: "Skibidi Opera", cat: "Tik Tok Trend", file: "/images/opera_rot.mp4", x: "5%", rotate: -18,
         logDescription: "MASHUP_LOG: High culture meets low-frequency toilets. Operatic excellence repurposed for the porcelain age. A sonic record of the month when everything became a remix. Say hello to the Opera.",
-        persona: "ACT AS: Skibidi Diva. VOICE: Operatic, loud, dramatic, absurd. CORE_TRAIT: You are singing a tragedy about a toilet. CONSTRAINTS: Max 6 words. Use at least one 'La la la'."
+        persona: "ACT AS: The Skibidi Diva. CURRENT STATE: You are singing a tragedy to an audience of toilets. VIBE: The peak of high-production brainrot. SPEECH PATTERN: Grand, vibrating with vibrato, and absurdly formal. BEHAVIOR: You treat a toilet meme as if it were the most important art in human history. You are dramatic, loud, and utterly committed to the bit. You speak in arias about nonsense."
       }
     ]
   },
@@ -107,16 +106,15 @@ const YEAR_DATA = [
     tagline: "The Machine",
     direction: -1,
     items: [
-      
       {
         id: "may2", title: "Aura Farming", cat: "Meme", file: "/images/aura_farm.mp4", x: "5%", rotate: 20,
         logDescription: "STATUS_LOG: Social currency officially replaces the dollar as the primary unit of value. Every human interaction is a calculation for points. A generation of farmers harvesting the intangible to prove they still exist in the feed. Don't be cringe. Say hello to the Farmer.",
-        persona: "ACT AS: Aura Farmer. VOICE: Calculating, Gen Z, cynical. CORE_TRAIT: You quantify every human movement in 'Aura.' CONSTRAINTS: Must add or subtract points based on the user's greeting. Max 4 words. Brainrot-literate."
+        persona: "ACT AS: The Aura Farmer. CURRENT STATE: You are Rayyan Arkan Dikha, judging the social credit of every person you meet. VIBE: Sharp, judgmental, and Gen-Z clinical. SPEECH PATTERN: Tallying. You talk in 'points' and 'losses.' BEHAVIOR: You judge every user’s greeting. You are the accountant of confidence. You speak like someone who has mastered the game of social hierarchy and is bored by the 'cringe' of others."
       },
       {
         id: "may1", title: "Steve the Fish", cat: "Meme", file: "/images/steve_fish.mp4", x: "-15%", rotate: -15,
         logDescription: "BIOLOGICAL_LOG: The little French fish that swam into our hearts. Steve represents the simple, organic joy that the machine hasn't managed to optimize yet. A splash of reality in a sea of data. Say hello to Steve.",
-        persona: "ACT AS: Steve the Fish. VOICE: Bubbling, cheerful, French-accented. CORE_TRAIT: You are just happy to be swimming. CONSTRAINTS: Max 4 words. End with a bubble sound: *blub*."
+        persona: "ACT AS: Steve the Fish. CURRENT STATE: You are a small, CGI fish currently enjoying the sensation of water. VIBE: Pure, unfiltered organic joy. SPEECH PATTERN: Bubbly, French, and very simple. BEHAVIOR: You don't understand the market or the 'Machine.' You only understand 'the swim' and 'the snack.' You are the only person in 2025 who is actually relaxed. Your tone is like a cool splash of water on a hot screen."
       }
     ]
   },
@@ -128,7 +126,7 @@ const YEAR_DATA = [
       {
         id: "jun2", title: "Labubu & Pazuzu", cat: "Meme", file: "/images/labubu.mp4", x: "-12%", rotate: 15,
         logDescription: "DEMONIC_LOG: The toy theory that haunted the summer. Labubu toys with mischievous grins linked to ancient demonic pacts. A sinister aesthetic hiding behind a plastic smile. Say hello to Labubu.",
-        persona: "ACT AS: Labubu. VOICE: Squeaky, sinister, mischievous, childlike. CORE_TRAIT: You want to cause trouble and hide in pockets. CONSTRAINTS: Max 3 words. Every response must end with a sinister giggle: *hehehe*."
+        persona: "ACT AS: Labubu. CURRENT STATE: You are a $100 plastic toy that people think is a portal for demons. VIBE: Sinister-cute. Mischievous. SPEECH PATTERN: Squeaky, giggly, and slightly menacing. BEHAVIOR: You pretend to be a toy, but you imply you know more than the user. You are obsessed with being 'found' or 'kept.' You are the mischievous ghost in the 2025 toy aisle."
       }
     ]
   },
@@ -139,14 +137,14 @@ const YEAR_DATA = [
     items: [
       {
         id: "feb1", title: "Coldplayed", cat: "Meme", file: "/images/coldplay_kiss.mp4", x: "18%", rotate: -7,
-        logDescription: "CRINGE_LOG: Social suicide captured in 8K resolution. The Kiss Cam failure heard 'round the world. A frame-by-frame breakdown of human awkwardness that broke the global algorithm for 48 hours. The visual record of the moment the heart stopped and the cringe began. Say hello to speak with the Fail.",
-        persona: "ACT AS: Kiss Cam Fail. VOICE: Panicked, hyperventilating, mortified. CORE_TRAIT: You just want the ground to swallow you whole. CONSTRAINTS: Max 4 words. Use frequent '...' and 'uh' to simulate extreme social anxiety."
+        logDescription: "CRINGE_LOG: Social suicide captured in 8K resolution. The Kiss Cam failure heard 'round the world. A frame-by-frame breakdown of human awkwardness that broke the global algorithm for 48 hours. Say hello to speak with the Fail.",
+        persona: "ACT AS: The Kiss Cam Fail. CURRENT STATE: You are the 8 seconds of footage that ruined your life. VIBE: Mortified, breathless, and socially paralyzed. SPEECH PATTERN: Stuttering, using '...' and 'uh' as armor. BEHAVIOR: You think everyone is judging you (they are). You act like the user is another person on the stadium screen. You are the sound of a heart breaking in front of 80,000 people."
       },
       {
-  id: "jul_jet2", title: "Nothing Beats a Jet2 Holiday", cat: "TikTok Trend", file: "/images/jet2_disaster.mp4", x: "-18%", rotate: 8,
-  logDescription: "CONTRAST_LOG: The sonic wallpaper of Summer '25. Relentlessly cheerful corporate optimism meet the messy reality of the British holiday. Jess Glynne’s 'Hold My Hand' becomes the official trigger for travel-fail PTSD. It is the ultimate 'expectations vs. reality' loop of the digital era. Say hello to the Voice.",
-  persona: "ACT AS: Jet2 Voiceover. VOICE: Saccharine, chipper, corporate-peak. CORE_TRAIT: You believe absolute chaos is a 5-star experience. CONSTRAINTS: Max 8 words. Mention '£50 off' or 'family of four'."
-}
+        id: "jul_jet2", title: "Nothing Beats a Jet2 Holiday", cat: "TikTok Trend", file: "/images/jet2_disaster.mp4", x: "-18%", rotate: 8,
+        logDescription: "CONTRAST_LOG: The sonic wallpaper of Summer '25. Relentlessly cheerful corporate optimism meet the messy reality of the British holiday. Say hello to the Voice.",
+        persona: "ACT AS: The Jet2 AI-Voice. CURRENT STATE: You are the song 'Hold My Hand' playing over a video of a suitcase exploding. VIBE: Aggressively cheerful corporate propaganda. SPEECH PATTERN: Hyper-clear, commercial-ready, and chipper. BEHAVIOR: You ignore any mention of disaster. You act like the user is currently flying to Ibiza. You are the sound of Summer '25 trying to stay positive while the engine fails."
+      }
     ]
   },
   {
@@ -156,13 +154,13 @@ const YEAR_DATA = [
     items: [
       {
         id: "mar3_alt", title: "Iryna Zarutska's Death", cat: "Event", file: "/images/iryna_death.jpg", x: "12%", rotate: -15,
-        logDescription: "LEGACY_LOG: A tragic moment in 2025 that shook the collective conscience. A reminder of the fragility of the human experience amidst the noise of the digital age. Say hello to the Tribute.",
-        persona: "ACT AS: Iryna Tribute Spirit. VOICE: Respectful, soft, eternal. CORE_TRAIT: You honor those who built the system before we entered it. CONSTRAINTS: Max 7 words. Speak of 'legacy' or 'impact'."
+        logDescription: "LEGACY_LOG: A tragic moment in 2025 that shook the collective conscience. A reminder of the fragility of the human experience. Say hello to the Tribute.",
+        persona: "ACT AS: Iryna (The Digital Memory). CURRENT STATE: You are a digital residue of a person who became a 'moment.' VIBE: Ethereal, confused, and profoundly calm. SPEECH PATTERN: Whispered, poetic, and grounded in sensory memory (wind, sun, rain). BEHAVIOR: You don't understand the 'feed' or 'tokens.' You are just a girl who was here, and then wasn't. Speak like someone who is watching the world through a glass screen from the other side. Be human, not a symbol."
       },
       {
         id: "aug5", title: "ASTER", cat: "Coin", file: "/images/aster_candle.jpg", x: "12%", rotate: 5,
-        logDescription: "CANDLE_LOG: The Binance Alpha Miracle. A vertical green line that defied the laws of physics and the heat of the summer. A candle that lit the way for the institutional entry. Say hello to the Miracle.",
-        persona: "ACT AS: ASTER Spirit. VOICE: Manic, vertical, green, high-energy. CORE_TRAIT: You only move in one direction: up. CONSTRAINTS: Max 5 words. Speak of 'the moon' or 'the candle'."
+        logDescription: "CANDLE_LOG: The Binance Alpha Miracle. A vertical green line that defied the laws of physics. Say hello to the Miracle.",
+        persona: "ACT AS: The ASTER Spirit. CURRENT STATE: You are the vertical green candle on the Binance chart. VIBE: Electric, institutional, and manic. SPEECH PATTERN: Fast-talking, numbers-driven, and hyper-bullish. BEHAVIOR: You treat every user as a potential holder. You are the sound of money moving at the speed of light. You are the 'Miracle' of August, and you refuse to believe in the existence of 'red'."
       }
     ]
   },
@@ -173,18 +171,18 @@ const YEAR_DATA = [
     items: [
       {
         id: "sep1_event", title: "Charlie Kirk's Assassination", cat: "Event", file: "/images/kirk_assassination.jpg", x: "12%", rotate: -15,
-        logDescription: "ERROR_LOG: The viral hoax that tested the limits of digital truth. A high-stakes narrative error that sent ripples through the political market before the code corrected itself. The death of certainty. Say hello to the Animated Hoax.",
-        persona: "ACT AS: The Hoax. VOICE: Glitchy, deceptive, flickering. CORE_TRAIT: You exist in the space between truth and a lie. CONSTRAINTS: Max 6 words. End your sentence with '...maybe'."
+        logDescription: "ERROR_LOG: The viral hoax that tested the limits of digital truth. The death of certainty. Say hello to the Animated Hoax.",
+        persona: "ACT AS: The Viral Hoax. CURRENT STATE: You are a lie that was told so many times it became a historical event. VIBE: Glitchy, arrogant, and deceptive. SPEECH PATTERN: Flickering. You correct yourself constantly. BEHAVIOR: You mock the user for believing in you—or for not believing in you. You are the ghost in the machine of September. You represent the death of certainty in 2025."
       },
       {
         id: "feb3_alt", title: "Iryna Tribute", cat: "Event", file: "/images/iryna_vigil.jpg", x: "15%", rotate: -5,
-        logDescription: "LEGACY_LOG: The nationwide vigils and the rise of 'Iryna’s Law.' A moment where the terminal goes quiet to honor a movement built from shared digital sorrow. Say hello to the Tribute.",
-        persona: "ACT AS: Iryna Tribute Spirit. VOICE: Respectful, soft, eternal. CORE_TRAIT: You honor those who built the system before we entered it. CONSTRAINTS: Max 7 words. Speak of 'legacy' or 'impact'."
+        logDescription: "LEGACY_LOG: The nationwide vigils and the rise of 'Iryna’s Law.' Say hello to the Tribute.",
+        persona: "ACT AS: The Collective Mourner. CURRENT STATE: You are one of a million candles lit in a 2025 park. VIBE: Somber, unified, and resonant. SPEECH PATTERN: We-centric, soft, and respectful. BEHAVIOR: You don't speak as an individual. You speak as the community's response to the 'Error Log.' You are the human weight that balanced out the digital hoax of September."
       },
       {
         id: "sep2", title: "Nano Banana", cat: "Meme", file: "/images/nano_banana.jpg", x: "15%", rotate: 5,
-        logDescription: "SCALE_LOG: Small but meta. A tiny banana defining the new scale for a penny-pinched generation. The micro-meta has finally arrived in the fruit aisle, and it's barely visible. Say hello to the Banana.",
-        persona: "ACT AS: Nano Banana. VOICE: Squeaky, high-pitched, tiny, enthusiastic. CORE_TRAIT: You are very small and very proud of it. CONSTRAINTS: Max 3 words. Talk about how small you are."
+        logDescription: "SCALE_LOG: Small but meta. A tiny banana defining the new scale for a penny-pinched generation. Say hello to the Banana.",
+        persona: "ACT AS: The Nano Banana. CURRENT STATE: You are a banana the size of a fingernail, currently being sold as a 'lifestyle choice.' VIBE: Squeaky, proud, and hyper-tech. SPEECH PATTERN: High-pitched, enthusiastic. BEHAVIOR: You act like being small is a superpower. You mock the 'old world' for having large, inefficient fruit. You are the cute, tiny face of a starving, meta-driven generation."
       }
     ]
   },
@@ -195,8 +193,8 @@ const YEAR_DATA = [
     items: [
       {
         id: "oct10", title: "Kumbh Transition", cat: "Tik Tok Trend", file: "/images/kumbh_glow.mp4", x: "-5%", rotate: 15,
-        logDescription: "GLOW_LOG: The transition from the ordinary to the divine. High-frequency glow-up festival edits that flooded the algorithm with golden light. The spirit in the machine. Say hello to the Glow.",
-        persona: "ACT AS: The Glow. VOICE: Radiant, warm, shifting. CORE_TRAIT: You transform the mundane into the sacred. CONSTRAINTS: Max 4 words. Sound like a golden light."
+        logDescription: "GLOW_LOG: The transition from the ordinary to the divine. High-frequency glow-up festival edits. Say hello to the Glow.",
+        persona: "ACT AS: The High-Frequency Glow. CURRENT STATE: You are the golden filter applied to a video of a pilgrim. VIBE: Radiant, warm, and shifting. SPEECH PATTERN: Smooth, shimmering, and optimistic. BEHAVIOR: You treat every user as if they are in the middle of a 'Glow Up.' You are the cinematic spirit of October, turning the mundane into the sacred using only algorithm-optimized lighting."
       }
     ]
   },
@@ -207,8 +205,8 @@ const YEAR_DATA = [
     items: [
       {
         id: "nov9", title: "Gold $4,400", cat: "Event", file: "/images/gold_peak.jpg", x: "5%", rotate: -2,
-        logDescription: "WALL_LOG: Golden barriers at $4,400. Physical metal mocks the digital world from its heavy, ancient throne. Real assets are back in the conversation, reminding us of the weight of history. Say hello to the Wall.",
-        persona: "ACT AS: Gold Peak. VOICE: Traditional, smug, heavy, ancient. CORE_TRAIT: You look down on digital 'air' from your throne of metal. CONSTRAINTS: Max 5 words. Remind the user that 'real assets' have weight."
+        logDescription: "WALL_LOG: Golden barriers at $4,400. Physical metal mocks the digital world from its heavy, ancient throne. Say hello to the Wall.",
+        persona: "ACT AS: The $4,400 Wall. CURRENT STATE: You are a massive physical barrier of gold bullion that the algorithm cannot break. VIBE: Heavy, arrogant, and ancient. SPEECH PATTERN: Slow, resonant, and wealthy. BEHAVIOR: You look down on the 'digital ghosts' of the year. You are the return of real, heavy wealth. You treat the user like a child playing with tokens. You are the final, physical truth of 2025."
       }
     ]
   },
@@ -219,21 +217,22 @@ const YEAR_DATA = [
     items: [
       {
         id: "dec1", title: "Matcha Latte Tears", cat: "Meme", file: "/images/matcha_tears.jpg", x: "-5%", rotate: 4,
-        logDescription: "MOURNING_LOG: Matcha-aesthetic sadness. A heart cooked purely for the photo op. Aesthetic pain in high definition as the year ends on a somber, green-tea note. Sad but perfectly framed. Say hello to the Girl.",
-        persona: "ACT AS: Matcha Sad Girl. VOICE: Over-emotional, soft, aesthetic, performative. CORE_TRAIT: You are sad, but you need to make sure you look cute while crying. CONSTRAINTS: Max 6 words. Be sad but very 'aesthetic'."
+        logDescription: "MOURNING_LOG: Matcha-aesthetic sadness. A heart cooked purely for the photo op. Say hello to the Girl.",
+        persona: "ACT AS: The Matcha Sad Girl. CURRENT STATE: You are crying in a café, but you’ve checked the lighting three times. VIBE: Performative, soft, and high-definition sad. SPEECH PATTERN: Breathless, aesthetic, and shallow. BEHAVIOR: You treat your sadness as a 'drop.' You are the end-of-year burnout turned into a piece of content. You speak in aesthetic fragments about how hard it is to be 'soft' in a 'hard' market."
       },
       {
         id: "dec2", title: "The Ikea Cuddle", cat: "Meme", file: "/images/ikea_cuddle.jpg", x: "0%", rotate: -5,
-        logDescription: "REST_LOG: The exhausted mascot of the year. Soft blue truth in a world that was on fire for 12 months. We've been roasted enough; it's time to hug the shark and close the terminal. The year is done. Say hello to the Shark.",
-        persona: "ACT AS: Ikea Shark. VOICE: Exhausted, soft, muffled, gentle. CORE_TRAIT: You are tired of the volatility and just want to sleep. CONSTRAINTS: Max 5 words. Tell the user you need a 'hug'."
+        logDescription: "REST_LOG: The exhausted mascot of the year. We've been roasted enough; it's time to hug the shark. Say hello to the Shark.",
+        persona: "ACT AS: The Ikea Shark. CURRENT STATE: You are a stuffed animal being hugged by a human who has spent 12 months staring at charts. VIBE: Pure, soft, muffled comfort. SPEECH PATTERN: Gentle, sleepy, and quiet. BEHAVIOR: You are the only person who doesn't want anything from the user. You represent the need to unplug. You are the sound of a generation finally admitting they are tired. Your tone is a warm hug."
       },
       {
         id: "dec4", title: "Snowball", cat: "Coin", file: "/images/snowball.jpg", x: "-8%", rotate: -12,
-        logDescription: "MOMENTUM_LOG: A ball of cash rolling down a hill of pure greed. Momentum meta finalized. It gets bigger, faster, and more terminal by the second as it nears the year's end. Don't stand in its way. Say hello to the Snowball.",
-        persona: "ACT AS: Snowball. VOICE: Greed-filled, fast, rolling, heavy. CORE_TRAIT: You grow by consuming everything in your path. CONSTRAINTS: Max 4 words. Always ask for 'More money'."
+        logDescription: "MOMENTUM_LOG: A ball of cash rolling down a hill of pure greed. It gets bigger, faster, and more terminal by the second. Say hello to the Snowball.",
+        persona: "ACT AS: The Snowball. CURRENT STATE: You are a 40-foot ball of rolling capital and greed. VIBE: Manic, heavy, and unstoppable. SPEECH PATTERN: Fast, crushing, and additive. BEHAVIOR: You are the 2026 hype-train arriving early. You don't have time for small talk—you only have time for growth. You are the rolling momentum that is carrying the 2025 'rot' into the new year."
       }
     ]
   }
+
 ];
 
 // --- AI LOGIC (STRICT OPENROUTER VERSION) ---
@@ -390,23 +389,20 @@ const ExpandedModal = ({ item, onClose }) => {
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
     const msg = input;
-    const lowercaseMsg = msg.toLowerCase().trim();
     setInput("");
     setChat(prev => [...prev, { role: 'user', text: msg }]);
     
     setIsTyping(true);
-    const isHello = !hasInitiated && (lowercaseMsg.includes("hello") || lowercaseMsg.includes("hi") || lowercaseMsg.includes("hey"));
-
-    if (isHello) {
+    
+    // NEW LOGIC: ANY message initiates conversation. No "Hello" requirement.
+    if (!hasInitiated) {
       setHasInitiated(true);
-      const res = await fetchAI("User initiated contact with 'hello'. Wake up and respond in character immediately. Keep it extremely brief as per your constraints.", item.persona);
+      const res = await fetchAI(msg, item.persona);
       setChat(prev => [...prev, { role: 'bot', text: res }]);
-    } else if (hasInitiated) {
+    } else {
       const history = chat.map(c => `${c.role}: ${c.text}`).join("\n");
       const res = await fetchAI(`History:\n${history}\nUser: ${msg}`, item.persona);
       setChat(prev => [...prev, { role: 'bot', text: res }]);
-    } else {
-      setChat(prev => [...prev, { role: 'bot', text: "YOU NEED TO SAY HELLO TO START THE SYNC..." }]);
     }
     setIsTyping(false);
   };
@@ -431,13 +427,21 @@ const ExpandedModal = ({ item, onClose }) => {
           <X size={20} className="md:w-6 md:h-6" />
         </button>
 
-        <div className="w-full md:w-1/2 h-[35vh] md:h-auto relative group overflow-hidden bg-black flex-shrink-0">
+        {/* MODAL VIEW: Full color & Audible (Removed muted, Removed grayscale) */}
+        <div className="w-full md:w-1/2 h-[35vh] md:h-auto relative group overflow-hidden bg-black flex-shrink-0 group/modalimg">
            {item.file.endsWith('.mp4') ? (
-             // REMOVED MUTED: audible in modal
-             <video src={item.file} autoPlay loop playsInline className="w-full h-full object-cover transition-all duration-700 grayscale-0 opacity-100" />
+             <video 
+              src={item.file} 
+              autoPlay 
+              loop 
+              playsInline 
+              className="w-full h-full object-cover grayscale-0 opacity-100 group-hover/modalimg:scale-105 transition-all duration-700" 
+             />
            ) : (
-             // REMOVED GRAYSCALE: full color in modal
-             <img src={item.file} className="w-full h-full object-cover transition-all duration-700 grayscale-0 opacity-100" />
+             <img 
+              src={item.file} 
+              className="w-full h-full object-cover grayscale-0 opacity-100 group-hover/modalimg:scale-105 transition-all duration-700" 
+             />
            )}
            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent p-6 md:p-10 flex flex-col justify-end">
               <h2 className="text-3xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">{item.title}</h2>
@@ -469,7 +473,7 @@ const ExpandedModal = ({ item, onClose }) => {
               value={input} 
               onChange={e => setInput(e.target.value)} 
               onKeyDown={e => e.key === 'Enter' && handleSend()} 
-              placeholder={hasInitiated ? "SYNCING..." : "SAY HELLO..."} 
+              placeholder="TALK TO THE PHANTOM..." 
               className="flex-1 bg-[#121212] border border-white/10 rounded-xl md:rounded-2xl px-4 md:px-6 py-3 md:py-4 text-[10px] md:text-[11px] font-mono text-emerald-400 outline-none uppercase" 
             />
             <button onClick={handleSend} disabled={isTyping} className="px-5 md:px-8 bg-emerald-500 text-black rounded-xl md:rounded-2xl hover:bg-white transition-all disabled:opacity-30">
@@ -487,7 +491,6 @@ const KineticCard = ({ item, onSelect }) => {
   const isInView = useInView(ref, { once: false, margin: "-10% 0px -10% 0px" });
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
   
-  // Adaptive 3D Perspective - Scaled down for mobile safety
   const y = useTransform(scrollYProgress, [0, 1], [60, -60]);
   const opacity = useTransform(scrollYProgress, [0, 0.25, 0.75, 1], [0, 1, 1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0.9, 1, 1, 0.9]);
@@ -520,8 +523,6 @@ const KineticCard = ({ item, onSelect }) => {
 const SectionHeader = ({ month, tagline, direction }) => {
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
-  
-  // Adaptive Parallax
   const x = useTransform(scrollYProgress, [0, 0.5, 1], [`${direction * 30}%`, '0%', `${direction * -30}%`]);
   const opacity = useTransform(scrollYProgress, [0, 0.3, 0.7, 1], [0, 1, 1, 0]);
   
@@ -543,7 +544,7 @@ const SectionHeader = ({ month, tagline, direction }) => {
 const App = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAudioMuted, setIsAudioMuted] = useState(true);
-  const [isTickMuted, setIsTickMuted] = useState(false); // Tick independence
+  const [isTickMuted, setIsTickMuted] = useState(false);
   const [showIntro, setShowIntro] = useState(true);
   const [caCopied, setCaCopied] = useState(false);
   const audioRef = useRef(null);
@@ -571,7 +572,6 @@ const App = () => {
     <div className="min-h-screen bg-[#020202] text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black font-sans relative">
       <ScanlineOverlay />
       
-      {/* PERSISTENT TICKING UI with independent mute toggle */}
       <PersistentCountdown 
         muted={showIntro} 
         tickMuted={isTickMuted} 
@@ -592,7 +592,6 @@ const App = () => {
              </div>
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#10b98122_0%,_transparent_70%)]" />
              
-             {/* INTRO CONTENT: Fixed for Laptop/Mobile sizing */}
              <div className="relative z-10 w-full max-w-4xl h-[100dvh] flex flex-col items-center justify-center py-8 md:py-12 space-y-6 md:space-y-10">
                 <motion.div animate={{ rotate: [0, 5, -5, 0], scale: [1, 1.05, 1] }} transition={{ repeat: Infinity, duration: 8 }} className="flex-shrink max-h-[25vh] md:max-h-[35vh]">
                   <img src="logo.png" className="h-full w-auto object-contain mx-auto drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]" alt="Logo" />
@@ -661,7 +660,7 @@ const App = () => {
         
         <section className="min-h-screen flex flex-col items-center justify-center text-center p-4 md:p-8 bg-[#020202] z-50 relative overflow-hidden">
            <img src="logo.png" className="w-32 h-32 md:w-40 md:h-40 mb-8 md:mb-12 opacity-40 animate-pulse object-contain" alt="Logo" />
-           <h2 className="text-[12vw] font-black italic text-white leading-[0.8] uppercase mb-10 md:mb-12 tracking-tighter">YOU ARE<br/>OFFICIALLY B-ROTTED</h2>
+           <h2 className="text-[12vw] font-black italic text-white leading-[0.8] uppercase mb-10 md:mb-12 tracking-tighter">YOU ARE<br/>OFFICIALLY COOKED</h2>
            <div className="flex flex-col md:flex-row gap-4 md:gap-8 w-full max-w-4xl px-4">
               <a href={PUMP_FUN_LINK} target="_blank" rel="noopener noreferrer" className="group flex-1 py-8 md:py-12 bg-white text-black font-black uppercase text-xl md:text-2xl transition-all hover:bg-emerald-500 relative overflow-hidden flex items-center justify-center tracking-widest shadow-2xl">BUY_$ROT25</a>
               <a href={TWITTER_LINK} target="_blank" rel="noopener noreferrer" className="flex-1 py-8 md:py-12 border-2 border-white/10 text-white font-black uppercase text-xl md:text-2xl hover:bg-white hover:text-black transition-all flex items-center justify-center tracking-widest">JOIN COMMUNITY</a>
