@@ -45,7 +45,7 @@ const YEAR_DATA = [
       }
     ]
   },
-  {
+   {
     month: "FEBRUARY",
     tagline: "The Luxury Loop",
     direction: 1,
@@ -371,7 +371,7 @@ const TypewriterText = ({ text, speed = 15 }) => {
   return <p className="text-emerald-400/90 text-xs md:text-sm font-mono leading-relaxed uppercase">{displayed}</p>;
 };
 
-const PersistentCountdown = ({ isHero = false, muted = false }) => {
+const PersistentCountdown = ({ isHero = false, muted = false, tickMuted = false, onToggleTick = () => {} }) => {
   const [timeLeft, setTimeLeft] = useState({ d: 0, h: 0, m: 0, s: 0 });
   const { scrollYProgress } = useScroll();
   const tickAudio = useRef(null);
@@ -391,14 +391,15 @@ const PersistentCountdown = ({ isHero = false, muted = false }) => {
         s: Math.max(0, Math.floor((dist % (1000 * 60)) / 1000))
       };
       
-      if (!muted && newTime.s !== timeLeft.s && tickAudio.current) {
+      // TICK SOUND LOGIC - Independent of BG Music
+      if (!muted && !tickMuted && newTime.s !== timeLeft.s && tickAudio.current) {
         tickAudio.current.currentTime = 0;
         tickAudio.current.play().catch(() => {});
       }
       setTimeLeft(newTime);
     }, 1000);
     return () => clearInterval(interval);
-  }, [timeLeft.s, muted]);
+  }, [timeLeft.s, muted, tickMuted]);
 
   if (isHero) {
     return (
@@ -417,9 +418,9 @@ const PersistentCountdown = ({ isHero = false, muted = false }) => {
   }
 
   return (
-    <motion.div style={{ opacity, scale }} className="fixed bottom-4 right-4 md:bottom-10 md:right-10 z-[500] pointer-events-none origin-bottom-right scale-75 md:scale-100">
+    <motion.div style={{ opacity, scale }} className="fixed bottom-4 right-4 md:bottom-10 md:right-10 z-[500] pointer-events-auto origin-bottom-right scale-75 md:scale-100 flex flex-col items-end gap-2">
       <audio ref={tickAudio} src="/tick.mp3" preload="auto" />
-      <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-6 rounded-xl md:rounded-2xl flex gap-3 md:gap-4 shadow-2xl">
+      <div className="bg-black/80 backdrop-blur-xl border border-white/10 p-3 md:p-6 rounded-xl md:rounded-2xl flex gap-3 md:gap-4 shadow-2xl relative group">
         {Object.entries(timeLeft).map(([key, val]) => (
           <div key={key} className="flex flex-col items-center">
             <span className="text-xl md:text-4xl font-black italic tracking-tighter text-white tabular-nums leading-none">
@@ -428,6 +429,13 @@ const PersistentCountdown = ({ isHero = false, muted = false }) => {
             <span className="text-[6px] md:text-[8px] font-bold text-zinc-500 uppercase mt-1">{key}</span>
           </div>
         ))}
+        {/* TICK MUTE TOGGLE ICON */}
+        <button 
+          onClick={(e) => { e.stopPropagation(); onToggleTick(); }}
+          className="absolute -top-3 -left-3 p-2 bg-zinc-900 border border-white/10 rounded-full text-zinc-500 hover:text-emerald-400 hover:scale-110 transition-all shadow-xl"
+        >
+          {tickMuted ? <VolumeX size={12} /> : <Volume2 size={12} />}
+        </button>
       </div>
     </motion.div>
   );
@@ -488,9 +496,11 @@ const ExpandedModal = ({ item, onClose }) => {
 
         <div className="w-full md:w-1/2 h-[35vh] md:h-auto relative group overflow-hidden bg-black flex-shrink-0">
            {item.file.endsWith('.mp4') ? (
-             <video src={item.file} autoPlay loop muted playsInline className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" />
+             // REMOVED MUTED: audible in modal
+             <video src={item.file} autoPlay loop playsInline className="w-full h-full object-cover transition-all duration-700 grayscale-0 opacity-100" />
            ) : (
-             <img src={item.file} className="w-full h-full object-cover grayscale opacity-60 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" />
+             // REMOVED GRAYSCALE: full color in modal
+             <img src={item.file} className="w-full h-full object-cover transition-all duration-700 grayscale-0 opacity-100" />
            )}
            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-transparent to-transparent p-6 md:p-10 flex flex-col justify-end">
               <h2 className="text-3xl md:text-7xl font-black italic text-white uppercase tracking-tighter leading-none">{item.title}</h2>
@@ -596,6 +606,7 @@ const SectionHeader = ({ month, tagline, direction }) => {
 const App = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [isAudioMuted, setIsAudioMuted] = useState(true);
+  const [isTickMuted, setIsTickMuted] = useState(false); // Tick independence
   const [showIntro, setShowIntro] = useState(true);
   const [caCopied, setCaCopied] = useState(false);
   const audioRef = useRef(null);
@@ -623,7 +634,12 @@ const App = () => {
     <div className="min-h-screen bg-[#020202] text-zinc-300 overflow-x-hidden selection:bg-emerald-500 selection:text-black font-sans relative">
       <ScanlineOverlay />
       
-      <PersistentCountdown muted={showIntro} />
+      {/* PERSISTENT TICKING UI with independent mute toggle */}
+      <PersistentCountdown 
+        muted={showIntro} 
+        tickMuted={isTickMuted} 
+        onToggleTick={() => setIsTickMuted(!isTickMuted)} 
+      />
 
       <audio ref={audioRef} loop src="/bgmusic.mp3" />
       
@@ -634,7 +650,9 @@ const App = () => {
             transition={{ duration: 1.2 }} 
             className="fixed inset-0 z-[3000] bg-[#020202] flex flex-col items-center justify-center p-4 md:p-6 text-center overflow-hidden"
           >
-             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05]"><PersistentCountdown isHero={true} muted={true} /></div>
+             <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05]">
+               <PersistentCountdown isHero={true} muted={true} />
+             </div>
              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_center,_#10b98122_0%,_transparent_70%)]" />
              
              {/* INTRO CONTENT: Fixed for Laptop/Mobile sizing */}
@@ -682,7 +700,11 @@ const App = () => {
         <section className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 text-center relative overflow-hidden">
           <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} className="space-y-4 md:space-y-6 z-10 max-w-full">
             <span className="text-[8px] md:text-xs uppercase tracking-[0.5em] md:tracking-[1em] text-emerald-500 font-black italic">synchronizing_cycle</span>
-            <PersistentCountdown isHero={true} muted={isAudioMuted || showIntro} />
+            <PersistentCountdown 
+              isHero={true} 
+              muted={isAudioMuted || showIntro} 
+              tickMuted={isTickMuted} 
+            />
             <p className="text-lg md:text-3xl font-black italic text-white uppercase tracking-tighter leading-none">Everything comes to an end.</p>
           </motion.div>
           <motion.div animate={{ y: [0, 10, 0] }} transition={{ repeat: Infinity, duration: 1.5 }} className="absolute bottom-10 flex flex-col items-center gap-2 md:gap-4 opacity-40">
